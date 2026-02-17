@@ -9,3 +9,14 @@ export async function getCategories() {
   if (error) throw error;
   return data ?? [];
 }
+
+export async function getQuestionsByCategory(categoryId: string) {
+  const { data, error } = await supabase
+    .from("questions")
+    .select("type, question_text")
+    .eq("category_id", categoryId)
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+  return data ?? [];
+}
