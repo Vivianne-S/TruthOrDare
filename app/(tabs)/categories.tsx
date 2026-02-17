@@ -21,6 +21,9 @@ export default function CategoriesScreen() {
   const [questionsByCategory, setQuestionsByCategory] = useState<
     Record<string, Question[]>
   >({});
+  const [questionsLoadingByCategory, setQuestionsLoadingByCategory] = useState<
+    Record<string, boolean>
+  >({});
 
   // För att kunna toggla öppna/stänga
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
@@ -45,13 +48,25 @@ export default function CategoriesScreen() {
   }, []);
 
   const handlePressCategory = async (categoryId: string) => {
-    // toggle
-    setOpenCategoryId((prev) => (prev === categoryId ? null : categoryId));
+    if (openCategoryId === categoryId) {
+      setOpenCategoryId(null);
+      return;
+    }
 
-    // om vi redan hämtat frågor för denna kategori, hämta inte igen
-    if (questionsByCategory[categoryId]) return;
+    setOpenCategoryId(categoryId);
+
+    if (
+      questionsByCategory[categoryId] ||
+      questionsLoadingByCategory[categoryId] === true
+    )
+      return;
 
     try {
+      setQuestionsLoadingByCategory((prev) => ({
+        ...prev,
+        [categoryId]: true,
+      }));
+
       const data = await getQuestionsByCategory(categoryId);
       setQuestionsByCategory((prev) => ({
         ...prev,
@@ -59,9 +74,10 @@ export default function CategoriesScreen() {
       }));
     } catch (e) {
       console.log("getQuestionsByCategory error:", e);
-      setQuestionsByCategory((prev) => ({
+    } finally {
+      setQuestionsLoadingByCategory((prev) => ({
         ...prev,
-        [categoryId]: [],
+        [categoryId]: false,
       }));
     }
   };
@@ -76,7 +92,12 @@ export default function CategoriesScreen() {
 
       {categories.map((c) => {
         const isOpen = openCategoryId === c.id;
-        const questions = questionsByCategory[c.id] ?? [];
+        const isLoadingQuestions = questionsLoadingByCategory[c.id] === true;
+        const hasLoadedQuestions = Object.prototype.hasOwnProperty.call(
+          questionsByCategory,
+          c.id
+        );
+        const questions = hasLoadedQuestions ? questionsByCategory[c.id] : [];
 
         return (
           <View key={c.id} style={{ marginBottom: 14 }}>
@@ -96,7 +117,11 @@ export default function CategoriesScreen() {
 
             {isOpen && (
               <View style={{ paddingLeft: 12, paddingTop: 8 }}>
-                {questions.length === 0 ? (
+                {isLoadingQuestions ? (
+                  <ActivityIndicator size="small" />
+                ) : !hasLoadedQuestions ? (
+                  <Text style={{ color: "gray" }}>Loading questions...</Text>
+                ) : questions.length === 0 ? (
                   <Text style={{ color: "gray" }}>
                     No questions found for this category.
                   </Text>
