@@ -1,5 +1,4 @@
-import { getCategories, getQuestionsByCategory } from "@/service/categories";
-import { useEffect, useState } from "react";
+import { useCategories } from "@/hooks/use-categories";
 import {
   ActivityIndicator,
   Pressable,
@@ -8,79 +7,15 @@ import {
   View,
 } from "react-native";
 
-type Question = {
-  type: string;
-  question_text: string;
-};
-
 export default function CategoriesScreen() {
-  const [categories, setCategories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Sparar frågor per kategori-id (så vi kan visa dem under rätt kategori)
-  const [questionsByCategory, setQuestionsByCategory] = useState<
-    Record<string, Question[]>
-  >({});
-  const [questionsLoadingByCategory, setQuestionsLoadingByCategory] = useState<
-    Record<string, boolean>
-  >({});
-
-  // För att kunna toggla öppna/stänga
-  const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
-
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      try {
-        const data = await getCategories();
-        if (alive) setCategories(data);
-      } catch (e) {
-        console.log("getCategories error:", e);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  const handlePressCategory = async (categoryId: string) => {
-    if (openCategoryId === categoryId) {
-      setOpenCategoryId(null);
-      return;
-    }
-
-    setOpenCategoryId(categoryId);
-
-    if (
-      questionsByCategory[categoryId] ||
-      questionsLoadingByCategory[categoryId] === true
-    )
-      return;
-
-    try {
-      setQuestionsLoadingByCategory((prev) => ({
-        ...prev,
-        [categoryId]: true,
-      }));
-
-      const data = await getQuestionsByCategory(categoryId);
-      setQuestionsByCategory((prev) => ({
-        ...prev,
-        [categoryId]: data,
-      }));
-    } catch (e) {
-      console.log("getQuestionsByCategory error:", e);
-    } finally {
-      setQuestionsLoadingByCategory((prev) => ({
-        ...prev,
-        [categoryId]: false,
-      }));
-    }
-  };
+  const {
+    categories,
+    loading,
+    openCategoryId,
+    questionsByCategory,
+    questionsLoadingByCategory,
+    handlePressCategory,
+  } = useCategories();
 
   if (loading) return <ActivityIndicator />;
 
