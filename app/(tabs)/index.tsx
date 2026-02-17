@@ -1,98 +1,135 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { ImageBackground, ScrollView, StyleSheet, View } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { AppButton } from '@/components/ui/AppButton';
+import { MenuBubbleButton } from '@/components/ui/MenuBubbleButton';
+import React from 'react';
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <ImageBackground
+      source={require('@/assets/images/first.png')}
+      resizeMode="cover"
+      style={styles.background}>
+      <View style={styles.overlay}>
+        <ScrollView contentContainerStyle={styles.content}>
+          <View style={styles.titleContainer}>
+            <ThemedText type="title">Truth or Dare!</ThemedText>
+          </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+          <View style={styles.buttonsContainer}>
+            <ThemedText type="subtitle">Add Players</ThemedText>
+
+            <AppButton variant="chip" rightIcon={<Ionicons name="close" size={20} color="#FFF" />}>
+              Emma
+            </AppButton>
+
+            <AppButton variant="chip" rightIcon={<Ionicons name="close" size={20} color="#FFF" />}>
+              Jacob
+            </AppButton>
+
+            <AppButton variant="fab">
+              <Ionicons name="add" size={34} color="#FFF" />
+            </AppButton>
+
+            <ThemedText style={styles.centerLabel}>Add Player</ThemedText>
+
+            <AppButton variant="cta">Start Game</AppButton>
+
+            <View style={styles.choiceRow}>
+              <AppButton variant="truth">TRUTH</AppButton>
+              <AppButton variant="dare">DARE</AppButton>
+            </View>
+
+            <ThemedText type="subtitle">Select a Category</ThemedText>
+            <View style={styles.bubbleGrid}>
+              <MenuBubbleButton
+                label="Love & Relationships"
+                size="large"
+                active
+                emoji="💜"
+              />
+              <MenuBubbleButton
+                label="Funny"
+                size="large"
+                active
+                emoji="🤪"
+              />
+              <MenuBubbleButton
+                label="Chaos"
+                size="large"
+                active
+                emoji="😈"
+              />
+            </View>
+
+            <View style={styles.bottomRow}>
+              <AppButton variant="pill" size="small" style={styles.bottomButton}>
+                Next
+              </AppButton>
+              <AppButton variant="pill" size="small" style={styles.bottomButton}>
+                Pass
+              </AppButton>
+            </View>
+
+            <AppButton variant="arrowNeon" style={styles.arrowButton}>
+              <Ionicons name="arrow-forward" size={36} color="#FFF" />
+            </AppButton>
+          </View>
+        </ScrollView>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+  },
+  content: {
+    padding: 32,
+    paddingTop: 72,
+    gap: 18,
+  },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  buttonsContainer: {
+    gap: 14,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  choiceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 14,
+  },
+  bubbleGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 14,
+    columnGap: 8,
+  },
+  bottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 14,
+  },
+  bottomButton: {
+    flex: 1,
+    alignSelf: 'auto',
+  },
+  centerLabel: {
+    textAlign: 'center',
+    color: '#ECDDFF',
+  },
+  arrowButton: {
+    alignSelf: 'flex-end',
   },
 });
