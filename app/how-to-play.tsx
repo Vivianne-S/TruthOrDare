@@ -58,7 +58,7 @@ export default function HowToPlayScreen() {
 
           <Text style={styles.instructions}>
             Sit in a circle. {'\n'}
-            Add players on the next step and choose one category. {'\n'}
+            Add players in the next step and choose one category. {'\n'}
             The player who started the game goes first. Continue taking turns clockwise.
           </Text>
 
