@@ -3,13 +3,8 @@
  * Bilder från assets/images/avatars/
  */
 export const AVATARS = [
-  require("@/assets/images/avatars/avatar.png"),
-  require("@/assets/images/avatars/avatar2.png"),
-  require("@/assets/images/avatars/avatar3.png"),
-  require("@/assets/images/avatars/avatar4.png"),
-  require("@/assets/images/avatars/avatar5.png"),
-  require("@/assets/images/avatars/avatar6.png"),
-  require("@/assets/images/avatars/avatar7.png"),
+
+
   require("@/assets/images/avatars/avatar8.png"),
   require("@/assets/images/avatars/avatar9.png"),
   require("@/assets/images/avatars/avatar10.png"),
@@ -17,10 +12,18 @@ export const AVATARS = [
   require("@/assets/images/avatars/avatar12.png"),
   require("@/assets/images/avatars/avatar13.png"),
   require("@/assets/images/avatars/avatar14.png"),
-  require("@/assets/images/avatars/avatar_guy.png"),
-  require("@/assets/images/avatars/avatar_guy2.png"),
   require("@/assets/images/avatars/avatar_guy3.png"),
   require("@/assets/images/avatars/avatar_guy4.png"),
+  require("@/assets/images/avatars/avatar6.png"),
+  require("@/assets/images/avatars/avatar7.png"),
+  require("@/assets/images/avatars/avatar.png"),
+  require("@/assets/images/avatars/avatar2.png"),
+  require("@/assets/images/avatars/avatar3.png"),
+  require("@/assets/images/avatars/avatar4.png"),
+  require("@/assets/images/avatars/avatar5.png"),
+  require("@/assets/images/avatars/avatar_guy.png"),
+  require("@/assets/images/avatars/avatar_guy2.png"),
+
   require("@/assets/images/avatars/avatar_guy5.png"),
   require("@/assets/images/avatars/avatar_guy6.png"),
   require("@/assets/images/avatars/avatar_guy7.png"),
