@@ -71,7 +71,7 @@ export default function HowToPlayScreen() {
           <View style={styles.noteCard}>
             <Ionicons name="cart" size={16} color="#FFD85E" style={styles.noteIcon} />
             <Text style={styles.noteText}>
-              <Text style={styles.noteLabel}>Note:</Text> access even more questions{'\n'}
+              <Text style={styles.noteLabel}>Note:</Text> Access even more questions{'\n'}
               and categories with in-app purchases!
             </Text>
           </View>
