@@ -4,123 +4,84 @@
 
 export const COLORS = {
     // ============ BRAND ============
-    primary: '#9D4EDD',
-    secondary: '#FF2E9F',
-    accent: '#008670', // General UI accent
+    primary: '#A56BFF',
+    secondary: '#FF4FD8',
+    accent: '#FF8A4D',
   
     // ============ BASE COLORS ============
-    // Backgrounds
-    backgroundPrimary: '#FFFFFF', // Functional, settings, modals, etc.
-    backgroundSecondary: '#F5F5F5', // Softer, emotional, dashboard, profile, etc.
-    backgroundTertiary: '#FCFCFC', // Cards, modals, input fields, etc.
+    backgroundPrimary: '#14062B',
+    backgroundSecondary: '#1A0A36',
+    backgroundTertiary: '#230E46',
   
     // Text
-    textPrimary: '#212121', // Body text
-    textSecondary: '#0E0B33', // Labels, captions, metadata
-    textTertiary: '#F5F5F5', // Less important text
-    textDisabled: '#1D2935', // Disabled states - use with 60-80% opacity
-    textInverse: '#FFFFFF', // Text on dark backgrounds
+    textPrimary: '#F8EDFF',
+    textSecondary: '#DDC8F8',
+    textTertiary: '#BFA9E4',
+    textDisabled: '#8F74B3',
+    textInverse: '#FFFFFF',
   
     // Borders
-    borderDefault: '#7b605366', // Default input borders (~3-4:1 contrast)
-    borderSubtle: '#7b605326', // Dividers/separators
-    borderFocus: '#554C48', // Active/focused input border
+    borderDefault: 'rgba(255, 161, 243, 0.45)',
+    borderSubtle: 'rgba(184, 130, 255, 0.28)',
+    borderFocus: '#FF71E9',
   
     // ============ INTERACTIVE ELEMENTS ============
-    // Links & Progress
-    link: '#13797D', // Text links, standard color
-    linkPressed: '#006854', // Pressed/active state for links
-    progress: '#008670', // Progress bars, completion indicators
+    link: '#FF8BF0',
+    linkPressed: '#FF63DF',
+    progress: '#A56BFF',
   
     // Toggle/Switch
-    toggleOn: '#008670', // Enabled switch
-    toggleOff: 'rgba(123, 96, 83, 0.3)', // Disabled switch
+    toggleOn: '#FF4FD8',
+    toggleOff: 'rgba(173, 134, 255, 0.4)',
   
     // Badges & Counters
-    badgeBackground: '#FF8848', // Notification badges - use sparingly!
-    badgeText: '#2C2624', // Text on badge (DARK text, not white!)
+    badgeBackground: '#FF8A4D',
+    badgeText: '#2A113F',
   
     // ============ STATE COLORS ============
-    // Success
-    success: '#29812C', // Main - buttons (white text), icons, borders
-    successSurface: '#A9CDAB', // Surface - subtle alerts, badges, background
-    successBorder: '#29812C', // Border - same as main
-    successText: '#144016', // Text on surface (6.9:1 contrast)
+    success: '#79C9FF',
+    successSurface: 'rgba(121, 201, 255, 0.2)',
+    successBorder: '#79C9FF',
+    successText: '#DDF3FF',
   
-    // Error
-    error: '#D33434', // Main - buttons (white text), icons, borders
-    errorSurface: '#F0ADAD', // Surface - subtle alerts, badges, background
-    errorBorder: '#D33434', // Border - same as main
-    errorText: '#6A1A1A', // Text on surface (7.3:1 contrast)
+    error: '#FF6AAE',
+    errorSurface: 'rgba(255, 106, 174, 0.2)',
+    errorBorder: '#FF6AAE',
+    errorText: '#FFD7EA',
   
-    // Warning
-    warning: '#FF8848', // Main - buttons (DARK text!), icons, borders
-    warningSurface: '#F6CEA1', // Surface - subtle alerts, badges, background
-    warningBorder: '#FF8848', // Border - same as main
-    warningText: '#804424', // Text on surface (5.3:1 contrast)
+    warning: '#FFB36B',
+    warningSurface: 'rgba(255, 179, 107, 0.2)',
+    warningBorder: '#FFB36B',
+    warningText: '#FFE7CC',
   
-    // Info
-    info: '#416ECF', // Main - buttons (white text), icons, borders
-    infoSurface: '#B5C8E9', // Surface - subtle alerts, badges, background
-    infoBorder: '#416ECF', // Border - same as main
-    infoText: '#203768', // Text on surface (8.0:1 contrast)
+    info: '#79C9FF',
+    infoSurface: 'rgba(121, 201, 255, 0.2)',
+    infoBorder: '#79C9FF',
+    infoText: '#DDF3FF',
   
-    //MARK: pressed states 1,3 mörkare
     // ============ PRESSED STATES ============
-    primaryPressed: '#0F5D60',
-    secondaryPressed: '#121A22',
-    accentPressed: '#006756',
-    backgroundPrimaryPressed: '#DBDBDB',
-    BackgroundSecondaryPressed: '#DACCC8',
-    overlayPressed: 'rgba(255,255,255,0.5)',
+    primaryPressed: '#8E52EF',
+    secondaryPressed: '#E93AC7',
+    accentPressed: '#FF6F2E',
+    backgroundPrimaryPressed: '#110524',
+    BackgroundSecondaryPressed: '#16082E',
+    overlayPressed: 'rgba(255,255,255,0.22)',
   
     // ============ OVERLAY (on images/media) ============
-    overlayBackground: '#FFFFFF', // Solid white background
-    overlayText: '#2C2624', // Body text color on overlay (15:1 contrast)
-    OverlayBorder: '#FFFFFF', // Overlay default input borders
-    OverlayBorderSubtle: 'rgba(255, 255, 255, 0.25)', // Dividers/separators
-    OverlayBorderFocus: '#008670', // Active/focused input border
+    overlayBackground: 'rgba(32, 12, 66, 0.58)',
+    overlayText: '#F8EDFF',
+    OverlayBorder: 'rgba(255, 176, 245, 0.62)',
+    OverlayBorderSubtle: 'rgba(213, 164, 255, 0.3)',
+    OverlayBorderFocus: '#79C9FF',
   
-    // ============ DASHBOARD CARDS ============
-    // Daily Mood Card
-    moodHeader: '#F6CEA1', // Warning surface
-    moodIcon: '#804424', // Icon background color, use with white text
-    moodText: '#804424', // Warning text
-  
-    // Savings Card
-    savingsHeader: '#B5C8E9', // Info surface
-    savingsIcon: '#203768', // Icon background color, use with white text
-    savingsText: '#203768', // Info text
-  
-    // Milestones Card
-    milestonesHeader: '#FAD9E5', // Light pink surface
-    milestonesIcon: '#E58AA9', // Icon background color, use with white text
-    milestonesText: '#B24F74', // Text on surface
-  
-    // Daily Promise Card
-    promiseHeader: '#E6E0FF', // Light purple surface
-    promiseIcon: '#8466F6', // Icon background color, use with white text
-  
-    // Card Main Area (all three cards)
-    cardMainBackground: '#554C48', // Primary background for main content area
-    cardMainText: '#FFFFFF', // White text on primary background
-  
-    // ============ DAILY LOG ============
-    dailyHistoryTipBackground: '#FFF3F3',
-    dailyHistoryEmojiOutline: '#F5F5F5',
-    dailyHistoryIconDisabled: '#B2B2B2',
-    dailyLogTextInputBackground: '#FFFFFF',
-    dailyLogTextInputBorder: '#EEEEEE',
-  } as const;
-  
+
   // ============ USAGE NOTES ============
   // For complete documentation se project docs folder.
   //
   // CRITICAL RULES:
-  // - NEVER use white text on #FF8848 (warning) - always use dark text (#2C2624 or #804424)
-  // - #008670 (accent) is for general UI accent needs (links, progress, positive tertiary buttons)
-  // - Use Surface (states) variants for subtle/informative alerts
-  // - Use Main (states) variants for critical/important alerts
+  // - Keep UI inside the neon palette: hot pink, galaxy purple, galaxy blue, galaxy orange
+  // - Use Surface variants for subtle overlays and Main variants for stronger emphasis
+  // - On dark galaxy backgrounds, prefer bright text colors from this token set
   //
   // OPACITY GUIDELINES:
   // - textDisabled: use with 60-80% opacity
@@ -130,21 +91,21 @@ export const COLORS = {
   // - navInactive: use with 60% opacity
   //
   // BUTTON HIERARCHY:
-  // - Primary: #554C48 background, #FFFFFF text
-  // - Secondary: #7B6053 background, #FFFFFF text
-  // - Accent: #008670 background, #FFFFFF text
-  // - Ghost: Transparent background, #554C48 text, #554C48 border
-  // - Text link: Transparent background, #008670 text
-  // - Overlay (on images): #FFFFFF background, #2C2624 text + shadow
+  // - Primary: galaxy purple / pink gradient tones
+  // - Secondary: violet/pink glass variants
+  // - Accent: neon orange for high-attention CTA details
+  // - Ghost: transparent background with neon border/text
+  // - Text link: neon pink / blue depending on context
+  // - Overlay (on images): translucent purple layers + bright text
   //
   // BACKGROUNDS:
-  // - backgroundPrimary (#FCFCFC): Functional screens (Settings, Forms, Login)
-  // - backgroundSecondary (#EDE6E4): Emotional screens (Dashboard, Community, profile)
-  // - backgroundTertiary (#FFFFFF): Cards, modals, input fields
+  // - backgroundPrimary: deep galaxy
+  // - backgroundSecondary: violet galaxy
+  // - backgroundTertiary: brighter card layer
   //
   // CONTRAST REQUIREMENTS (WCAG 2.1):
   // - Normal text: 4.5:1 (AA), 7:1 (AAA)
   // - Large text (18px+): 3:1 (AA), 4.5:1 (AAA)
   // - UI components: 3:1 (AA)
   // - All combinations in this system meet at least AA
-  
+}

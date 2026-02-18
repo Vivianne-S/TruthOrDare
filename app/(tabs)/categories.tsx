@@ -17,11 +17,11 @@ export default function CategoriesScreen() {
     handlePressCategory,
   } = useCategories();
 
-  if (loading) return <ActivityIndicator />;
+  if (loading) return <ActivityIndicator color="#FFFFFF" />;
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 80 }}>
-      <Text style={{ color: "black", fontSize: 18, marginBottom: 12 }}>
+    <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 80, paddingBottom: 140 }}>
+      <Text style={{ color: "#F7E8FF", fontSize: 18, marginBottom: 12 }}>
         Categories (tap to show questions)
       </Text>
 
@@ -55,16 +55,16 @@ export default function CategoriesScreen() {
                 {isLoadingQuestions ? (
                   <ActivityIndicator size="small" />
                 ) : !hasLoadedQuestions ? (
-                  <Text style={{ color: "gray" }}>Loading questions...</Text>
+                  <Text style={{ color: "#DCC7F5" }}>Loading questions...</Text>
                 ) : questions.length === 0 ? (
-                  <Text style={{ color: "gray" }}>
+                  <Text style={{ color: "#DCC7F5" }}>
                     No questions found for this category.
                   </Text>
                 ) : (
                   questions.map((q, i) => (
                     <Text
                       key={`${c.id}-${i}`}
-                      style={{ color: "black", marginBottom: 6 }}
+                      style={{ color: "#F7E8FF", marginBottom: 6 }}
                     >
                       {q.type.toUpperCase()}: {q.question_text}
                     </Text>

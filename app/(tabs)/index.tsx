@@ -9,7 +9,7 @@ import React from 'react';
 export default function HomeScreen() {
   return (
     <ImageBackground
-      source={require('@/assets/images/first.png')}
+      source={require('@/assets/images/purple_galaxy.png')}
       resizeMode="cover"
       style={styles.background}>
       <View style={styles.overlay}>
@@ -25,9 +25,9 @@ export default function HomeScreen() {
               Emma
             </AppButton>
 
-            <AppButton variant="chip" rightIcon={<Ionicons name="close" size={20} color="#FFF" />}>
+            {/* <AppButton variant="chip" rightIcon={<Ionicons name="close" size={20} color="#FFF" />}>
               Jacob
-            </AppButton>
+            </AppButton> */}
 
             <AppButton variant="fab">
               <Ionicons name="add" size={34} color="#FFF" />
@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
   content: {
     padding: 32,
     paddingTop: 72,
+    paddingBottom: 160,
     gap: 18,
   },
   titleContainer: {
@@ -131,5 +132,6 @@ const styles = StyleSheet.create({
   },
   arrowButton: {
     alignSelf: 'flex-end',
+    marginBottom: 8,
   },
 });
