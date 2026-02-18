@@ -26,9 +26,9 @@ type Player = { name: string; avatarId: number };
 
 const UNSELECTED_AVATAR = -1;
 
-const DEFAULT_PLAYERS: Player[] = [
-  { name: 'Emma', avatarId: UNSELECTED_AVATAR },
-  { name: 'Jacob', avatarId: UNSELECTED_AVATAR },
+const INITIAL_PLAYERS: Player[] = [
+  { name: '', avatarId: UNSELECTED_AVATAR },
+  { name: '', avatarId: UNSELECTED_AVATAR },
 ];
 
 function AvatarPickerButton({
@@ -74,7 +74,7 @@ function AvatarPickerModal({
     <Modal visible={visible} transparent animationType="fade">
       <Pressable style={styles.modalOverlay} onPress={onClose}>
         <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
-          <Text style={styles.modalTitle}>Välj avatar</Text>
+          <Text style={styles.modalTitle}>Select avatar</Text>
           <View style={styles.avatarGrid}>
             {AVATARS.map((avatarSource, id) => (
               <Pressable
@@ -119,7 +119,7 @@ function PlayerInputRow({
         style={styles.playerInput}
         value={name}
         onChangeText={onNameChange}
-        placeholder="Spelarnamn"
+        placeholder="Name"
         placeholderTextColor={COLORS.textDisabled}
       />
       {canRemove && (
@@ -135,7 +135,7 @@ function PlayerInputRow({
 }
 
 export default function AddPlayersScreen() {
-  const [players, setPlayers] = useState<Player[]>(DEFAULT_PLAYERS);
+  const [players, setPlayers] = useState<Player[]>(INITIAL_PLAYERS);
   const [avatarPickerForIndex, setAvatarPickerForIndex] = useState<number | null>(null);
 
   const updatePlayerName = (index: number, name: string) => {
@@ -166,15 +166,18 @@ export default function AddPlayersScreen() {
     setPlayers((prev) => [...prev, { name: '', avatarId: UNSELECTED_AVATAR }]);
   };
 
+  const isValidPlayer = (p: Player) =>
+    p.name.trim().length > 0 && p.avatarId >= 0;
+
   const handleStartGame = () => {
-    const validPlayers = players.filter((p) => p.name.trim().length > 0);
+    const validPlayers = players.filter(isValidPlayer);
     if (validPlayers.length >= 2) {
       router.replace('/(tabs)');
     }
   };
 
-  const validCount = players.filter((p) => p.name.trim().length > 0).length;
-  const canStart = validCount >= 2;
+  const canStart =
+    players.length >= 2 && players.every(isValidPlayer);
 
   return (
     <ImageBackground
