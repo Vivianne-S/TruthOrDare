@@ -184,13 +184,14 @@ export default function AddPlayersScreen() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}>
-        <ScrollView
-          contentContainerStyle={styles.content}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}>
+        <View style={styles.content}>
           <Text style={styles.title}>Add Players</Text>
 
-          <View style={styles.inputsContainer}>
+          <ScrollView
+            style={styles.playersScrollView}
+            contentContainerStyle={styles.playersScrollContent}
+            showsVerticalScrollIndicator={players.length > 5}
+            keyboardShouldPersistTaps="handled">
             {players.map((player, index) => (
               <PlayerInputRow
                 key={index}
@@ -202,21 +203,20 @@ export default function AddPlayersScreen() {
                 canRemove={players.length > 2}
               />
             ))}
-          </View>
+          </ScrollView>
 
-          <View style={styles.addPlayerSection}>
-            <AppButton variant="fab" onPress={addPlayer}>
-              <Ionicons name="add" size={34} color="#FFF" />
+          <View style={styles.footerSection}>
+            <View style={styles.addPlayerSection}>
+              <AppButton variant="fab" onPress={addPlayer}>
+                <Ionicons name="add" size={34} color="#FFF" />
+              </AppButton>
+              <Text style={styles.addPlayerLabel}>Add Player</Text>
+            </View>
+            <AppButton variant="cta" onPress={handleStartGame} disabled={!canStart}>
+              Start Game
             </AppButton>
-            <Text style={styles.addPlayerLabel}>Add Player</Text>
           </View>
-
-          <View style={styles.spacer} />
-
-          <AppButton variant="cta" onPress={handleStartGame} disabled={!canStart}>
-            Start Game
-          </AppButton>
-        </ScrollView>
+        </View>
       </KeyboardAvoidingView>
 
       {avatarPickerForIndex !== null && (
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    flexGrow: 1,
+    flex: 1,
     paddingHorizontal: SPACING.x8,
     paddingTop: 72,
     paddingBottom: SPACING.x10,
@@ -249,11 +249,19 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     fontWeight: '700',
     textAlign: 'center',
-    marginBottom: SPACING.x8,
-  },
-  inputsContainer: {
-    gap: SPACING.x3,
     marginBottom: SPACING.x6,
+  },
+  playersScrollView: {
+    flex: 1,
+    minHeight: 0,
+  },
+  playersScrollContent: {
+    gap: SPACING.x3,
+    paddingBottom: SPACING.x4,
+  },
+  footerSection: {
+    paddingTop: SPACING.x4,
+    gap: SPACING.x4,
   },
   playerRow: {
     flexDirection: 'row',
@@ -309,15 +317,10 @@ const styles = StyleSheet.create({
   addPlayerSection: {
     alignItems: 'center',
     gap: SPACING.x2,
-    marginBottom: SPACING.x4,
   },
   addPlayerLabel: {
     ...TYPOGRAPHY_BASE.body,
     color: COLORS.textSecondary,
-  },
-  spacer: {
-    flex: 1,
-    minHeight: SPACING.x4,
   },
   modalOverlay: {
     flex: 1,
