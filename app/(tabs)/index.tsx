@@ -1,98 +1,183 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { ImageBackground, ScrollView, StyleSheet, View } from 'react-native';
+import { useSharedValue } from 'react-native-reanimated';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { AppButton } from '@/components/ui/AppButton';
+import React from 'react';
+import { CategoryBubbleButton } from '@/components/ui/CategoryBubbleButton';
+import { BubbleSlot } from '@/constants/category-bubbles';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const [activePreviewBubble, setActivePreviewBubble] = React.useState<string | null>(null);
+  const touchX = useSharedValue(-1000);
+  const touchY = useSharedValue(-1000);
+  const touching = useSharedValue(0);
+  const bubblePreviewSlots: BubbleSlot[] = [
+    { x: 0.02, y: 0.08, size: 112 },
+    { x: 0.36, y: 0.24, size: 118 },
+    { x: 0.72, y: 0.08, size: 108 },
+  ];
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  return (
+    <ImageBackground
+      source={require('@/assets/images/purple_galaxy.png')}
+      resizeMode="cover"
+      style={styles.background}>
+      <View style={styles.overlay}>
+        <ScrollView contentContainerStyle={styles.content}>
+          <View style={styles.titleContainer}>
+            <ThemedText type="title">Truth or Dare!</ThemedText>
+          </View>
+
+          <View style={styles.buttonsContainer}>
+            <ThemedText type="subtitle">Add Players</ThemedText>
+
+            <AppButton variant="chip" rightIcon={<Ionicons name="close" size={20} color="#FFF" />}>
+              Emma
+            </AppButton>
+
+            {/* <AppButton variant="chip" rightIcon={<Ionicons name="close" size={20} color="#FFF" />}>
+              Jacob
+            </AppButton> */}
+
+            <AppButton variant="fab">
+              <Ionicons name="add" size={34} color="#FFF" />
+            </AppButton>
+
+            <ThemedText style={styles.centerLabel}>Add Player</ThemedText>
+
+            <AppButton variant="cta">Start Game</AppButton>
+
+            <View style={styles.choiceRow}>
+              <AppButton variant="truth">TRUTH</AppButton>
+              <AppButton variant="dare">DARE</AppButton>
+            </View>
+
+            <ThemedText type="subtitle">Select a Category</ThemedText>
+            <View
+              style={styles.bubblePreviewField}
+              onTouchStart={(event) => {
+                touching.value = 1;
+                touchX.value = event.nativeEvent.locationX;
+                touchY.value = event.nativeEvent.locationY;
+              }}
+              onTouchMove={(event) => {
+                touchX.value = event.nativeEvent.locationX;
+                touchY.value = event.nativeEvent.locationY;
+              }}
+              onTouchEnd={() => {
+                touching.value = 0;
+                touchX.value = -1000;
+                touchY.value = -1000;
+              }}
+              onTouchCancel={() => {
+                touching.value = 0;
+                touchX.value = -1000;
+                touchY.value = -1000;
+              }}>
+              <CategoryBubbleButton
+                name="Love and Relationships"
+                slot={bubblePreviewSlots[0]}
+                isOpen={activePreviewBubble === 'love'}
+                onPress={() => setActivePreviewBubble('love')}
+                fieldWidth={300}
+                fieldHeight={200}
+                touchX={touchX}
+                touchY={touchY}
+                touching={touching}
+              />
+              <CategoryBubbleButton
+                name="Funny"
+                slot={bubblePreviewSlots[1]}
+                isOpen={activePreviewBubble === 'funny'}
+                onPress={() => setActivePreviewBubble('funny')}
+                fieldWidth={300}
+                fieldHeight={200}
+                touchX={touchX}
+                touchY={touchY}
+                touching={touching}
+              />
+              <CategoryBubbleButton
+                name="Chaos"
+                slot={bubblePreviewSlots[2]}
+                isOpen={activePreviewBubble === 'chaos'}
+                onPress={() => setActivePreviewBubble('chaos')}
+                fieldWidth={300}
+                fieldHeight={200}
+                touchX={touchX}
+                touchY={touchY}
+                touching={touching}
+              />
+            </View>
+
+            <View style={styles.bottomRow}>
+              <AppButton variant="pill" size="small" style={styles.bottomButton}>
+                Next
+              </AppButton>
+              <AppButton variant="pill" size="small" style={styles.bottomButton}>
+                Pass
+              </AppButton>
+            </View>
+
+            <AppButton variant="arrowNeon" style={styles.arrowButton}>
+              <Ionicons name="arrow-forward" size={36} color="#FFF" />
+            </AppButton>
+          </View>
+        </ScrollView>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+  },
+  content: {
+    padding: 32,
+    paddingTop: 72,
+    paddingBottom: 160,
+    gap: 18,
+  },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  buttonsContainer: {
+    gap: 14,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  choiceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 14,
+  },
+  bubblePreviewField: {
+    position: 'relative',
+    height: 230,
+    width: 300,
+    alignSelf: 'center',
+  },
+  bottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 14,
+  },
+  bottomButton: {
+    flex: 1,
+    alignSelf: 'auto',
+  },
+  centerLabel: {
+    textAlign: 'center',
+    color: '#ECDDFF',
+  },
+  arrowButton: {
+    alignSelf: 'flex-end',
+    marginBottom: 8,
   },
 });
