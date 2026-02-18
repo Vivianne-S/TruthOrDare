@@ -1,4 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@/constants/theme/colors';
+import { TYPOGRAPHY_BASE } from '@/constants/theme/typography';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -96,20 +98,17 @@ const styles = StyleSheet.create({
     paddingBottom: 34,
   },
   title: {
-    fontSize: 46,
-    lineHeight: 52,
-    color: '#F2E8FF',
+    ...TYPOGRAPHY_BASE.hero1,
+    color: COLORS.textPrimary,
     fontWeight: '700',
     textAlign: 'center',
-    letterSpacing: 0.2,
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },
   instructions: {
-    color: '#E8DAFF',
-    fontSize: 20,
-    lineHeight: 32,
+    ...TYPOGRAPHY_BASE.large,
+    color: COLORS.textSecondary,
     fontWeight: '600',
     textAlign: 'center',
     marginTop: 26,
@@ -121,9 +120,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hintText: {
-    color: '#CDB7F3',
-    fontSize: 14,
-    lineHeight: 18,
+    ...TYPOGRAPHY_BASE.small,
+    color: COLORS.textTertiary,
     textAlign: 'center',
     marginBottom: 10,
     textShadowColor: 'rgba(0,0,0,0.35)',
@@ -146,9 +144,8 @@ const styles = StyleSheet.create({
     marginRight: 9,
   },
   noteText: {
-    color: '#D7C1FF',
-    fontSize: 16,
-    lineHeight: 26,
+    ...TYPOGRAPHY_BASE.body,
+    color: COLORS.textSecondary,
     fontWeight: '500',
     flex: 1,
   },
