@@ -1,13 +1,16 @@
-import { Ionicons } from '@expo/vector-icons';
+import { AVATARS } from '@/constants/avatars';
 import { COLORS } from '@/constants/theme/colors';
 import { BORDER_RADIUS } from '@/constants/theme/primitives';
 import { SPACING } from '@/constants/theme/spacing';
 import { TYPOGRAPHY_BASE } from '@/constants/theme/typography';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
+  Image,
   ImageBackground,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -19,34 +22,103 @@ import {
 
 import { AppButton } from '@/components/ui/AppButton';
 
-const DEFAULT_PLAYERS = ['Emma', 'Jacob'];
+type Player = { name: string; avatarId: number };
 
-function PlayerAvatar({ name }: { name: string }) {
-  const initial = name.trim() ? name[0].toUpperCase() : '?';
+const UNSELECTED_AVATAR = -1;
+
+const DEFAULT_PLAYERS: Player[] = [
+  { name: 'Emma', avatarId: UNSELECTED_AVATAR },
+  { name: 'Jacob', avatarId: UNSELECTED_AVATAR },
+];
+
+function AvatarPickerButton({
+  avatarId,
+  onPress,
+}: {
+  avatarId: number;
+  onPress: () => void;
+}) {
+  const isPlaceholder = avatarId < 0;
   return (
-    <View style={styles.avatar}>
-      <Text style={styles.avatarText}>{initial}</Text>
-    </View>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.avatarPicker, pressed && styles.avatarPickerPressed]}
+      hitSlop={8}>
+      {isPlaceholder ? (
+        <View style={styles.avatarPlaceholder}>
+          <Ionicons name="add" size={28} color={COLORS.textSecondary} />
+        </View>
+      ) : (
+        <Image
+          source={AVATARS[avatarId % AVATARS.length]}
+          style={styles.avatarImage}
+          resizeMode="cover"
+        />
+      )}
+    </Pressable>
+  );
+}
+
+function AvatarPickerModal({
+  visible,
+  selectedId,
+  onSelect,
+  onClose,
+}: {
+  visible: boolean;
+  selectedId: number;
+  onSelect: (id: number) => void;
+  onClose: () => void;
+}) {
+  return (
+    <Modal visible={visible} transparent animationType="fade">
+      <Pressable style={styles.modalOverlay} onPress={onClose}>
+        <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+          <Text style={styles.modalTitle}>Välj avatar</Text>
+          <View style={styles.avatarGrid}>
+            {AVATARS.map((avatarSource, id) => (
+              <Pressable
+                key={id}
+                onPress={() => {
+                  onSelect(id);
+                  onClose();
+                }}
+                style={[
+                  styles.avatarOption,
+                  selectedId === id && styles.avatarOptionSelected,
+                ]}>
+                <Image source={avatarSource} style={styles.avatarOptionImage} resizeMode="cover" />
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      </Pressable>
+    </Modal>
   );
 }
 
 function PlayerInputRow({
-  value,
-  onChangeText,
+  name,
+  avatarId,
+  onNameChange,
+  onAvatarPress,
   onRemove,
   canRemove,
 }: {
-  value: string;
-  onChangeText: (text: string) => void;
+  name: string;
+  avatarId: number;
+  onNameChange: (text: string) => void;
+  onAvatarPress: () => void;
   onRemove: () => void;
   canRemove: boolean;
 }) {
   return (
     <View style={styles.playerRow}>
+      <AvatarPickerButton avatarId={avatarId} onPress={onAvatarPress} />
       <TextInput
         style={styles.playerInput}
-        value={value}
-        onChangeText={onChangeText}
+        value={name}
+        onChangeText={onNameChange}
         placeholder="Spelarnamn"
         placeholderTextColor={COLORS.textDisabled}
       />
@@ -63,32 +135,45 @@ function PlayerInputRow({
 }
 
 export default function AddPlayersScreen() {
-  const [players, setPlayers] = useState<string[]>(DEFAULT_PLAYERS);
+  const [players, setPlayers] = useState<Player[]>(DEFAULT_PLAYERS);
+  const [avatarPickerForIndex, setAvatarPickerForIndex] = useState<number | null>(null);
 
-  const updatePlayer = (index: number, name: string) => {
+  const updatePlayerName = (index: number, name: string) => {
     setPlayers((prev) => {
       const next = [...prev];
-      next[index] = name;
+      next[index] = { ...next[index], name };
+      return next;
+    });
+  };
+
+  const updatePlayerAvatar = (index: number, avatarId: number) => {
+    setPlayers((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], avatarId };
       return next;
     });
   };
 
   const removePlayer = (index: number) => {
     setPlayers((prev) => prev.filter((_, i) => i !== index));
+    if (avatarPickerForIndex === index) setAvatarPickerForIndex(null);
+    else if (avatarPickerForIndex !== null && avatarPickerForIndex > index) {
+      setAvatarPickerForIndex(avatarPickerForIndex - 1);
+    }
   };
 
   const addPlayer = () => {
-    setPlayers((prev) => [...prev, '']);
+    setPlayers((prev) => [...prev, { name: '', avatarId: UNSELECTED_AVATAR }]);
   };
 
   const handleStartGame = () => {
-    const validPlayers = players.filter((p) => p.trim().length > 0);
+    const validPlayers = players.filter((p) => p.name.trim().length > 0);
     if (validPlayers.length >= 2) {
       router.replace('/(tabs)');
     }
   };
 
-  const validCount = players.filter((p) => p.trim().length > 0).length;
+  const validCount = players.filter((p) => p.name.trim().length > 0).length;
   const canStart = validCount >= 2;
 
   return (
@@ -105,23 +190,14 @@ export default function AddPlayersScreen() {
           showsVerticalScrollIndicator={false}>
           <Text style={styles.title}>Add Players</Text>
 
-          <View style={styles.avatarsRow}>
-            {players.slice(0, 4).map((name, i) => (
-              <View key={i} style={styles.avatarWrapper}>
-                <PlayerAvatar name={name} />
-                <Text style={styles.avatarName} numberOfLines={1}>
-                  {name || '...'}
-                </Text>
-              </View>
-            ))}
-          </View>
-
           <View style={styles.inputsContainer}>
-            {players.map((name, index) => (
+            {players.map((player, index) => (
               <PlayerInputRow
                 key={index}
-                value={name}
-                onChangeText={(text) => updatePlayer(index, text)}
+                name={player.name}
+                avatarId={player.avatarId}
+                onNameChange={(text) => updatePlayerName(index, text)}
+                onAvatarPress={() => setAvatarPickerForIndex(index)}
                 onRemove={() => removePlayer(index)}
                 canRemove={players.length > 2}
               />
@@ -142,6 +218,15 @@ export default function AddPlayersScreen() {
           </AppButton>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {avatarPickerForIndex !== null && (
+        <AvatarPickerModal
+          visible={true}
+          selectedId={players[avatarPickerForIndex]?.avatarId ?? UNSELECTED_AVATAR}
+          onSelect={(id) => updatePlayerAvatar(avatarPickerForIndex, id)}
+          onClose={() => setAvatarPickerForIndex(null)}
+        />
+      )}
     </ImageBackground>
   );
 }
@@ -166,39 +251,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: SPACING.x8,
   },
-  avatarsRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    gap: SPACING.x5,
-    marginBottom: SPACING.x6,
-  },
-  avatarWrapper: {
-    alignItems: 'center',
-    width: 72,
-  },
-  avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'rgba(138, 74, 255, 0.4)',
-    borderWidth: 1.2,
-    borderColor: 'rgba(220, 181, 255, 0.6)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: {
-    ...TYPOGRAPHY_BASE.h2,
-    color: COLORS.textPrimary,
-    fontWeight: '700',
-  },
-  avatarName: {
-    ...TYPOGRAPHY_BASE.small,
-    color: COLORS.textPrimary,
-    marginTop: SPACING.x1,
-    textAlign: 'center',
-    maxWidth: '100%',
-  },
   inputsContainer: {
     gap: SPACING.x3,
     marginBottom: SPACING.x6,
@@ -206,12 +258,36 @@ const styles = StyleSheet.create({
   playerRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: SPACING.x3,
     backgroundColor: 'rgba(138, 74, 255, 0.34)',
     borderWidth: 1.2,
     borderColor: 'rgba(220, 181, 255, 0.8)',
     borderRadius: BORDER_RADIUS.x6,
     paddingHorizontal: SPACING.x4,
     paddingVertical: SPACING.x3,
+  },
+  avatarPicker: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    overflow: 'hidden',
+    borderWidth: 1.2,
+    borderColor: 'rgba(220, 181, 255, 0.8)',
+    backgroundColor: 'rgba(138, 74, 255, 0.4)',
+  },
+  avatarPickerPressed: {
+    opacity: 0.85,
+  },
+  avatarPlaceholder: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(138, 74, 255, 0.25)',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
   },
   playerInput: {
     flex: 1,
@@ -242,5 +318,48 @@ const styles = StyleSheet.create({
   spacer: {
     flex: 1,
     minHeight: SPACING.x4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.x6,
+  },
+  modalContent: {
+    backgroundColor: COLORS.backgroundSecondary,
+    borderRadius: BORDER_RADIUS.x6,
+    padding: SPACING.x6,
+    borderWidth: 1,
+    borderColor: COLORS.borderDefault,
+    width: '100%',
+    maxWidth: 320,
+  },
+  modalTitle: {
+    ...TYPOGRAPHY_BASE.h2,
+    color: COLORS.textPrimary,
+    textAlign: 'center',
+    marginBottom: SPACING.x4,
+  },
+  avatarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: SPACING.x3,
+  },
+  avatarOption: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  avatarOptionSelected: {
+    borderColor: COLORS.secondary,
+  },
+  avatarOptionImage: {
+    width: '100%',
+    height: '100%',
   },
 });
