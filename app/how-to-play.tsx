@@ -54,7 +54,7 @@ export default function HowToPlayScreen() {
       resizeMode="cover"
       style={styles.background}
     >
-      <Pressable style={styles.overlay} onPress={() => router.replace('/(tabs)')}>
+      <Pressable style={styles.overlay} onPress={() => router.replace('/add-players')}>
         <View style={styles.content}>
           <Text style={styles.title}>How to Play</Text>
 

@@ -1,0 +1,371 @@
+import { AVATARS } from '@/constants/avatars';
+import { COLORS } from '@/constants/theme/colors';
+import { BORDER_RADIUS } from '@/constants/theme/primitives';
+import { SPACING } from '@/constants/theme/spacing';
+import { TYPOGRAPHY_BASE } from '@/constants/theme/typography';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import {
+  Image,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+
+import { AppButton } from '@/components/ui/AppButton';
+
+type Player = { name: string; avatarId: number };
+
+const UNSELECTED_AVATAR = -1;
+
+const INITIAL_PLAYERS: Player[] = [
+  { name: '', avatarId: UNSELECTED_AVATAR },
+  { name: '', avatarId: UNSELECTED_AVATAR },
+];
+
+function AvatarPickerButton({
+  avatarId,
+  onPress,
+}: {
+  avatarId: number;
+  onPress: () => void;
+}) {
+  const isPlaceholder = avatarId < 0;
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.avatarPicker, pressed && styles.avatarPickerPressed]}
+      hitSlop={8}>
+      {isPlaceholder ? (
+        <View style={styles.avatarPlaceholder}>
+          <Ionicons name="add" size={28} color={COLORS.textSecondary} />
+        </View>
+      ) : (
+        <Image
+          source={AVATARS[avatarId % AVATARS.length]}
+          style={styles.avatarImage}
+          resizeMode="cover"
+        />
+      )}
+    </Pressable>
+  );
+}
+
+function AvatarPickerModal({
+  visible,
+  selectedId,
+  onSelect,
+  onClose,
+}: {
+  visible: boolean;
+  selectedId: number;
+  onSelect: (id: number) => void;
+  onClose: () => void;
+}) {
+  return (
+    <Modal visible={visible} transparent animationType="fade">
+      <Pressable style={styles.modalOverlay} onPress={onClose}>
+        <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+          <Text style={styles.modalTitle}>Select avatar</Text>
+          <View style={styles.avatarGrid}>
+            {AVATARS.map((avatarSource, id) => (
+              <Pressable
+                key={id}
+                onPress={() => {
+                  onSelect(id);
+                  onClose();
+                }}
+                style={[
+                  styles.avatarOption,
+                  selectedId === id && styles.avatarOptionSelected,
+                ]}>
+                <Image source={avatarSource} style={styles.avatarOptionImage} resizeMode="cover" />
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      </Pressable>
+    </Modal>
+  );
+}
+
+function PlayerInputRow({
+  name,
+  avatarId,
+  onNameChange,
+  onAvatarPress,
+  onRemove,
+  canRemove,
+}: {
+  name: string;
+  avatarId: number;
+  onNameChange: (text: string) => void;
+  onAvatarPress: () => void;
+  onRemove: () => void;
+  canRemove: boolean;
+}) {
+  return (
+    <View style={styles.playerRow}>
+      <AvatarPickerButton avatarId={avatarId} onPress={onAvatarPress} />
+      <TextInput
+        style={styles.playerInput}
+        value={name}
+        onChangeText={onNameChange}
+        placeholder="Name"
+        placeholderTextColor={COLORS.textDisabled}
+      />
+      {canRemove && (
+        <Pressable
+          onPress={onRemove}
+          style={({ pressed }) => [styles.removeButton, pressed && styles.removeButtonPressed]}
+          hitSlop={12}>
+          <Ionicons name="close" size={20} color="#FFF" />
+        </Pressable>
+      )}
+    </View>
+  );
+}
+
+export default function AddPlayersScreen() {
+  const [players, setPlayers] = useState<Player[]>(INITIAL_PLAYERS);
+  const [avatarPickerForIndex, setAvatarPickerForIndex] = useState<number | null>(null);
+
+  const updatePlayerName = (index: number, name: string) => {
+    setPlayers((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], name };
+      return next;
+    });
+  };
+
+  const updatePlayerAvatar = (index: number, avatarId: number) => {
+    setPlayers((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], avatarId };
+      return next;
+    });
+  };
+
+  const removePlayer = (index: number) => {
+    setPlayers((prev) => prev.filter((_, i) => i !== index));
+    if (avatarPickerForIndex === index) setAvatarPickerForIndex(null);
+    else if (avatarPickerForIndex !== null && avatarPickerForIndex > index) {
+      setAvatarPickerForIndex(avatarPickerForIndex - 1);
+    }
+  };
+
+  const addPlayer = () => {
+    setPlayers((prev) => [...prev, { name: '', avatarId: UNSELECTED_AVATAR }]);
+  };
+
+  const isValidPlayer = (p: Player) =>
+    p.name.trim().length > 0 && p.avatarId >= 0;
+
+  const handleStartGame = () => {
+    const validPlayers = players.filter(isValidPlayer);
+    if (validPlayers.length >= 2) {
+      router.replace('/(tabs)');
+    }
+  };
+
+  const canStart =
+    players.length >= 2 && players.every(isValidPlayer);
+
+  return (
+    <ImageBackground
+      source={require('@/assets/images/purple_galaxy.png')}
+      resizeMode="cover"
+      style={styles.background}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}>
+        <View style={styles.content}>
+          <Text style={styles.title}>Add Players</Text>
+
+          <ScrollView
+            style={styles.playersScrollView}
+            contentContainerStyle={styles.playersScrollContent}
+            showsVerticalScrollIndicator={players.length > 5}
+            keyboardShouldPersistTaps="handled">
+            {players.map((player, index) => (
+              <PlayerInputRow
+                key={index}
+                name={player.name}
+                avatarId={player.avatarId}
+                onNameChange={(text) => updatePlayerName(index, text)}
+                onAvatarPress={() => setAvatarPickerForIndex(index)}
+                onRemove={() => removePlayer(index)}
+                canRemove={players.length > 2}
+              />
+            ))}
+          </ScrollView>
+
+          <View style={styles.footerSection}>
+            <View style={styles.addPlayerSection}>
+              <AppButton variant="fab" onPress={addPlayer}>
+                <Ionicons name="add" size={34} color="#FFF" />
+              </AppButton>
+              <Text style={styles.addPlayerLabel}>Add Player</Text>
+            </View>
+            <AppButton variant="cta" onPress={handleStartGame} disabled={!canStart}>
+              Start Game
+            </AppButton>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+
+      {avatarPickerForIndex !== null && (
+        <AvatarPickerModal
+          visible={true}
+          selectedId={players[avatarPickerForIndex]?.avatarId ?? UNSELECTED_AVATAR}
+          onSelect={(id) => updatePlayerAvatar(avatarPickerForIndex, id)}
+          onClose={() => setAvatarPickerForIndex(null)}
+        />
+      )}
+    </ImageBackground>
+  );
+}
+
+const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: SPACING.x8,
+    paddingTop: 72,
+    paddingBottom: SPACING.x10,
+  },
+  title: {
+    ...TYPOGRAPHY_BASE.hero1,
+    color: COLORS.textPrimary,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: SPACING.x6,
+  },
+  playersScrollView: {
+    flex: 1,
+    minHeight: 0,
+  },
+  playersScrollContent: {
+    gap: SPACING.x3,
+    paddingBottom: SPACING.x4,
+  },
+  footerSection: {
+    paddingTop: SPACING.x4,
+    gap: SPACING.x4,
+  },
+  playerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.x3,
+    backgroundColor: 'rgba(138, 74, 255, 0.34)',
+    borderWidth: 1.2,
+    borderColor: 'rgba(220, 181, 255, 0.8)',
+    borderRadius: BORDER_RADIUS.x6,
+    paddingHorizontal: SPACING.x4,
+    paddingVertical: SPACING.x3,
+  },
+  avatarPicker: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    overflow: 'hidden',
+    borderWidth: 1.2,
+    borderColor: 'rgba(220, 181, 255, 0.8)',
+    backgroundColor: 'rgba(138, 74, 255, 0.4)',
+  },
+  avatarPickerPressed: {
+    opacity: 0.85,
+  },
+  avatarPlaceholder: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(138, 74, 255, 0.25)',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+  },
+  playerInput: {
+    flex: 1,
+    ...TYPOGRAPHY_BASE.body,
+    color: COLORS.textPrimary,
+    paddingVertical: SPACING.x2,
+  },
+  removeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  removeButtonPressed: {
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+  },
+  addPlayerSection: {
+    alignItems: 'center',
+    gap: SPACING.x2,
+  },
+  addPlayerLabel: {
+    ...TYPOGRAPHY_BASE.body,
+    color: COLORS.textSecondary,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.x6,
+  },
+  modalContent: {
+    backgroundColor: COLORS.backgroundSecondary,
+    borderRadius: BORDER_RADIUS.x6,
+    padding: SPACING.x6,
+    borderWidth: 1,
+    borderColor: COLORS.borderDefault,
+    width: '100%',
+    maxWidth: 320,
+  },
+  modalTitle: {
+    ...TYPOGRAPHY_BASE.h2,
+    color: COLORS.textPrimary,
+    textAlign: 'center',
+    marginBottom: SPACING.x4,
+  },
+  avatarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: SPACING.x3,
+  },
+  avatarOption: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  avatarOptionSelected: {
+    borderColor: COLORS.secondary,
+  },
+  avatarOptionImage: {
+    width: '100%',
+    height: '100%',
+  },
+});
