@@ -1,11 +1,11 @@
-import { AVATARS } from '@/constants/avatars';
-import { COLORS } from '@/constants/theme/colors';
-import { BORDER_RADIUS } from '@/constants/theme/primitives';
-import { SPACING } from '@/constants/theme/spacing';
-import { TYPOGRAPHY_BASE } from '@/constants/theme/typography';
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { AVATARS } from "@/constants/avatars";
+import { COLORS } from "@/constants/theme/colors";
+import { BORDER_RADIUS } from "@/constants/theme/primitives";
+import { SPACING } from "@/constants/theme/spacing";
+import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
 import {
   Image,
   ImageBackground,
@@ -18,9 +18,9 @@ import {
   Text,
   TextInput,
   View,
-} from 'react-native';
+} from "react-native";
 
-import { AppButton } from '@/components/ui/AppButton';
+import { AppButton } from "@/components/ui/AppButton";
 
 type Player = { name: string; avatarId: number };
 
@@ -30,8 +30,8 @@ const AVATAR_ROWS_PER_PAGE = 4;
 const AVATARS_PER_PAGE = AVATARS_PER_ROW * AVATAR_ROWS_PER_PAGE;
 
 const INITIAL_PLAYERS: Player[] = [
-  { name: '', avatarId: UNSELECTED_AVATAR },
-  { name: '', avatarId: UNSELECTED_AVATAR },
+  { name: "", avatarId: UNSELECTED_AVATAR },
+  { name: "", avatarId: UNSELECTED_AVATAR },
 ];
 
 function AvatarPickerButton({
@@ -45,8 +45,12 @@ function AvatarPickerButton({
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.avatarPicker, pressed && styles.avatarPickerPressed]}
-      hitSlop={8}>
+      style={({ pressed }) => [
+        styles.avatarPicker,
+        pressed && styles.avatarPickerPressed,
+      ]}
+      hitSlop={8}
+    >
       {isPlaceholder ? (
         <View style={styles.avatarPlaceholder}>
           <Ionicons name="add" size={28} color={COLORS.textSecondary} />
@@ -94,24 +98,32 @@ function AvatarPickerModal({
   return (
     <Modal visible={visible} transparent animationType="fade">
       <Pressable style={styles.modalOverlay} onPress={onClose}>
-        <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+        <View
+          style={styles.modalContent}
+          onStartShouldSetResponder={() => true}
+        >
           <Text style={styles.modalTitle}>Select avatar</Text>
           <View style={styles.avatarGrid}>
             {visibleAvatars.map((avatarSource, index) => {
               const id = page * AVATARS_PER_PAGE + index;
               return (
-              <Pressable
-                key={id}
-                onPress={() => {
-                  onSelect(id);
-                  onClose();
-                }}
-                style={[
-                  styles.avatarOption,
-                  selectedId === id && styles.avatarOptionSelected,
-                ]}>
-                <Image source={avatarSource} style={styles.avatarOptionImage} resizeMode="cover" />
-              </Pressable>
+                <Pressable
+                  key={id}
+                  onPress={() => {
+                    onSelect(id);
+                    onClose();
+                  }}
+                  style={[
+                    styles.avatarOption,
+                    selectedId === id && styles.avatarOptionSelected,
+                  ]}
+                >
+                  <Image
+                    source={avatarSource}
+                    style={styles.avatarOptionImage}
+                    resizeMode="cover"
+                  />
+                </Pressable>
               );
             })}
           </View>
@@ -122,10 +134,17 @@ function AvatarPickerModal({
               </Text>
               <Pressable
                 onPress={handleNextPage}
-                style={({ pressed }) => [styles.nextPageButton, pressed && styles.nextPageButtonPressed]}
+                style={({ pressed }) => [
+                  styles.nextPageButton,
+                  pressed && styles.nextPageButtonPressed,
+                ]}
                 hitSlop={8}
               >
-                <Ionicons name="chevron-forward" size={18} color={COLORS.textPrimary} />
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={COLORS.textPrimary}
+                />
               </Pressable>
             </View>
           ) : null}
@@ -163,8 +182,12 @@ function PlayerInputRow({
       {canRemove && (
         <Pressable
           onPress={onRemove}
-          style={({ pressed }) => [styles.removeButton, pressed && styles.removeButtonPressed]}
-          hitSlop={12}>
+          style={({ pressed }) => [
+            styles.removeButton,
+            pressed && styles.removeButtonPressed,
+          ]}
+          hitSlop={12}
+        >
           <Ionicons name="close" size={20} color="#FFF" />
         </Pressable>
       )}
@@ -174,7 +197,9 @@ function PlayerInputRow({
 
 export default function AddPlayersScreen() {
   const [players, setPlayers] = useState<Player[]>(INITIAL_PLAYERS);
-  const [avatarPickerForIndex, setAvatarPickerForIndex] = useState<number | null>(null);
+  const [avatarPickerForIndex, setAvatarPickerForIndex] = useState<
+    number | null
+  >(null);
 
   const updatePlayerName = (index: number, name: string) => {
     setPlayers((prev) => {
@@ -201,7 +226,7 @@ export default function AddPlayersScreen() {
   };
 
   const addPlayer = () => {
-    setPlayers((prev) => [...prev, { name: '', avatarId: UNSELECTED_AVATAR }]);
+    setPlayers((prev) => [...prev, { name: "", avatarId: UNSELECTED_AVATAR }]);
   };
 
   const isValidPlayer = (p: Player) =>
@@ -210,21 +235,22 @@ export default function AddPlayersScreen() {
   const handleStartGame = () => {
     const validPlayers = players.filter(isValidPlayer);
     if (validPlayers.length >= 2) {
-      router.replace('/(tabs)');
+      router.replace("/(tabs)");
     }
   };
 
-  const canStart =
-    players.length >= 2 && players.every(isValidPlayer);
+  const canStart = players.length >= 2 && players.every(isValidPlayer);
 
   return (
     <ImageBackground
-      source={require('@/assets/images/purple_galaxy.png')}
+      source={require("@/assets/images/purple_galaxy.png")}
       resizeMode="cover"
-      style={styles.background}>
+      style={styles.background}
+    >
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}>
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardView}
+      >
         <View style={styles.content}>
           <Text style={styles.title}>Add Players</Text>
 
@@ -232,7 +258,8 @@ export default function AddPlayersScreen() {
             style={styles.playersScrollView}
             contentContainerStyle={styles.playersScrollContent}
             showsVerticalScrollIndicator={players.length > 5}
-            keyboardShouldPersistTaps="handled">
+            keyboardShouldPersistTaps="handled"
+          >
             {players.map((player, index) => (
               <PlayerInputRow
                 key={index}
@@ -253,7 +280,11 @@ export default function AddPlayersScreen() {
               </AppButton>
               <Text style={styles.addPlayerLabel}>Add Player</Text>
             </View>
-            <AppButton variant="cta" onPress={handleStartGame} disabled={!canStart}>
+            <AppButton
+              variant="cta"
+              onPress={handleStartGame}
+              disabled={!canStart}
+            >
               Start Game
             </AppButton>
           </View>
@@ -263,7 +294,9 @@ export default function AddPlayersScreen() {
       {avatarPickerForIndex !== null && (
         <AvatarPickerModal
           visible={true}
-          selectedId={players[avatarPickerForIndex]?.avatarId ?? UNSELECTED_AVATAR}
+          selectedId={
+            players[avatarPickerForIndex]?.avatarId ?? UNSELECTED_AVATAR
+          }
           onSelect={(id) => updatePlayerAvatar(avatarPickerForIndex, id)}
           onClose={() => setAvatarPickerForIndex(null)}
         />
@@ -288,8 +321,8 @@ const styles = StyleSheet.create({
   title: {
     ...TYPOGRAPHY_BASE.hero1,
     color: COLORS.textPrimary,
-    fontWeight: '700',
-    textAlign: 'center',
+    fontWeight: "700",
+    textAlign: "center",
     marginBottom: SPACING.x6,
   },
   playersScrollView: {
@@ -305,12 +338,12 @@ const styles = StyleSheet.create({
     gap: SPACING.x4,
   },
   playerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: SPACING.x3,
-    backgroundColor: 'rgba(138, 74, 255, 0.34)',
+    backgroundColor: "rgba(138, 74, 255, 0.34)",
     borderWidth: 1.2,
-    borderColor: 'rgba(220, 181, 255, 0.8)',
+    borderColor: "rgba(220, 181, 255, 0.8)",
     borderRadius: BORDER_RADIUS.x6,
     paddingHorizontal: SPACING.x4,
     paddingVertical: SPACING.x3,
@@ -319,24 +352,24 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    overflow: 'hidden',
+    overflow: "hidden",
     borderWidth: 1.2,
-    borderColor: 'rgba(220, 181, 255, 0.8)',
-    backgroundColor: 'rgba(138, 74, 255, 0.4)',
+    borderColor: "rgba(220, 181, 255, 0.8)",
+    backgroundColor: "rgba(138, 74, 255, 0.4)",
   },
   avatarPickerPressed: {
     opacity: 0.85,
   },
   avatarPlaceholder: {
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(138, 74, 255, 0.25)',
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(138, 74, 255, 0.25)",
   },
   avatarImage: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   playerInput: {
     flex: 1,
@@ -348,15 +381,15 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
   },
   removeButtonPressed: {
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
   },
   addPlayerSection: {
-    alignItems: 'center',
+    alignItems: "center",
     gap: SPACING.x2,
   },
   addPlayerLabel: {
@@ -365,9 +398,9 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
     padding: SPACING.x6,
   },
   modalContent: {
@@ -376,19 +409,19 @@ const styles = StyleSheet.create({
     padding: SPACING.x6,
     borderWidth: 1,
     borderColor: COLORS.borderDefault,
-    width: '100%',
+    width: "100%",
     maxWidth: 320,
   },
   modalTitle: {
     ...TYPOGRAPHY_BASE.h2,
     color: COLORS.textPrimary,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: SPACING.x4,
   },
   avatarGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
     gap: SPACING.x3,
     minHeight: 4 * 52 + 3 * SPACING.x3,
   },
@@ -396,22 +429,22 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    overflow: 'hidden',
+    overflow: "hidden",
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: "transparent",
   },
   avatarOptionSelected: {
     borderColor: COLORS.secondary,
   },
   avatarOptionImage: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   paginationRow: {
     marginTop: SPACING.x3,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
     gap: SPACING.x2,
   },
   pageIndicator: {
@@ -422,11 +455,11 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
     borderColor: COLORS.borderDefault,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: "rgba(255,255,255,0.08)",
   },
   nextPageButtonPressed: {
     opacity: 0.8,
