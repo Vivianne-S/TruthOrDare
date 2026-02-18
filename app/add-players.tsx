@@ -25,9 +25,10 @@ import { AppButton } from "@/components/ui/AppButton";
 type Player = { name: string; avatarId: number };
 
 const UNSELECTED_AVATAR = -1;
-const AVATARS_PER_ROW = 4;
-const AVATAR_ROWS_PER_PAGE = 4;
+const AVATARS_PER_ROW = 3;
+const AVATAR_ROWS_PER_PAGE = 3;
 const AVATARS_PER_PAGE = AVATARS_PER_ROW * AVATAR_ROWS_PER_PAGE;
+const AVATAR_OPTION_SIZE = 68;
 
 const INITIAL_PLAYERS: Player[] = [
   { name: "", avatarId: UNSELECTED_AVATAR },
@@ -95,6 +96,11 @@ function AvatarPickerModal({
     setPage((prev) => (prev + 1) % totalPages);
   };
 
+  const handlePreviousPage = () => {
+    if (!hasMultiplePages) return;
+    setPage((prev) => (prev - 1 + totalPages) % totalPages);
+  };
+
   return (
     <Modal visible={visible} transparent animationType="fade">
       <Pressable style={styles.modalOverlay} onPress={onClose}>
@@ -129,14 +135,28 @@ function AvatarPickerModal({
           </View>
           {hasMultiplePages ? (
             <View style={styles.paginationRow}>
+              <Pressable
+                onPress={handlePreviousPage}
+                style={({ pressed }) => [
+                  styles.pageNavButton,
+                  pressed && styles.pageNavButtonPressed,
+                ]}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name="chevron-back"
+                  size={18}
+                  color={COLORS.textPrimary}
+                />
+              </Pressable>
               <Text style={styles.pageIndicator}>
                 {page + 1}/{totalPages}
               </Text>
               <Pressable
                 onPress={handleNextPage}
                 style={({ pressed }) => [
-                  styles.nextPageButton,
-                  pressed && styles.nextPageButtonPressed,
+                  styles.pageNavButton,
+                  pressed && styles.pageNavButtonPressed,
                 ]}
                 hitSlop={8}
               >
@@ -423,12 +443,14 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "center",
     gap: SPACING.x3,
-    minHeight: 4 * 52 + 3 * SPACING.x3,
+    minHeight:
+      AVATAR_ROWS_PER_PAGE * AVATAR_OPTION_SIZE +
+      (AVATAR_ROWS_PER_PAGE - 1) * SPACING.x3,
   },
   avatarOption: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: AVATAR_OPTION_SIZE,
+    height: AVATAR_OPTION_SIZE,
+    borderRadius: AVATAR_OPTION_SIZE / 2,
     overflow: "hidden",
     borderWidth: 2,
     borderColor: "transparent",
@@ -451,7 +473,7 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY_BASE.small,
     color: COLORS.textSecondary,
   },
-  nextPageButton: {
+  pageNavButton: {
     width: 28,
     height: 28,
     borderRadius: 14,
@@ -461,7 +483,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.borderDefault,
     backgroundColor: "rgba(255,255,255,0.08)",
   },
-  nextPageButtonPressed: {
+  pageNavButtonPressed: {
     opacity: 0.8,
   },
 });
