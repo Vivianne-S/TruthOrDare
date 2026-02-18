@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "TruthOrDare",
-    "slug": "TruthOrDare",
+    "slug": "truthordare",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/app_icon1.jpeg",
@@ -43,6 +43,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "fc3a9844-49b9-4801-a555-1b98d9ffa827"
+      }
+    },
+    "owner": "vivvi-s"
   }
 }
