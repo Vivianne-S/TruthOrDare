@@ -5,7 +5,7 @@ import { SPACING } from '@/constants/theme/spacing';
 import { TYPOGRAPHY_BASE } from '@/constants/theme/typography';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Image,
   ImageBackground,
@@ -25,6 +25,9 @@ import { AppButton } from '@/components/ui/AppButton';
 type Player = { name: string; avatarId: number };
 
 const UNSELECTED_AVATAR = -1;
+const AVATARS_PER_ROW = 4;
+const AVATAR_ROWS_PER_PAGE = 4;
+const AVATARS_PER_PAGE = AVATARS_PER_ROW * AVATAR_ROWS_PER_PAGE;
 
 const INITIAL_PLAYERS: Player[] = [
   { name: '', avatarId: UNSELECTED_AVATAR },
@@ -70,13 +73,33 @@ function AvatarPickerModal({
   onSelect: (id: number) => void;
   onClose: () => void;
 }) {
+  const [page, setPage] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(AVATARS.length / AVATARS_PER_PAGE));
+  const hasMultiplePages = totalPages > 1;
+
+  useEffect(() => {
+    if (visible) setPage(0);
+  }, [visible]);
+
+  const visibleAvatars = useMemo(() => {
+    const start = page * AVATARS_PER_PAGE;
+    return AVATARS.slice(start, start + AVATARS_PER_PAGE);
+  }, [page]);
+
+  const handleNextPage = () => {
+    if (!hasMultiplePages) return;
+    setPage((prev) => (prev + 1) % totalPages);
+  };
+
   return (
     <Modal visible={visible} transparent animationType="fade">
       <Pressable style={styles.modalOverlay} onPress={onClose}>
         <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
           <Text style={styles.modalTitle}>Select avatar</Text>
           <View style={styles.avatarGrid}>
-            {AVATARS.map((avatarSource, id) => (
+            {visibleAvatars.map((avatarSource, index) => {
+              const id = page * AVATARS_PER_PAGE + index;
+              return (
               <Pressable
                 key={id}
                 onPress={() => {
@@ -89,8 +112,23 @@ function AvatarPickerModal({
                 ]}>
                 <Image source={avatarSource} style={styles.avatarOptionImage} resizeMode="cover" />
               </Pressable>
-            ))}
+              );
+            })}
           </View>
+          {hasMultiplePages ? (
+            <View style={styles.paginationRow}>
+              <Text style={styles.pageIndicator}>
+                {page + 1}/{totalPages}
+              </Text>
+              <Pressable
+                onPress={handleNextPage}
+                style={({ pressed }) => [styles.nextPageButton, pressed && styles.nextPageButtonPressed]}
+                hitSlop={8}
+              >
+                <Ionicons name="chevron-forward" size={18} color={COLORS.textPrimary} />
+              </Pressable>
+            </View>
+          ) : null}
         </View>
       </Pressable>
     </Modal>
@@ -352,11 +390,12 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     gap: SPACING.x3,
+    minHeight: 4 * 52 + 3 * SPACING.x3,
   },
   avatarOption: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: 'transparent',
@@ -367,5 +406,29 @@ const styles = StyleSheet.create({
   avatarOptionImage: {
     width: '100%',
     height: '100%',
+  },
+  paginationRow: {
+    marginTop: SPACING.x3,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: SPACING.x2,
+  },
+  pageIndicator: {
+    ...TYPOGRAPHY_BASE.small,
+    color: COLORS.textSecondary,
+  },
+  nextPageButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.borderDefault,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  nextPageButtonPressed: {
+    opacity: 0.8,
   },
 });
