@@ -48,7 +48,7 @@ export default function HowToPlayScreen() {
 
   return (
     <ImageBackground
-      source={require('@/assets/images/instruction_pic.jpeg')}
+      source={require('@/assets/images/instruction_pic.png')}
       resizeMode="cover"
       style={styles.background}
     >
