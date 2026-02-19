@@ -1,4 +1,4 @@
-import { getCategories, getQuestionsByCategory } from "@/service/categories";
+import { getCategories, getQuestionsByCategory } from "@/services/categories";
 import { useEffect, useState } from "react";
 
 type Category = {
