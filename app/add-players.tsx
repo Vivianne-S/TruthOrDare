@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.x10,
   },
   title: {
-    ...TYPOGRAPHY_BASE.hero1,
+    ...TYPOGRAPHY_BASE.h2,
     color: COLORS.textPrimary,
     fontWeight: "700",
     textAlign: "center",

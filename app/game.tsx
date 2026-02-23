@@ -1,10 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import {
-  Image,
-  ImageBackground,
-  StyleSheet,
-  Text,
-  View,
+    Image,
+    ImageBackground,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
@@ -33,9 +33,7 @@ export default function GameScreen() {
       <View style={styles.overlay}>
         <View style={styles.screen}>
           <View style={styles.headerRow}>
-            <View style={styles.iconCircle}>
-              <Ionicons name="people" size={20} color={COLORS.textInverse} />
-            </View>
+            <View style={styles.headerSide} />
             <Text style={styles.headerText}>
               {hasPlayers ? `It's ${playerName}'s turn!` : "Your turn!"}
             </Text>
@@ -113,6 +111,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: SPACING.x6,
   },
+  headerSide: {
+    width: 36,
+    height: 36,
+  },
   iconCircle: {
     width: 36,
     height: 36,
@@ -127,6 +129,8 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY_BASE.h2,
     color: COLORS.textPrimary,
     fontWeight: "700",
+    textAlign: "center",
+    flex: 1,
   },
   avatarContainer: {
     alignItems: "center",
@@ -167,16 +171,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     gap: SPACING.x4,
-    marginBottom: SPACING.x5,
+    marginBottom: SPACING.x2,
   },
   cardPlaceholder: {
+    marginTop: SPACING.x3,
     minHeight: 120,
     maxHeight: 160,
     borderRadius: BORDER_RADIUS.x6,
     borderWidth: 1.5,
     borderColor: "rgba(238, 199, 255, 0.9)",
     backgroundColor: "rgba(34, 9, 78, 0.72)",
-    padding: SPACING.x4,
+    // padding: SPACING.x1,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: SPACING.x5,
