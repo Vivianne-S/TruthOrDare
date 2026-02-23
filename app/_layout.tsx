@@ -8,8 +8,6 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
-export const unstable_settings = { anchor: "(tabs)" };
-
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
@@ -20,7 +18,7 @@ export default function RootLayout() {
         <Stack.Screen name="how-to-play" options={{ headerShown: false }} />
         <Stack.Screen name="add-players" options={{ headerShown: false }} />
         <Stack.Screen name="categories" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="game" options={{ headerShown: false }} />
         <Stack.Screen
           name="modal"
           options={{ presentation: "modal", title: "Modal" }}

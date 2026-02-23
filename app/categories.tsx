@@ -116,7 +116,7 @@ export default function CategoriesScreen() {
 
   const handleStartGame = () => {
     if (!canStartGame) return;
-    router.replace("/(tabs)");
+    router.replace("/game");
   };
 
   const handleBubblePress = (bubble: CategoryBubble) => {
