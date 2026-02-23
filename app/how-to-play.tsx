@@ -1,5 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme/colors';
+import { BORDER_RADIUS } from '@/constants/theme/primitives';
+import { SPACING } from '@/constants/theme/spacing';
 import { TYPOGRAPHY_BASE } from '@/constants/theme/typography';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
@@ -71,7 +73,12 @@ export default function HowToPlayScreen() {
           </Animated.Text>
 
           <View style={styles.noteCard}>
-            <Ionicons name="cart" size={16} color="#FFD85E" style={styles.noteIcon} />
+            <Ionicons
+              name="cart"
+              size={16}
+              color={COLORS.warning}
+              style={styles.noteIcon}
+            />
             <Text style={styles.noteText}>
               <Text style={styles.noteLabel}>Note:</Text> Access even more questions{'\n'}
               and categories with in-app purchases!
@@ -86,16 +93,16 @@ export default function HowToPlayScreen() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: '#12052B',
+    backgroundColor: COLORS.backgroundPrimary,
   },
   overlay: {
     flex: 1,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 28,
+    paddingHorizontal: SPACING.x7,
     paddingTop: 84,
-    paddingBottom: 34,
+    paddingBottom: SPACING.x8,
   },
   title: {
     ...TYPOGRAPHY_BASE.hero1,
@@ -111,7 +118,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontWeight: '600',
     textAlign: 'center',
-    marginTop: 26,
+    marginTop: SPACING.x6,
     textShadowColor: 'rgba(0,0,0,0.42)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
@@ -123,7 +130,7 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY_BASE.small,
     color: COLORS.textTertiary,
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: SPACING.x2,
     textShadowColor: 'rgba(0,0,0,0.35)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
@@ -132,12 +139,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     backgroundColor: 'rgba(57, 24, 130, 0.6)',
-    borderColor: 'rgba(171, 132, 255, 0.5)',
+    borderColor: COLORS.borderSubtle,
     borderWidth: 1,
-    borderRadius: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    marginBottom: 10,
+    borderRadius: BORDER_RADIUS.x4,
+    paddingHorizontal: SPACING.x4,
+    paddingVertical: SPACING.x3,
+    marginBottom: SPACING.x2,
   },
   noteIcon: {
     marginTop: 3,
@@ -150,7 +157,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   noteLabel: {
-    color: '#FFE07B',
+    color: COLORS.warningText,
     fontWeight: '700',
   },
 });

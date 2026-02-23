@@ -1,15 +1,6 @@
 import { getCategories, getQuestionsByCategory } from "@/services/categories";
+import type { Category, Question } from "@/types/category";
 import { useEffect, useState } from "react";
-
-type Category = {
-  id: string;
-  name: string;
-};
-
-type Question = {
-  type: string;
-  question_text: string;
-};
 
 export function useCategories() {
   const [categories, setCategories] = useState<Category[]>([]);

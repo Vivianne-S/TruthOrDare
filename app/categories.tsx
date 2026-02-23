@@ -14,31 +14,36 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppButton } from "@/components/ui/AppButton";
 import { CategoryBubbleButton } from "@/components/ui/CategoryBubbleButton";
-import {
-  BubbleSlot,
-  CATEGORY_BUBBLE_SLOTS,
-} from "@/constants/category-bubbles";
+import { BubbleSlot } from "@/constants/category-bubbles";
+import { COLORS } from "@/constants/theme/colors";
+import { BORDER_RADIUS } from "@/constants/theme/primitives";
+import { SPACING } from "@/constants/theme/spacing";
+import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
 import { useCategories } from "@/hooks/use-categories";
 
 type CategoryBubble = {
   id: string;
   name: string;
+  icon: string | null;
   slot: BubbleSlot;
+  isLocked: boolean;
+  sourceCategoryId: string;
 };
 
-const FREE_CATEGORY_CONFIG = [
-  {
-    displayName: "Love & Relationships",
-    aliases: new Set(["love relationships", "love and relationships"]),
-  },
-  {
-    displayName: "Funny",
-    aliases: new Set(["funny"]),
-  },
-  {
-    displayName: "Chaos",
-    aliases: new Set(["chaos"]),
-  },
+const ORGANIC_CATEGORY_SLOTS: BubbleSlot[] = [
+  { x: 0.06, y: 0.03, size: 84 },
+  { x: 0.39, y: 0.07, size: 88 },
+  { x: 0.70, y: 0.04, size: 86 },
+  { x: 0.06, y: 0.22, size: 124 },
+  { x: 0.47, y: 0.23, size: 94 },
+  { x: 0.74, y: 0.22, size: 86 },
+  { x: 0.06, y: 0.45, size: 92 },
+  { x: 0.38, y: 0.42, size: 90 },
+  { x: 0.66, y: 0.45, size: 120 },
+  { x: 0.35, y: 0.60, size: 92 },
+  { x: 0.04, y: 0.67, size: 86 },
+  { x: 0.62, y: 0.71, size: 88 },
+  { x: 0.28, y: 0.79, size: 102 },
 ];
 
 function normalizeCategoryName(name: string): string {
@@ -50,11 +55,21 @@ function normalizeCategoryName(name: string): string {
     .trim();
 }
 
+function formatCategoryName(name: string): string {
+  const normalized = normalizeCategoryName(name);
+  if (
+    normalized === "love and relationships" ||
+    normalized === "love relationships"
+  ) {
+    return "Love & Relationships";
+  }
+  return name;
+}
+
 export default function CategoriesScreen() {
   const {
     categories,
     loading,
-    openCategoryId,
     questionsByCategory,
     questionsLoadingByCategory,
     handlePressCategory,
@@ -65,41 +80,36 @@ export default function CategoriesScreen() {
   const touchY = useSharedValue(-1000);
   const touching = useSharedValue(0);
   const [fieldSize, setFieldSize] = useState({ width: 0, height: 0 });
+  const [selectedBubbleId, setSelectedBubbleId] = useState<string | null>(null);
 
-  const freeCategories = useMemo(
-    () =>
-      FREE_CATEGORY_CONFIG.map((target) => {
-        const match = categories.find((category) =>
-          target.aliases.has(normalizeCategoryName(category.name))
-        );
-        if (!match) return null;
-        return {
-          ...match,
-          name: target.displayName,
-        };
-      }).filter((category): category is { id: string; name: string } => category !== null),
-    [categories]
-  );
+  const generatedSlots = useMemo(() => ORGANIC_CATEGORY_SLOTS, []);
 
   const bubbles = useMemo<CategoryBubble[]>(
     () =>
-      freeCategories.map((category, i) => ({
+      categories.map((category, i) => ({
         id: category.id,
-        name: category.name,
-        slot: CATEGORY_BUBBLE_SLOTS[i % CATEGORY_BUBBLE_SLOTS.length],
+        name: formatCategoryName(category.name),
+        icon: category.icon ?? null,
+        slot: generatedSlots[i % generatedSlots.length],
+        isLocked: category.is_premium === true,
+        sourceCategoryId: category.id,
       })),
-    [freeCategories]
+    [categories, generatedSlots]
   );
 
   const openCategory =
-    freeCategories.find((category) => category.id === openCategoryId) ?? null;
+    bubbles.find((category) => category.id === selectedBubbleId) ?? null;
+  const openSourceCategoryId = openCategory?.sourceCategoryId ?? null;
   const hasOpenQuestions =
-    openCategoryId !== null &&
-    Object.prototype.hasOwnProperty.call(questionsByCategory, openCategoryId);
+    openSourceCategoryId !== null &&
+    Object.prototype.hasOwnProperty.call(questionsByCategory, openSourceCategoryId);
   const openQuestions =
-    openCategoryId && hasOpenQuestions ? questionsByCategory[openCategoryId] : [];
+    openSourceCategoryId && hasOpenQuestions
+      ? questionsByCategory[openSourceCategoryId]
+      : [];
   const isLoadingQuestions =
-    openCategoryId !== null && questionsLoadingByCategory[openCategoryId] === true;
+    openSourceCategoryId !== null &&
+    questionsLoadingByCategory[openSourceCategoryId] === true;
 
   const handleLayout = (event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
@@ -115,6 +125,13 @@ export default function CategoriesScreen() {
 
   const handleStartGame = () => {
     router.replace("/(tabs)");
+  };
+
+  const handleBubblePress = (bubble: CategoryBubble) => {
+    const isClosingCurrent = selectedBubbleId === bubble.id;
+    setSelectedBubbleId(isClosingCurrent ? null : bubble.id);
+    if (bubble.isLocked) return;
+    void handlePressCategory(bubble.sourceCategoryId);
   };
 
   if (loading) {
@@ -159,9 +176,11 @@ export default function CategoriesScreen() {
                 <CategoryBubbleButton
                   key={bubble.id}
                   name={bubble.name}
+                  icon={bubble.icon}
                   slot={bubble.slot}
-                  isOpen={openCategoryId === bubble.id}
-                  onPress={() => handlePressCategory(bubble.id)}
+                  isOpen={selectedBubbleId === bubble.id}
+                  isLocked={bubble.isLocked}
+                  onPress={() => handleBubblePress(bubble)}
                   fieldWidth={fieldSize.width}
                   fieldHeight={fieldSize.height}
                   touchX={touchX}
@@ -174,7 +193,11 @@ export default function CategoriesScreen() {
           {openCategory && (
             <View style={[styles.panel, { bottom: Math.max(112, insets.bottom + 92) }]}>
               <Text style={styles.panelTitle}>{openCategory.name}</Text>
-              {isLoadingQuestions ? (
+              {openCategory.isLocked ? (
+                <Text style={styles.panelText}>
+                  This category is locked for now. It will be available in the shop soon.
+                </Text>
+              ) : isLoadingQuestions ? (
                 <ActivityIndicator size="small" color="#F8EDFF" />
               ) : !hasOpenQuestions ? (
                 <Text style={styles.panelText}>Loading questions...</Text>
@@ -219,8 +242,8 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     paddingTop: 72,
-    paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingHorizontal: SPACING.x4,
+    paddingBottom: SPACING.x6,
   },
   loader: {
     flex: 1,
@@ -228,11 +251,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   title: {
-    fontSize: 42,
+    ...TYPOGRAPHY_BASE.hero1,
     fontWeight: "700",
-    letterSpacing: 0.2,
-    color: "#F8EDFF",
-    marginBottom: 14,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.x1,
     textAlign: "center",
   },
   field: {
@@ -241,24 +263,25 @@ const styles = StyleSheet.create({
   },
   panel: {
     position: "absolute",
-    left: 16,
-    right: 16,
-    borderRadius: 20,
+    left: SPACING.x4,
+    right: SPACING.x4,
+    borderRadius: BORDER_RADIUS.x5,
     borderWidth: 1,
-    borderColor: "rgba(255, 149, 245, 0.48)",
+    borderColor: COLORS.borderDefault,
     backgroundColor: "rgba(34, 10, 64, 0.58)",
-    padding: 14,
+    padding: SPACING.x3,
     maxHeight: 280,
   },
   panelTitle: {
-    color: "#FFD3F5",
-    fontSize: 18,
+    ...TYPOGRAPHY_BASE.large,
+    color: COLORS.textSecondary,
     fontWeight: "700",
-    marginBottom: 8,
+    marginBottom: SPACING.x2,
   },
   panelText: {
-    color: "#F7E8FF",
-    marginBottom: 6,
+    ...TYPOGRAPHY_BASE.body,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.x1,
     lineHeight: 20,
   },
   questionsScroll: {
@@ -266,8 +289,8 @@ const styles = StyleSheet.create({
   },
   footerSection: {
     position: "absolute",
-    left: 16,
-    right: 16,
+    left: SPACING.x4,
+    right: SPACING.x4,
     bottom: 0,
   },
 });

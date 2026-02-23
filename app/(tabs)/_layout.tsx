@@ -3,6 +3,7 @@ import React from 'react';
 import { ImageBackground, StyleSheet, View } from 'react-native';
 
 import { GradientTabBar } from '@/components/ui/GradientTabBar';
+import { COLORS } from '@/constants/theme/colors';
 
 export default function TabLayout() {
   return (
@@ -60,6 +61,6 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.14)',
+    backgroundColor: COLORS.overlayPressed,
   },
 });
