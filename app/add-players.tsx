@@ -21,19 +21,13 @@ import {
 } from "react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
+import { usePlayerSetup } from "@/hooks/use-player-setup";
+import { MIN_PLAYERS } from "@/types/player";
 
-type Player = { name: string; avatarId: number };
-
-const UNSELECTED_AVATAR = -1;
 const AVATARS_PER_ROW = 3;
 const AVATAR_ROWS_PER_PAGE = 3;
 const AVATARS_PER_PAGE = AVATARS_PER_ROW * AVATAR_ROWS_PER_PAGE;
 const AVATAR_OPTION_SIZE = 68;
-
-const INITIAL_PLAYERS: Player[] = [
-  { name: "", avatarId: UNSELECTED_AVATAR },
-  { name: "", avatarId: UNSELECTED_AVATAR },
-];
 
 function AvatarPickerButton({
   avatarId,
@@ -117,7 +111,6 @@ function AvatarPickerModal({
                   key={id}
                   onPress={() => {
                     onSelect(id);
-                    onClose();
                   }}
                   style={[
                     styles.avatarOption,
@@ -216,50 +209,24 @@ function PlayerInputRow({
 }
 
 export default function AddPlayersScreen() {
-  const [players, setPlayers] = useState<Player[]>(INITIAL_PLAYERS);
-  const [avatarPickerForIndex, setAvatarPickerForIndex] = useState<
-    number | null
-  >(null);
-
-  const updatePlayerName = (index: number, name: string) => {
-    setPlayers((prev) => {
-      const next = [...prev];
-      next[index] = { ...next[index], name };
-      return next;
-    });
-  };
-
-  const updatePlayerAvatar = (index: number, avatarId: number) => {
-    setPlayers((prev) => {
-      const next = [...prev];
-      next[index] = { ...next[index], avatarId };
-      return next;
-    });
-  };
-
-  const removePlayer = (index: number) => {
-    setPlayers((prev) => prev.filter((_, i) => i !== index));
-    if (avatarPickerForIndex === index) setAvatarPickerForIndex(null);
-    else if (avatarPickerForIndex !== null && avatarPickerForIndex > index) {
-      setAvatarPickerForIndex(avatarPickerForIndex - 1);
-    }
-  };
-
-  const addPlayer = () => {
-    setPlayers((prev) => [...prev, { name: "", avatarId: UNSELECTED_AVATAR }]);
-  };
-
-  const isValidPlayer = (p: Player) =>
-    p.name.trim().length > 0 && p.avatarId >= 0;
+  const {
+    players,
+    addPlayer,
+    updatePlayerName,
+    removePlayer,
+    avatarPickerPlayerId,
+    selectedAvatarId,
+    openAvatarPicker,
+    closeAvatarPicker,
+    selectAvatarForActivePlayer,
+    canStart,
+  } = usePlayerSetup();
 
   const handleStartGame = () => {
-    const validPlayers = players.filter(isValidPlayer);
-    if (validPlayers.length >= 2) {
+    if (canStart) {
       router.replace("/(tabs)");
     }
   };
-
-  const canStart = players.length >= 2 && players.every(isValidPlayer);
 
   return (
     <ImageBackground
@@ -280,15 +247,15 @@ export default function AddPlayersScreen() {
             showsVerticalScrollIndicator={players.length > 5}
             keyboardShouldPersistTaps="handled"
           >
-            {players.map((player, index) => (
+            {players.map((player) => (
               <PlayerInputRow
-                key={index}
+                key={player.id}
                 name={player.name}
                 avatarId={player.avatarId}
-                onNameChange={(text) => updatePlayerName(index, text)}
-                onAvatarPress={() => setAvatarPickerForIndex(index)}
-                onRemove={() => removePlayer(index)}
-                canRemove={players.length > 2}
+                onNameChange={(text) => updatePlayerName(player.id, text)}
+                onAvatarPress={() => openAvatarPicker(player.id)}
+                onRemove={() => removePlayer(player.id)}
+                canRemove={players.length > MIN_PLAYERS}
               />
             ))}
           </ScrollView>
@@ -311,14 +278,12 @@ export default function AddPlayersScreen() {
         </View>
       </KeyboardAvoidingView>
 
-      {avatarPickerForIndex !== null && (
+      {avatarPickerPlayerId !== null && (
         <AvatarPickerModal
           visible={true}
-          selectedId={
-            players[avatarPickerForIndex]?.avatarId ?? UNSELECTED_AVATAR
-          }
-          onSelect={(id) => updatePlayerAvatar(avatarPickerForIndex, id)}
-          onClose={() => setAvatarPickerForIndex(null)}
+          selectedId={selectedAvatarId}
+          onSelect={selectAvatarForActivePlayer}
+          onClose={closeAvatarPicker}
         />
       )}
     </ImageBackground>
