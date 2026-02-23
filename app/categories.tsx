@@ -1,10 +1,9 @@
 import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   ImageBackground,
   LayoutChangeEvent,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -56,9 +55,6 @@ export default function CategoriesScreen() {
   const {
     categories,
     loading,
-    questionsByCategory,
-    questionsLoadingByCategory,
-    handlePressCategory,
   } = useCategories();
   const insets = useSafeAreaInsets();
 
@@ -85,23 +81,26 @@ export default function CategoriesScreen() {
 
   const openCategory =
     bubbles.find((category) => category.id === selectedBubbleId) ?? null;
+  const openLockedCategoryId = openCategory?.isLocked ? openCategory.id : null;
   const selectedCategoryName = openCategory?.name.toLowerCase().trim() ?? "";
   const isSelectedFreeCategory = FREE_START_CATEGORY_NAMES.has(selectedCategoryName);
   // TODO: Replace with real ownership check when shop purchases are implemented.
   const isSelectedPremiumAndOwned = false;
   const canStartGame =
     openCategory !== null && (isSelectedFreeCategory || isSelectedPremiumAndOwned);
-  const openSourceCategoryId = openCategory?.sourceCategoryId ?? null;
-  const hasOpenQuestions =
-    openSourceCategoryId !== null &&
-    Object.prototype.hasOwnProperty.call(questionsByCategory, openSourceCategoryId);
-  const openQuestions =
-    openSourceCategoryId && hasOpenQuestions
-      ? questionsByCategory[openSourceCategoryId]
-      : [];
-  const isLoadingQuestions =
-    openSourceCategoryId !== null &&
-    questionsLoadingByCategory[openSourceCategoryId] === true;
+
+  useEffect(() => {
+    if (!openLockedCategoryId) return;
+    const timeoutId = setTimeout(() => {
+      setSelectedBubbleId((current) =>
+        current === openLockedCategoryId ? null : current
+      );
+    }, 3500);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [openLockedCategoryId]);
 
   const handleLayout = (event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
@@ -123,8 +122,6 @@ export default function CategoriesScreen() {
   const handleBubblePress = (bubble: CategoryBubble) => {
     const isClosingCurrent = selectedBubbleId === bubble.id;
     setSelectedBubbleId(isClosingCurrent ? null : bubble.id);
-    if (bubble.isLocked) return;
-    void handlePressCategory(bubble.sourceCategoryId);
   };
 
   if (loading) {
@@ -183,33 +180,12 @@ export default function CategoriesScreen() {
               ))}
           </View>
 
-          {openCategory && (
+          {openCategory?.isLocked && (
             <View style={[styles.panel, { bottom: Math.max(112, insets.bottom + 92) }]}>
               <Text style={styles.panelTitle}>{openCategory.name}</Text>
-              {openCategory.isLocked ? (
-                <Text style={styles.panelText}>
-                  This category is locked for now. It will be available in the shop soon.
-                </Text>
-              ) : isLoadingQuestions ? (
-                <ActivityIndicator size="small" color="#F8EDFF" />
-              ) : !hasOpenQuestions ? (
-                <Text style={styles.panelText}>Loading questions...</Text>
-              ) : openQuestions.length === 0 ? (
-                <Text style={styles.panelText}>
-                  No questions found for this category.
-                </Text>
-              ) : (
-                <ScrollView
-                  style={styles.questionsScroll}
-                  showsVerticalScrollIndicator={false}
-                >
-                  {openQuestions.map((question, i) => (
-                    <Text key={`${openCategory.id}-${i}`} style={styles.panelText}>
-                      {question.type.toUpperCase()}: {question.question_text}
-                    </Text>
-                  ))}
-                </ScrollView>
-              )}
+              <Text style={styles.panelText}>
+                This category is locked for now. Visit the shop to unlock it.
+              </Text>
             </View>
           )}
 
