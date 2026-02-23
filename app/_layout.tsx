@@ -19,6 +19,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="how-to-play" options={{ headerShown: false }} />
         <Stack.Screen name="add-players" options={{ headerShown: false }} />
+        <Stack.Screen name="categories" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="modal"

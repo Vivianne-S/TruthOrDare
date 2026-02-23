@@ -224,7 +224,7 @@ export default function AddPlayersScreen() {
 
   const handleStartGame = () => {
     if (canStart) {
-      router.replace("/(tabs)");
+      router.replace("/categories");
     }
   };
 
@@ -272,7 +272,7 @@ export default function AddPlayersScreen() {
               onPress={handleStartGame}
               disabled={!canStart}
             >
-              Start Game
+              Select category
             </AppButton>
           </View>
         </View>

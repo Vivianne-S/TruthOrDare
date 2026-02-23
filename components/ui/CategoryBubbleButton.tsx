@@ -3,11 +3,15 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   interpolate,
   SharedValue,
+  withRepeat,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import { BubbleSlot, getCategoryEmoji } from '@/constants/category-bubbles';
+
+const FLOAT_Y_AMPLITUDE = 8;
+const FLOAT_X_AMPLITUDE = 3;
 
 type CategoryBubbleButtonProps = {
   name: string;
@@ -35,27 +39,46 @@ export function CategoryBubbleButton({
   const diameter = slot.size;
   const isLongLabel = name.length > 10;
   const isVeryLongLabel = name.length > 15;
-  const left = slot.x * fieldWidth;
-  const top = slot.y * fieldHeight;
-  const centerX = left + diameter / 2;
-  const centerY = top + diameter / 2;
+  const baseX = Math.max(0, Math.min(fieldWidth - diameter, slot.x * fieldWidth));
+  const baseY = Math.max(0, Math.min(fieldHeight - diameter, slot.y * fieldHeight));
   const selectedProgress = useSharedValue(isOpen ? 1 : 0);
+  const floatYProgress = useSharedValue(Math.random());
+  const floatXProgress = useSharedValue(Math.random());
+  const pulseProgress = useSharedValue(Math.random());
 
   useEffect(() => {
     selectedProgress.value = withTiming(isOpen ? 1 : 0, { duration: 220 });
   }, [isOpen, selectedProgress]);
 
+  useEffect(() => {
+    const yDuration = 2200 + Math.floor(Math.random() * 900);
+    const xDuration = 2600 + Math.floor(Math.random() * 1200);
+    const pulseDuration = 2000 + Math.floor(Math.random() * 1000);
+    floatYProgress.value = withRepeat(withTiming(1, { duration: yDuration }), -1, true);
+    floatXProgress.value = withRepeat(withTiming(1, { duration: xDuration }), -1, true);
+    pulseProgress.value = withRepeat(withTiming(1, { duration: pulseDuration }), -1, true);
+  }, [floatXProgress, floatYProgress, pulseProgress]);
+
   const animatedStyle = useAnimatedStyle(() => {
+    const centerX = baseX + diameter / 2;
+    const centerY = baseY + diameter / 2;
     const dx = touchX.value - centerX;
     const dy = touchY.value - centerY;
     const distance = Math.sqrt(dx * dx + dy * dy);
     const influence = interpolate(distance, [0, 220], [1, 0], 'clamp');
+    const floatY = interpolate(floatYProgress.value, [0, 1], [-FLOAT_Y_AMPLITUDE, FLOAT_Y_AMPLITUDE]);
+    const floatX = interpolate(floatXProgress.value, [0, 1], [-FLOAT_X_AMPLITUDE, FLOAT_X_AMPLITUDE]);
 
     const selectedBoost = selectedProgress.value;
-    const scale = 1 + selectedBoost * 0.28 + influence * touching.value * 0.24;
+    const pulseScale = interpolate(pulseProgress.value, [0, 1], [0.985, 1.02]);
+    const scale =
+      (1 + selectedBoost * 0.28 + influence * touching.value * 0.24) *
+      pulseScale;
     const glowOpacity = 0.2 + selectedBoost * 0.55 + influence * touching.value * 0.35;
 
     return {
+      left: baseX + floatX,
+      top: baseY + floatY,
       transform: [{ scale }],
       shadowOpacity: glowOpacity,
       borderWidth: 1.05 + selectedBoost * 0.35,
@@ -64,7 +87,7 @@ export function CategoryBubbleButton({
           ? 'rgba(255, 146, 244, 0.98)'
           : `rgba(196, 146, 255, ${0.28 + influence * touching.value * 0.4})`,
     };
-  });
+  }, [baseX, baseY, diameter]);
 
   return (
     <Animated.View
@@ -75,10 +98,9 @@ export function CategoryBubbleButton({
         {
           width: diameter,
           height: diameter,
-          left,
-          top,
         },
-      ]}>
+      ]}
+    >
       {isOpen && <View pointerEvents="none" style={styles.openHalo} />}
       <Pressable style={styles.bubbleTouch} onPress={onPress}>
         <Text style={styles.emoji}>{getCategoryEmoji(name)}</Text>
