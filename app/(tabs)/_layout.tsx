@@ -26,12 +26,6 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
-            name="categories"
-            options={{
-              title: 'Kategorier',
-            }}
-          />
-          <Tabs.Screen
             name="players"
             options={{
               title: 'Spelare',

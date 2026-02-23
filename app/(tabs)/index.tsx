@@ -41,10 +41,6 @@ export default function HomeScreen() {
               Emma
             </AppButton>
 
-            {/* <AppButton variant="chip" rightIcon={<Ionicons name="close" size={20} color="#FFF" />}>
-              Jacob
-            </AppButton> */}
-
             <AppButton variant="fab">
               <Ionicons name="add" size={34} color={COLORS.textInverse} />
             </AppButton>

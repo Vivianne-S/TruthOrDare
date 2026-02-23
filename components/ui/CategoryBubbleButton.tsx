@@ -8,7 +8,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { BubbleSlot, getCategoryEmoji } from '@/constants/category-bubbles';
+import { BubbleSlot } from '@/constants/category-bubbles';
 import { COLORS } from '@/constants/theme/colors';
 import { TYPOGRAPHY_BASE } from '@/constants/theme/typography';
 
@@ -107,7 +107,7 @@ export function CategoryBubbleButton({
         </View>
       )}
       <Pressable style={styles.bubbleTouch} onPress={onPress}>
-        <Text style={styles.emoji}>{icon?.trim() ? icon : getCategoryEmoji(name)}</Text>
+        <Text style={styles.emoji}>{icon?.trim() ? icon : '✨'}</Text>
         <Text
           numberOfLines={isVeryLongLabel ? 3 : 2}
           style={[
