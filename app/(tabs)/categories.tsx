@@ -11,6 +11,10 @@ import { useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CategoryBubbleButton } from '@/components/ui/CategoryBubbleButton';
 import { BubbleSlot, CATEGORY_BUBBLE_SLOTS } from '@/constants/category-bubbles';
+import { COLORS } from '@/constants/theme/colors';
+import { BORDER_RADIUS } from '@/constants/theme/primitives';
+import { SPACING } from '@/constants/theme/spacing';
+import { TYPOGRAPHY_BASE } from '@/constants/theme/typography';
 import { useCategories } from '@/hooks/use-categories';
 
 type CategoryBubble = {
@@ -69,7 +73,7 @@ export default function CategoriesScreen() {
   if (loading) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator color="#FFFFFF" />
+        <ActivityIndicator color={COLORS.textInverse} />
       </View>
     );
   }
@@ -117,7 +121,7 @@ export default function CategoriesScreen() {
         <View style={[styles.panel, { bottom: Math.max(98, insets.bottom + 78) }]}>
           <Text style={styles.panelTitle}>{openCategory.name}</Text>
           {isLoadingQuestions ? (
-            <ActivityIndicator size="small" color="#F8EDFF" />
+            <ActivityIndicator size="small" color={COLORS.textPrimary} />
           ) : !hasOpenQuestions ? (
             <Text style={styles.panelText}>Loading questions...</Text>
           ) : openQuestions.length === 0 ? (
@@ -141,8 +145,8 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     paddingTop: 72,
-    paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingHorizontal: SPACING.x4,
+    paddingBottom: SPACING.x6,
   },
   loader: {
     flex: 1,
@@ -150,11 +154,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 42,
+    ...TYPOGRAPHY_BASE.hero1,
     fontWeight: '700',
-    letterSpacing: 0.2,
-    color: '#F8EDFF',
-    marginBottom: 14,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.x3,
     textAlign: 'center',
   },
   field: {
@@ -163,24 +166,25 @@ const styles = StyleSheet.create({
   },
   panel: {
     position: 'absolute',
-    left: 16,
-    right: 16,
-    borderRadius: 20,
+    left: SPACING.x4,
+    right: SPACING.x4,
+    borderRadius: BORDER_RADIUS.x5,
     borderWidth: 1,
-    borderColor: 'rgba(255, 149, 245, 0.48)',
+    borderColor: COLORS.borderDefault,
     backgroundColor: 'rgba(34, 10, 64, 0.58)',
-    padding: 14,
+    padding: SPACING.x3,
     maxHeight: 280,
   },
   panelTitle: {
-    color: '#FFD3F5',
-    fontSize: 18,
+    ...TYPOGRAPHY_BASE.large,
+    color: COLORS.textSecondary,
     fontWeight: '700',
-    marginBottom: 8,
+    marginBottom: SPACING.x2,
   },
   panelText: {
-    color: '#F7E8FF',
-    marginBottom: 6,
+    ...TYPOGRAPHY_BASE.body,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.x1,
     lineHeight: 20,
   },
   questionsScroll: {

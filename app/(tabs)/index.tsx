@@ -7,6 +7,8 @@ import { AppButton } from '@/components/ui/AppButton';
 import React from 'react';
 import { CategoryBubbleButton } from '@/components/ui/CategoryBubbleButton';
 import { BubbleSlot } from '@/constants/category-bubbles';
+import { COLORS } from '@/constants/theme/colors';
+import { SPACING } from '@/constants/theme/spacing';
 
 export default function HomeScreen() {
   const [activePreviewBubble, setActivePreviewBubble] = React.useState<string | null>(null);
@@ -33,7 +35,9 @@ export default function HomeScreen() {
           <View style={styles.buttonsContainer}>
             <ThemedText type="subtitle">Add Players</ThemedText>
 
-            <AppButton variant="chip" rightIcon={<Ionicons name="close" size={20} color="#FFF" />}>
+            <AppButton
+              variant="chip"
+              rightIcon={<Ionicons name="close" size={20} color={COLORS.textInverse} />}>
               Emma
             </AppButton>
 
@@ -42,7 +46,7 @@ export default function HomeScreen() {
             </AppButton> */}
 
             <AppButton variant="fab">
-              <Ionicons name="add" size={34} color="#FFF" />
+              <Ionicons name="add" size={34} color={COLORS.textInverse} />
             </AppButton>
 
             <ThemedText style={styles.centerLabel}>Add Player</ThemedText>
@@ -121,7 +125,7 @@ export default function HomeScreen() {
             </View>
 
             <AppButton variant="arrowNeon" style={styles.arrowButton}>
-              <Ionicons name="arrow-forward" size={36} color="#FFF" />
+              <Ionicons name="arrow-forward" size={36} color={COLORS.textInverse} />
             </AppButton>
           </View>
         </ScrollView>
@@ -139,9 +143,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.2)',
   },
   content: {
-    padding: 32,
+    padding: SPACING.x8,
     paddingTop: 72,
-    paddingBottom: 160,
+    paddingBottom: SPACING.x20,
     gap: 18,
   },
   titleContainer: {
@@ -174,7 +178,7 @@ const styles = StyleSheet.create({
   },
   centerLabel: {
     textAlign: 'center',
-    color: '#ECDDFF',
+    color: COLORS.textSecondary,
   },
   arrowButton: {
     alignSelf: 'flex-end',
