@@ -30,41 +30,27 @@ type CategoryBubble = {
   sourceCategoryId: string;
 };
 
+const FREE_START_CATEGORY_NAMES = new Set([
+  "love and relationships",
+  "funny",
+  "chaos",
+]);
+
 const ORGANIC_CATEGORY_SLOTS: BubbleSlot[] = [
-  { x: 0.06, y: 0.03, size: 84 },
+  { x: 0.06, y: 0.22, size: 124 },
   { x: 0.39, y: 0.07, size: 88 },
   { x: 0.70, y: 0.04, size: 86 },
-  { x: 0.06, y: 0.22, size: 124 },
+  { x: 0.06, y: 0.03, size: 84 },
   { x: 0.47, y: 0.23, size: 94 },
-  { x: 0.74, y: 0.22, size: 86 },
-  { x: 0.06, y: 0.45, size: 92 },
   { x: 0.38, y: 0.42, size: 90 },
-  { x: 0.66, y: 0.45, size: 120 },
-  { x: 0.35, y: 0.60, size: 92 },
+  { x: 0.06, y: 0.45, size: 92 },
+  { x: 0.74, y: 0.22, size: 86 },
   { x: 0.04, y: 0.67, size: 86 },
-  { x: 0.62, y: 0.71, size: 88 },
+  { x: 0.35, y: 0.60, size: 92 },
+  { x: 0.66, y: 0.45, size: 120 },
   { x: 0.28, y: 0.79, size: 102 },
+  { x: 0.62, y: 0.71, size: 88 },
 ];
-
-function normalizeCategoryName(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/&/g, " ")
-    .replace(/[^a-z0-9 ]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function formatCategoryName(name: string): string {
-  const normalized = normalizeCategoryName(name);
-  if (
-    normalized === "love and relationships" ||
-    normalized === "love relationships"
-  ) {
-    return "Love & Relationships";
-  }
-  return name;
-}
 
 export default function CategoriesScreen() {
   const {
@@ -88,7 +74,7 @@ export default function CategoriesScreen() {
     () =>
       categories.map((category, i) => ({
         id: category.id,
-        name: formatCategoryName(category.name),
+        name: category.name,
         icon: category.icon ?? null,
         slot: generatedSlots[i % generatedSlots.length],
         isLocked: category.is_premium === true,
@@ -99,6 +85,12 @@ export default function CategoriesScreen() {
 
   const openCategory =
     bubbles.find((category) => category.id === selectedBubbleId) ?? null;
+  const selectedCategoryName = openCategory?.name.toLowerCase().trim() ?? "";
+  const isSelectedFreeCategory = FREE_START_CATEGORY_NAMES.has(selectedCategoryName);
+  // TODO: Replace with real ownership check when shop purchases are implemented.
+  const isSelectedPremiumAndOwned = false;
+  const canStartGame =
+    openCategory !== null && (isSelectedFreeCategory || isSelectedPremiumAndOwned);
   const openSourceCategoryId = openCategory?.sourceCategoryId ?? null;
   const hasOpenQuestions =
     openSourceCategoryId !== null &&
@@ -124,6 +116,7 @@ export default function CategoriesScreen() {
   };
 
   const handleStartGame = () => {
+    if (!canStartGame) return;
     router.replace("/(tabs)");
   };
 
@@ -221,7 +214,7 @@ export default function CategoriesScreen() {
           )}
 
           <View style={[styles.footerSection, { paddingBottom: Math.max(20, insets.bottom + 8) }]}>
-            <AppButton variant="cta" onPress={handleStartGame}>
+            <AppButton variant="cta" onPress={handleStartGame} disabled={!canStartGame}>
               Start Game
             </AppButton>
           </View>
