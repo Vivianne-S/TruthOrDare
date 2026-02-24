@@ -15,7 +15,7 @@ import { AVATARS } from "@/constants/avatars";
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
-import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
+import { FONT_FAMILY, TYPOGRAPHY_BASE } from "@/constants/theme/typography";
 import { useGameSession } from "@/hooks/use-game-session";
 
 export default function GameScreen() {
@@ -37,8 +37,7 @@ export default function GameScreen() {
 
   const questionLabel = currentQuestion?.type?.toUpperCase() ?? "TRUTH OR DARE";
   const questionText =
-    currentQuestion?.question_text ??
-    "Tap TRUTH or DARE to reveal a question.";
+    currentQuestion?.question_text ?? "Tap TRUTH or DARE to reveal a question.";
 
   const pulse = useRef(new Animated.Value(0)).current;
 
@@ -60,7 +59,7 @@ export default function GameScreen() {
             easing: Easing.inOut(Easing.ease),
             useNativeDriver: true,
           }),
-        ])
+        ]),
       );
       loop.start();
     } else {
@@ -280,14 +279,14 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.x2,
   },
   cardPlaceholderText: {
-    ...TYPOGRAPHY_BASE.body,
+    fontFamily: FONT_FAMILY.primary.extraBold,
     color: COLORS.textPrimary,
     textAlign: "center",
   },
   footerRow: {
     flexDirection: "row",
     justifyContent: "center",
-   marginBottom: SPACING.x8,
+    marginBottom: SPACING.x8,
   },
   footerButtonWrapper: {
     alignSelf: "center",

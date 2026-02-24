@@ -1,16 +1,23 @@
-import { useEffect } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { BubbleSlot } from "@/constants/category-bubbles";
+import { COLORS } from "@/constants/theme/colors";
+import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
+import {
+  BlurMask,
+  Canvas,
+  Circle,
+  RadialGradient,
+  vec,
+} from "@shopify/react-native-skia";
+import { useEffect } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
   interpolate,
   SharedValue,
-  withRepeat,
   useAnimatedStyle,
   useSharedValue,
+  withRepeat,
   withTiming,
-} from 'react-native-reanimated';
-import { BubbleSlot } from '@/constants/category-bubbles';
-import { COLORS } from '@/constants/theme/colors';
-import { TYPOGRAPHY_BASE } from '@/constants/theme/typography';
+} from "react-native-reanimated";
 
 const FLOAT_Y_AMPLITUDE = 8;
 const FLOAT_X_AMPLITUDE = 3;
@@ -45,8 +52,14 @@ export function CategoryBubbleButton({
   const diameter = slot.size;
   const isLongLabel = name.length > 10;
   const isVeryLongLabel = name.length > 15;
-  const baseX = Math.max(0, Math.min(fieldWidth - diameter, slot.x * fieldWidth));
-  const baseY = Math.max(0, Math.min(fieldHeight - diameter, slot.y * fieldHeight));
+  const baseX = Math.max(
+    0,
+    Math.min(fieldWidth - diameter, slot.x * fieldWidth),
+  );
+  const baseY = Math.max(
+    0,
+    Math.min(fieldHeight - diameter, slot.y * fieldHeight),
+  );
   const selectedProgress = useSharedValue(isOpen ? 1 : 0);
   const floatYProgress = useSharedValue(Math.random());
   const floatXProgress = useSharedValue(Math.random());
@@ -60,14 +73,34 @@ export function CategoryBubbleButton({
     const yDuration = 2200 + Math.floor(Math.random() * 900);
     const xDuration = 2600 + Math.floor(Math.random() * 1200);
     const pulseDuration = 2000 + Math.floor(Math.random() * 1000);
-    floatYProgress.value = withRepeat(withTiming(1, { duration: yDuration }), -1, true);
-    floatXProgress.value = withRepeat(withTiming(1, { duration: xDuration }), -1, true);
-    pulseProgress.value = withRepeat(withTiming(1, { duration: pulseDuration }), -1, true);
+    floatYProgress.value = withRepeat(
+      withTiming(1, { duration: yDuration }),
+      -1,
+      true,
+    );
+    floatXProgress.value = withRepeat(
+      withTiming(1, { duration: xDuration }),
+      -1,
+      true,
+    );
+    pulseProgress.value = withRepeat(
+      withTiming(1, { duration: pulseDuration }),
+      -1,
+      true,
+    );
   }, [floatXProgress, floatYProgress, pulseProgress]);
 
   const animatedStyle = useAnimatedStyle(() => {
-    const floatY = interpolate(floatYProgress.value, [0, 1], [-FLOAT_Y_AMPLITUDE, FLOAT_Y_AMPLITUDE]);
-    const floatX = interpolate(floatXProgress.value, [0, 1], [-FLOAT_X_AMPLITUDE, FLOAT_X_AMPLITUDE]);
+    const floatY = interpolate(
+      floatYProgress.value,
+      [0, 1],
+      [-FLOAT_Y_AMPLITUDE, FLOAT_Y_AMPLITUDE],
+    );
+    const floatX = interpolate(
+      floatXProgress.value,
+      [0, 1],
+      [-FLOAT_X_AMPLITUDE, FLOAT_X_AMPLITUDE],
+    );
 
     const selectedBoost = selectedProgress.value;
     const pulseScale = interpolate(pulseProgress.value, [0, 1], [0.985, 1.02]);
@@ -82,10 +115,30 @@ export function CategoryBubbleButton({
       borderWidth: 1.05 + selectedBoost * 0.35,
       borderColor:
         selectedBoost > 0.02
-          ? 'rgba(255, 146, 244, 0.98)'
-          : 'rgba(196, 146, 255, 0.28)',
+          ? "rgba(255, 146, 244, 0.98)"
+          : "rgba(196, 146, 255, 0.28)",
     };
   }, [baseX, baseY, diameter]);
+
+  const glowRadius = diameter * 0.43;
+  const glowColors = isLocked
+    ? [
+        "rgba(255, 204, 120, 0.34)",
+        "rgba(255, 160, 70, 0.10)",
+        "rgba(255, 130, 50, 0)",
+      ]
+    : isOpen
+      ? [
+          "rgba(143, 238, 255, 0.65)",
+          "rgba(205, 110, 255, 0.34)",
+          "rgba(120, 60, 255, 0)",
+        ]
+      : [
+          "rgba(255, 118, 234, 0.42)",
+          "rgba(155, 123, 255, 0.2)",
+          "rgba(105, 60, 225, 0)",
+        ];
+  const glowBlur = isOpen ? 26 : 19;
 
   return (
     <Animated.View
@@ -100,6 +153,16 @@ export function CategoryBubbleButton({
         },
       ]}
     >
+      <Canvas pointerEvents="none" style={styles.skiaGlow}>
+        <Circle cx={diameter / 2} cy={diameter / 2} r={glowRadius}>
+          <RadialGradient
+            c={vec(diameter / 2, diameter / 2)}
+            r={glowRadius}
+            colors={glowColors}
+          />
+          <BlurMask blur={glowBlur} style="solid" />
+        </Circle>
+      </Canvas>
       {isOpen && <View pointerEvents="none" style={styles.openHalo} />}
       {isLocked && (
         <View pointerEvents="none" style={styles.lockBadge}>
@@ -107,14 +170,15 @@ export function CategoryBubbleButton({
         </View>
       )}
       <Pressable style={styles.bubbleTouch} onPress={onPress}>
-        <Text style={styles.emoji}>{icon?.trim() ? icon : '✨'}</Text>
+        <Text style={styles.emoji}>{icon?.trim() ? icon : "✨"}</Text>
         <Text
           numberOfLines={isVeryLongLabel ? 3 : 2}
           style={[
             styles.bubbleLabel,
             isLongLabel && styles.bubbleLabelSmall,
             isVeryLongLabel && styles.bubbleLabelVerySmall,
-          ]}>
+          ]}
+        >
           {name}
         </Text>
       </Pressable>
@@ -124,32 +188,36 @@ export function CategoryBubbleButton({
 
 const styles = StyleSheet.create({
   bubble: {
-    position: 'absolute',
+    position: "absolute",
     borderRadius: 999,
-    backgroundColor: 'rgba(164, 102, 255, 0.22)',
+    backgroundColor: "rgba(164, 102, 255, 0.22)",
     borderWidth: 1.25,
     borderColor: COLORS.borderSubtle,
-    shadowColor: '#FF76EA',
+    shadowColor: "#FF76EA",
     shadowOffset: { width: 0, height: 0 },
     shadowRadius: 18,
     elevation: 10,
   },
+  skiaGlow: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 0,
+  },
   bubbleOpen: {
     zIndex: 30,
-    shadowColor: '#7CC8FF',
+    shadowColor: "#7CC8FF",
     shadowRadius: 26,
     elevation: 16,
   },
   bubbleLocked: {
-    backgroundColor: 'rgba(115, 92, 150, 0.24)',
+    backgroundColor: "rgba(115, 92, 150, 0.24)",
     borderColor: COLORS.warningBorder,
   },
   openHalo: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 999,
     borderWidth: 1.1,
-    borderColor: 'rgba(150, 185, 255, 0.95)',
-    shadowColor: '#9B7BFF',
+    borderColor: "rgba(150, 185, 255, 0.95)",
+    shadowColor: "#9B7BFF",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.9,
     shadowRadius: 16,
@@ -157,24 +225,24 @@ const styles = StyleSheet.create({
   bubbleTouch: {
     flex: 1,
     borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 10,
-    backgroundColor: 'rgba(63, 16, 114, 0.22)',
+    backgroundColor: "rgba(63, 16, 114, 0.22)",
   },
   lockBadge: {
-    position: 'absolute',
+    position: "absolute",
     top: 6,
     right: 6,
     zIndex: 20,
     width: 22,
     height: 22,
     borderRadius: 11,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(15, 8, 28, 0.62)',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(15, 8, 28, 0.62)",
     borderWidth: 1,
-    borderColor: 'rgba(255, 230, 155, 0.75)',
+    borderColor: "rgba(255, 230, 155, 0.75)",
   },
   lockBadgeText: {
     fontSize: 11,
@@ -186,8 +254,8 @@ const styles = StyleSheet.create({
   bubbleLabel: {
     ...TYPOGRAPHY_BASE.body,
     color: COLORS.textPrimary,
-    textAlign: 'center',
-    fontWeight: '600',
+    textAlign: "center",
+    fontWeight: "600",
     fontSize: 14,
     lineHeight: 17,
   },
