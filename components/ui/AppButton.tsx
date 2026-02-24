@@ -1,9 +1,16 @@
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
+import {
+  BlurMask,
+  Canvas,
+  RoundedRect,
+  LinearGradient as SkiaLinearGradient,
+  vec,
+} from "@shopify/react-native-skia";
 import { BlurTint, BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
-import { ReactNode } from "react";
+import { LinearGradient as ExpoLinearGradient } from "expo-linear-gradient";
+import { ReactNode, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -107,8 +114,8 @@ const getVariantPreset = (): Record<
   },
   truth: {
     tint: "light",
-    intensity: 10,
-    containerStyle: styles.containerGlowBlue,
+    intensity: 60,
+    containerStyle: styles.containerGlowBlueCard,
     blurStyle: styles.blurTruth,
     textStyle: styles.textTruth,
     sizeStyle: styles.sizeChoiceCard,
@@ -116,8 +123,8 @@ const getVariantPreset = (): Record<
   },
   dare: {
     tint: "light",
-    intensity: 10,
-    containerStyle: styles.containerGlowPink,
+    intensity: 60,
+    containerStyle: styles.containerGlowPinkCard,
     blurStyle: styles.blurDare,
     textStyle: styles.textDare,
     sizeStyle: styles.sizeChoiceCard,
@@ -150,10 +157,22 @@ export const AppButton = ({
   const preset = getVariantPreset()[variant];
   const resolvedSize = preset.sizeOverride ?? size;
   const tint = blurType ? mapLegacyBlurTypeToTint(blurType) : preset.tint;
+  const [buttonSize, setButtonSize] = useState({ width: 0, height: 0 });
+  const isChoiceCardVariant = variant === "truth" || variant === "dare";
   const intensity = Math.max(
     0,
     Math.min(100, blurAmount !== undefined ? blurAmount * 4 : preset.intensity),
   );
+  const neonPalette = {
+    truth: {
+      edge: ["rgba(115, 224, 255, 1)", "rgba(118, 156, 255, 0.98)"],
+      glow: "rgba(72, 132, 255, 0.6)",
+    },
+    dare: {
+      edge: ["rgba(255, 170, 232, 1)", "rgba(255, 84, 198, 0.99)"],
+      glow: "rgba(255, 64, 178, 0.58)",
+    },
+  }[variant === "dare" ? "dare" : "truth"];
 
   const buttonContent = (
     <>
@@ -207,6 +226,12 @@ export const AppButton = ({
           tint={tint}
           intensity={intensity}
           experimentalBlurMethod="dimezisBlurView"
+          onLayout={(event) => {
+            const { width, height } = event.nativeEvent.layout;
+            if (width !== buttonSize.width || height !== buttonSize.height) {
+              setButtonSize({ width, height });
+            }
+          }}
           style={[
             styles.blurBase,
             styles[`size_${resolvedSize}`],
@@ -216,11 +241,55 @@ export const AppButton = ({
           ]}
         >
           {preset.gradientColors ? (
-            <LinearGradient
+            <ExpoLinearGradient
               colors={preset.gradientColors}
               start={{ x: 0, y: 1 }}
               end={{ x: 1, y: 0 }}
               style={styles.gradientLayer}
+            />
+          ) : null}
+          {isChoiceCardVariant &&
+          buttonSize.width > 0 &&
+          buttonSize.height > 0 ? (
+            <Canvas pointerEvents="none" style={styles.choiceCardNeon}>
+              <RoundedRect
+                x={4}
+                y={4}
+                width={buttonSize.width - 8}
+                height={buttonSize.height - 8}
+                r={BORDER_RADIUS.x3 - 2}
+                color={neonPalette.glow}
+              >
+                <BlurMask blur={28} style="solid" />
+              </RoundedRect>
+              <RoundedRect
+                x={2.2}
+                y={2.2}
+                width={buttonSize.width - 4.4}
+                height={buttonSize.height - 4.4}
+                r={BORDER_RADIUS.x3 - 1}
+                style="stroke"
+                strokeWidth={2.5}
+              >
+                <SkiaLinearGradient
+                  start={vec(0, buttonSize.height)}
+                  end={vec(buttonSize.width, 0)}
+                  colors={neonPalette.edge}
+                />
+              </RoundedRect>
+            </Canvas>
+          ) : null}
+          {isChoiceCardVariant ? (
+            <ExpoLinearGradient
+              pointerEvents="none"
+              colors={[
+                "rgba(255,255,255,0.24)",
+                "rgba(255,255,255,0.07)",
+                "rgba(255,255,255,0)",
+              ]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.choiceCardSheen}
             />
           ) : null}
           <View style={styles.overlay} />
@@ -256,12 +325,26 @@ const styles = StyleSheet.create({
     shadowRadius: 50, // was 32 — wide ambient spread
     elevation: 25,
   },
+  containerGlowBlueCard: {
+    shadowColor: "#4FA3FF",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.72,
+    shadowRadius: 26,
+    elevation: 26,
+  },
   containerGlowPink: {
     shadowColor: "#FF1FCC",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 50, // was 32 — wide ambient spread
     elevation: 25,
+  },
+  containerGlowPinkCard: {
+    shadowColor: "#FF5FD3",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.72,
+    shadowRadius: 26,
+    elevation: 26,
   },
   containerGlowPurple: {
     shadowColor: "#9E67FF",
@@ -283,9 +366,9 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(133, 74, 255, 0.16)",
   },
   blurCta: {
-    backgroundColor: "rgba(255, 46, 159, 0.42)",
-    borderColor: "rgba(255, 203, 248, 0.98)",
-    borderWidth: 1.5,
+    backgroundColor: "rgba(255, 46, 159, 0.45)",
+    borderColor: "rgba(255, 225, 252, 0.98)",
+    borderWidth: 1.8,
   },
   blurPill: {
     backgroundColor: "rgba(138, 74, 255, 0.34)",
@@ -309,24 +392,31 @@ const styles = StyleSheet.create({
   },
   blurTruth: {
     borderRadius: BORDER_RADIUS.x3,
-    backgroundColor: "rgba(30, 60, 255, 0.25)", // was 0.3 — more transparent = more glass
-    borderColor: "rgba(100, 160, 255, 1)", // brighter, fully opaque border
-    borderWidth: 3,
+    backgroundColor: "rgba(46, 96, 255, 0.09)",
+    borderColor: "transparent",
+    borderWidth: 0,
   },
   blurDare: {
     borderRadius: BORDER_RADIUS.x3,
-    backgroundColor: "rgba(220, 30, 140, 0.25)", // was 0.32 — vivid pink, more transparent
-    borderColor: "rgba(255, 120, 200, 1)", // brighter border
-    borderWidth: 3,
+    backgroundColor: "rgba(244, 56, 178, 0.09)",
+    borderColor: "transparent",
+    borderWidth: 0,
   },
 
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: "rgba(255, 255, 255, 0.012)",
   },
   gradientLayer: {
     ...StyleSheet.absoluteFillObject,
     opacity: 0.85,
+  },
+  choiceCardNeon: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  choiceCardSheen: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 1,
   },
 
   size_large: {
@@ -425,12 +515,18 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     fontWeight: "800",
     letterSpacing: 1.2,
+    textShadowColor: "rgba(100, 200, 255, 0.82)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 14,
   },
   textDare: {
     fontSize: 24,
     lineHeight: 22,
     fontWeight: "800",
     letterSpacing: 1.2,
+    textShadowColor: "rgba(255, 120, 220, 0.82)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 14,
   },
   textWithShadow: {
     textShadowColor: "rgba(0, 0, 0, 0.4)",

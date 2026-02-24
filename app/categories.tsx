@@ -21,6 +21,8 @@ import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
 import { useCategories } from "@/hooks/use-categories";
+import { getQuestionsByCategory } from "@/services/categories";
+import { setGameCategory } from "@/services/game-session";
 
 type CategoryBubble = {
   id: string;
@@ -119,9 +121,16 @@ export default function CategoriesScreen() {
     router.replace("/add-players");
   };
 
-  const handleStartGame = () => {
-    if (!canStartGame) return;
-    router.replace("/game");
+  const handleStartGame = async () => {
+    if (!canStartGame || !openCategory) return;
+
+    try {
+      const questions = await getQuestionsByCategory(openCategory.id);
+      setGameCategory(openCategory.id, openCategory.name, questions);
+      router.replace("/game");
+    } catch (error) {
+      console.log("Failed to load questions for game:", error);
+    }
   };
 
   const handleBubblePress = (bubble: CategoryBubble) => {
