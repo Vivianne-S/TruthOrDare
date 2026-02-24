@@ -242,6 +242,9 @@ export default function AddPlayersScreen() {
       >
         <View style={styles.content}>
           <Text style={styles.title}>Add Players</Text>
+          <Text style={styles.subtitle}>
+            Enter a name and pick an avatar to continue.
+          </Text>
 
           <ScrollView
             style={styles.playersScrollView}
@@ -310,7 +313,13 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     fontWeight: "700",
     textAlign: "center",
-    marginBottom: SPACING.x6,
+    marginBottom: SPACING.x2,
+  },
+  subtitle: {
+    ...TYPOGRAPHY_BASE.body,
+    color: COLORS.textSecondary,
+    textAlign: "center",
+    marginBottom: SPACING.x5,
   },
   playersScrollView: {
     flex: 1,
