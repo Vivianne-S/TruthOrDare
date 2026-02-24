@@ -22,6 +22,7 @@ import {
 
 import { AppButton } from "@/components/ui/AppButton";
 import { usePlayerSetup } from "@/hooks/use-player-setup";
+import { setGamePlayers } from "@/services/game-session";
 import { MIN_PLAYERS } from "@/types/player";
 
 const AVATARS_PER_ROW = 3;
@@ -224,6 +225,7 @@ export default function AddPlayersScreen() {
 
   const handleStartGame = () => {
     if (canStart) {
+      setGamePlayers(players);
       router.replace("/categories");
     }
   };
@@ -304,7 +306,7 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.x10,
   },
   title: {
-    ...TYPOGRAPHY_BASE.hero1,
+    ...TYPOGRAPHY_BASE.h2,
     color: COLORS.textPrimary,
     fontWeight: "700",
     textAlign: "center",

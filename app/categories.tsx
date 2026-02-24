@@ -1,9 +1,11 @@
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   ImageBackground,
   LayoutChangeEvent,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -38,24 +40,21 @@ const FREE_START_CATEGORY_NAMES = new Set([
 const ORGANIC_CATEGORY_SLOTS: BubbleSlot[] = [
   { x: 0.06, y: 0.22, size: 124 },
   { x: 0.39, y: 0.07, size: 88 },
-  { x: 0.70, y: 0.04, size: 86 },
+  { x: 0.7, y: 0.04, size: 86 },
   { x: 0.06, y: 0.03, size: 84 },
   { x: 0.47, y: 0.23, size: 94 },
   { x: 0.38, y: 0.42, size: 90 },
   { x: 0.06, y: 0.45, size: 92 },
   { x: 0.74, y: 0.22, size: 86 },
   { x: 0.04, y: 0.67, size: 86 },
-  { x: 0.35, y: 0.60, size: 92 },
+  { x: 0.35, y: 0.6, size: 92 },
   { x: 0.66, y: 0.45, size: 120 },
   { x: 0.28, y: 0.79, size: 102 },
   { x: 0.62, y: 0.71, size: 88 },
 ];
 
 export default function CategoriesScreen() {
-  const {
-    categories,
-    loading,
-  } = useCategories();
+  const { categories, loading } = useCategories();
   const insets = useSafeAreaInsets();
 
   const touchX = useSharedValue(-1000);
@@ -76,24 +75,26 @@ export default function CategoriesScreen() {
         isLocked: category.is_premium === true,
         sourceCategoryId: category.id,
       })),
-    [categories, generatedSlots]
+    [categories, generatedSlots],
   );
 
   const openCategory =
     bubbles.find((category) => category.id === selectedBubbleId) ?? null;
   const openLockedCategoryId = openCategory?.isLocked ? openCategory.id : null;
   const selectedCategoryName = openCategory?.name.toLowerCase().trim() ?? "";
-  const isSelectedFreeCategory = FREE_START_CATEGORY_NAMES.has(selectedCategoryName);
+  const isSelectedFreeCategory =
+    FREE_START_CATEGORY_NAMES.has(selectedCategoryName);
   // TODO: Replace with real ownership check when shop purchases are implemented.
   const isSelectedPremiumAndOwned = false;
   const canStartGame =
-    openCategory !== null && (isSelectedFreeCategory || isSelectedPremiumAndOwned);
+    openCategory !== null &&
+    (isSelectedFreeCategory || isSelectedPremiumAndOwned);
 
   useEffect(() => {
     if (!openLockedCategoryId) return;
     const timeoutId = setTimeout(() => {
       setSelectedBubbleId((current) =>
-        current === openLockedCategoryId ? null : current
+        current === openLockedCategoryId ? null : current,
       );
     }, 3500);
 
@@ -114,9 +115,13 @@ export default function CategoriesScreen() {
     touchY.value = event.nativeEvent.locationY;
   };
 
+  const handleGoBack = () => {
+    router.replace("/add-players");
+  };
+
   const handleStartGame = () => {
     if (!canStartGame) return;
-    router.replace("/(tabs)");
+    router.replace("/game");
   };
 
   const handleBubblePress = (bubble: CategoryBubble) => {
@@ -140,10 +145,39 @@ export default function CategoriesScreen() {
     >
       <View style={styles.overlay}>
         <View style={styles.screen}>
-          <Text style={styles.title}>Select a Category</Text>
+          <View style={styles.headerRow}>
+            <Pressable
+              onPress={handleGoBack}
+              style={styles.iconCircle}
+              hitSlop={8}
+            >
+              <Ionicons
+                name="chevron-back"
+                size={20}
+                color={COLORS.textInverse}
+              />
+            </Pressable>
+            <Text style={styles.title}>Select a Category</Text>
+            <Pressable
+              onPress={() => {
+                // Placeholder for future shop navigation
+              }}
+              style={styles.iconCircle}
+              hitSlop={8}
+            >
+              <Ionicons
+                name="cart-outline"
+                size={20}
+                color={COLORS.textInverse}
+              />
+            </Pressable>
+          </View>
 
           <View
-            style={[styles.field, { marginBottom: Math.max(112, insets.bottom + 92) }]}
+            style={[
+              styles.field,
+              { marginBottom: Math.max(112, insets.bottom + 92) },
+            ]}
             onLayout={handleLayout}
             onTouchStart={(event) => {
               touching.value = 1;
@@ -181,7 +215,12 @@ export default function CategoriesScreen() {
           </View>
 
           {openCategory?.isLocked && (
-            <View style={[styles.panel, { bottom: Math.max(112, insets.bottom + 92) }]}>
+            <View
+              style={[
+                styles.panel,
+                { bottom: Math.max(112, insets.bottom + 92) },
+              ]}
+            >
               <Text style={styles.panelTitle}>{openCategory.name}</Text>
               <Text style={styles.panelText}>
                 This category is locked for now. Visit the shop to unlock it.
@@ -189,8 +228,17 @@ export default function CategoriesScreen() {
             </View>
           )}
 
-          <View style={[styles.footerSection, { paddingBottom: Math.max(20, insets.bottom + 8) }]}>
-            <AppButton variant="cta" onPress={handleStartGame} disabled={!canStartGame}>
+          <View
+            style={[
+              styles.footerSection,
+              { paddingBottom: Math.max(20, insets.bottom + 8) },
+            ]}
+          >
+            <AppButton
+              variant="cta"
+              onPress={handleStartGame}
+              disabled={!canStartGame}
+            >
               Start Game
             </AppButton>
           </View>
@@ -219,16 +267,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: SPACING.x1,
+  },
   title: {
-    ...TYPOGRAPHY_BASE.hero1,
+    ...TYPOGRAPHY_BASE.h2,
     fontWeight: "700",
     color: COLORS.textPrimary,
-    marginBottom: SPACING.x1,
     textAlign: "center",
+    flex: 1,
   },
   field: {
     flex: 1,
     minHeight: 510,
+  },
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(24, 4, 62, 0.52)",
+    borderWidth: 1,
+    borderColor: "rgba(245, 215, 255, 0.9)",
   },
   panel: {
     position: "absolute",
@@ -242,7 +306,7 @@ const styles = StyleSheet.create({
     maxHeight: 280,
   },
   panelTitle: {
-    ...TYPOGRAPHY_BASE.large,
+    ...TYPOGRAPHY_BASE.h2,
     color: COLORS.textSecondary,
     fontWeight: "700",
     marginBottom: SPACING.x2,

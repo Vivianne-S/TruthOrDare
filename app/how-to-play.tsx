@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme/colors';
 import { BORDER_RADIUS } from '@/constants/theme/primitives';
 import { SPACING } from '@/constants/theme/spacing';
 import { TYPOGRAPHY_BASE } from '@/constants/theme/typography';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -63,7 +63,7 @@ export default function HowToPlayScreen() {
           <Text style={styles.instructions}>
             Sit in a circle. {'\n'}
             Add players in the next step and choose one category. {'\n'}
-            The player who started the game goes first. Continue taking turns clockwise.
+            
           </Text>
 
           <View style={styles.spacer} />

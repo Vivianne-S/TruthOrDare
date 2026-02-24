@@ -1,9 +1,9 @@
-import { BORDER_RADIUS } from '@/constants/theme/primitives';
-import { COLORS } from '@/constants/theme/colors';
-import { SPACING } from '@/constants/theme/spacing';
-import { BlurTint, BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
-import { ReactNode } from 'react';
+import { COLORS } from "@/constants/theme/colors";
+import { BORDER_RADIUS } from "@/constants/theme/primitives";
+import { SPACING } from "@/constants/theme/spacing";
+import { BlurTint, BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
+import { ReactNode } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -13,18 +13,18 @@ import {
   TextStyle,
   View,
   ViewStyle,
-} from 'react-native';
+} from "react-native";
 
 export type AppButtonVariant =
-  | 'glass'
-  | 'cta'
-  | 'pill'
-  | 'chip'
-  | 'fab'
-  | 'arrowNeon'
-  | 'truth'
-  | 'dare';
-type AppButtonSize = 'large' | 'small' | 'icon' | 'card';
+  | "glass"
+  | "cta"
+  | "pill"
+  | "chip"
+  | "fab"
+  | "arrowNeon"
+  | "truth"
+  | "dare";
+type AppButtonSize = "large" | "small" | "icon" | "card";
 
 export interface AppButtonProps {
   children: ReactNode;
@@ -38,7 +38,7 @@ export interface AppButtonProps {
   style?: StyleProp<ViewStyle>;
   textColor?: string;
   blurAmount?: number;
-  blurType?: 'xlight' | 'light' | 'dark' | 'extraDark' | 'regular';
+  blurType?: "xlight" | "light" | "dark" | "extraDark" | "regular";
 }
 
 const getVariantPreset = (): Record<
@@ -55,14 +55,14 @@ const getVariantPreset = (): Record<
   }
 > => ({
   glass: {
-    tint: 'light',
+    tint: "light",
     intensity: 45,
     containerStyle: styles.containerDefaultShadow,
     blurStyle: styles.blurGlass,
     textStyle: styles.textDefault,
   },
   cta: {
-    tint: 'light',
+    tint: "light",
     intensity: 90,
     containerStyle: styles.containerGlowPink,
     blurStyle: styles.blurCta,
@@ -70,7 +70,7 @@ const getVariantPreset = (): Record<
     sizeStyle: styles.sizeCta,
   },
   pill: {
-    tint: 'dark',
+    tint: "dark",
     intensity: 62,
     containerStyle: styles.containerGlowPurple,
     blurStyle: styles.blurPill,
@@ -78,65 +78,65 @@ const getVariantPreset = (): Record<
     sizeStyle: styles.sizePill,
   },
   chip: {
-    tint: 'dark',
+    tint: "dark",
     intensity: 58,
     containerStyle: styles.containerSoft,
     blurStyle: styles.blurChip,
     textStyle: styles.textChip,
     sizeStyle: styles.sizeChip,
-    sizeOverride: 'large',
+    sizeOverride: "large",
   },
   fab: {
-    tint: 'light',
+    tint: "light",
     intensity: 76,
     containerStyle: styles.containerGlowPurple,
     blurStyle: styles.blurFab,
     textStyle: styles.textFab,
     sizeStyle: styles.sizeFab,
-    sizeOverride: 'icon',
+    sizeOverride: "icon",
   },
   arrowNeon: {
-    tint: 'dark',
+    tint: "dark",
     intensity: 62,
     containerStyle: styles.containerGlowPink,
     blurStyle: styles.blurArrowNeon,
     textStyle: styles.textFab,
     sizeStyle: styles.sizeArrowNeon,
-    gradientColors: ['#8A3DFF', '#FF3FD5', '#FF9BF3'],
-    sizeOverride: 'icon',
+    gradientColors: ["#8A3DFF", "#FF3FD5", "#FF9BF3"],
+    sizeOverride: "icon",
   },
   truth: {
-    tint: 'dark',
-    intensity: 70,
+    tint: "light",
+    intensity: 10,
     containerStyle: styles.containerGlowBlue,
     blurStyle: styles.blurTruth,
     textStyle: styles.textTruth,
     sizeStyle: styles.sizeChoiceCard,
-    sizeOverride: 'card',
+    sizeOverride: "card",
   },
   dare: {
-    tint: 'dark',
-    intensity: 70,
+    tint: "light",
+    intensity: 10,
     containerStyle: styles.containerGlowPink,
     blurStyle: styles.blurDare,
     textStyle: styles.textDare,
     sizeStyle: styles.sizeChoiceCard,
-    sizeOverride: 'card',
+    sizeOverride: "card",
   },
 });
 
 const mapLegacyBlurTypeToTint = (
-  blurType: AppButtonProps['blurType']
+  blurType: AppButtonProps["blurType"],
 ): BlurTint => {
-  if (blurType === 'dark' || blurType === 'extraDark') return 'dark';
-  if (blurType === 'regular') return 'default';
-  return 'light';
+  if (blurType === "dark" || blurType === "extraDark") return "dark";
+  if (blurType === "regular") return "default";
+  return "light";
 };
 
 export const AppButton = ({
   children,
-  variant = 'glass',
-  size = 'large',
+  variant = "glass",
+  size = "large",
   onPress,
   disabled = false,
   loading = false,
@@ -152,14 +152,14 @@ export const AppButton = ({
   const tint = blurType ? mapLegacyBlurTypeToTint(blurType) : preset.tint;
   const intensity = Math.max(
     0,
-    Math.min(100, blurAmount !== undefined ? blurAmount * 4 : preset.intensity)
+    Math.min(100, blurAmount !== undefined ? blurAmount * 4 : preset.intensity),
   );
 
   const buttonContent = (
     <>
       {loading ? (
         <ActivityIndicator
-          color={textColor || '#FFFFFF'}
+          color={textColor || "#FFFFFF"}
           size="small"
           style={styles.spinner}
         />
@@ -167,7 +167,7 @@ export const AppButton = ({
         <>
           {leftIcon ? <View style={styles.iconLeft}>{leftIcon}</View> : null}
 
-          {typeof children === 'string' ? (
+          {typeof children === "string" ? (
             <Text
               style={[
                 styles.textBase,
@@ -234,96 +234,95 @@ export const AppButton = ({
 const styles = StyleSheet.create({
   containerBase: {
     borderRadius: BORDER_RADIUS.x6,
-    overflow: 'hidden',
   },
   containerDefaultShadow: {
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18,
     shadowRadius: 8,
     elevation: 5,
   },
   containerSoft: {
-    shadowColor: '#7B5CFF',
+    shadowColor: "#7B5CFF",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 14,
     elevation: 5,
   },
-  containerGlowPink: {
-    shadowColor: '#FF4FD8',
+  containerGlowBlue: {
+    shadowColor: "#2255FF",
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.75,
-    shadowRadius: 18,
-    elevation: 10,
+    shadowOpacity: 1,
+    shadowRadius: 50, // was 32 — wide ambient spread
+    elevation: 25,
+  },
+  containerGlowPink: {
+    shadowColor: "#FF1FCC",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 50, // was 32 — wide ambient spread
+    elevation: 25,
   },
   containerGlowPurple: {
-    shadowColor: '#9E67FF',
+    shadowColor: "#9E67FF",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.58,
     shadowRadius: 14,
     elevation: 8,
   },
-  containerGlowBlue: {
-    shadowColor: '#5A7BFF',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.55,
-    shadowRadius: 16,
-    elevation: 8,
-  },
 
   blurBase: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
-    overflow: 'hidden',
+    borderColor: "rgba(255, 255, 255, 0.25)",
+    overflow: "hidden",
   },
   blurGlass: {
-    backgroundColor: 'rgba(133, 74, 255, 0.16)',
+    backgroundColor: "rgba(133, 74, 255, 0.16)",
   },
   blurCta: {
-    backgroundColor: 'rgba(255, 46, 159, 0.42)',
-    borderColor: 'rgba(255, 203, 248, 0.98)',
+    backgroundColor: "rgba(255, 46, 159, 0.42)",
+    borderColor: "rgba(255, 203, 248, 0.98)",
     borderWidth: 1.5,
   },
   blurPill: {
-    backgroundColor: 'rgba(138, 74, 255, 0.34)',
-    borderColor: 'rgba(220, 181, 255, 0.8)',
+    backgroundColor: "rgba(138, 74, 255, 0.34)",
+    borderColor: "rgba(220, 181, 255, 0.8)",
     borderWidth: 1.2,
   },
   blurChip: {
-    backgroundColor: 'rgba(126, 52, 227, 0.42)',
-    borderColor: 'rgba(220, 181, 255, 0.55)',
-    justifyContent: 'space-between',
+    backgroundColor: "rgba(126, 52, 227, 0.42)",
+    borderColor: "rgba(220, 181, 255, 0.55)",
+    justifyContent: "space-between",
   },
   blurFab: {
-    backgroundColor: 'rgba(145, 72, 255, 0.48)',
-    borderColor: 'rgba(214, 177, 255, 0.92)',
+    backgroundColor: "rgba(145, 72, 255, 0.48)",
+    borderColor: "rgba(214, 177, 255, 0.92)",
     borderWidth: 1.4,
   },
   blurArrowNeon: {
-    backgroundColor: 'rgba(255, 91, 221, 0.16)',
-    borderColor: 'rgba(255, 210, 248, 0.98)',
+    backgroundColor: "rgba(255, 91, 221, 0.16)",
+    borderColor: "rgba(255, 210, 248, 0.98)",
     borderWidth: 1.6,
   },
   blurTruth: {
     borderRadius: BORDER_RADIUS.x3,
-    backgroundColor: 'rgba(77, 109, 255, 0.3)',
-    borderColor: 'rgba(123, 178, 255, 0.98)',
-    borderWidth: 1.4,
+    backgroundColor: "rgba(30, 60, 255, 0.25)", // was 0.3 — more transparent = more glass
+    borderColor: "rgba(100, 160, 255, 1)", // brighter, fully opaque border
+    borderWidth: 3,
   },
   blurDare: {
     borderRadius: BORDER_RADIUS.x3,
-    backgroundColor: 'rgba(255, 76, 188, 0.32)',
-    borderColor: 'rgba(255, 175, 221, 0.98)',
-    borderWidth: 1.4,
+    backgroundColor: "rgba(220, 30, 140, 0.25)", // was 0.32 — vivid pink, more transparent
+    borderColor: "rgba(255, 120, 200, 1)", // brighter border
+    borderWidth: 3,
   },
 
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
   },
   gradientLayer: {
     ...StyleSheet.absoluteFillObject,
@@ -331,14 +330,14 @@ const styles = StyleSheet.create({
   },
 
   size_large: {
-    width: '100%',
+    width: "100%",
     minHeight: 54,
     paddingVertical: SPACING.x3,
     paddingHorizontal: SPACING.x5,
   },
   size_small: {
     minHeight: 44,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     paddingVertical: SPACING.x3,
     paddingHorizontal: SPACING.x6,
   },
@@ -349,7 +348,7 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.round,
     paddingHorizontal: 0,
     paddingVertical: 0,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   size_card: {
     flex: 1,
@@ -392,10 +391,10 @@ const styles = StyleSheet.create({
 
   textBase: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     lineHeight: 20,
-    textAlign: 'center',
-    color: '#FFFFFF',
+    textAlign: "center",
+    color: "#FFFFFF",
   },
   textDefault: {
     fontSize: 16,
@@ -403,38 +402,38 @@ const styles = StyleSheet.create({
   textCta: {
     fontSize: 18,
     lineHeight: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     color: COLORS.textInverse,
   },
   textPill: {
     fontSize: 16,
     lineHeight: 21,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   textChip: {
     fontSize: 16,
     lineHeight: 20,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   textFab: {
     fontSize: 24,
     lineHeight: 30,
-    fontWeight: '400',
+    fontWeight: "400",
   },
   textTruth: {
-    fontSize: 16,
+    fontSize: 24,
     lineHeight: 22,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 1.2,
   },
   textDare: {
-    fontSize: 16,
+    fontSize: 24,
     lineHeight: 22,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 1.2,
   },
   textWithShadow: {
-    textShadowColor: 'rgba(0, 0, 0, 0.4)',
+    textShadowColor: "rgba(0, 0, 0, 0.4)",
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
@@ -448,8 +447,8 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
   pressedBlur: {
-    borderColor: 'rgba(255, 255, 255, 0.98)',
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: "rgba(255, 255, 255, 0.98)",
+    backgroundColor: "rgba(255, 255, 255, 0.12)",
   },
   disabled: {
     opacity: 0.5,
