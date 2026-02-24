@@ -106,8 +106,8 @@ const getVariantPreset = (): Record<
     sizeOverride: "icon",
   },
   truth: {
-    tint: "dark",
-    intensity: 70,
+    tint: "light",
+    intensity: 10,
     containerStyle: styles.containerGlowBlue,
     blurStyle: styles.blurTruth,
     textStyle: styles.textTruth,
@@ -115,8 +115,8 @@ const getVariantPreset = (): Record<
     sizeOverride: "card",
   },
   dare: {
-    tint: "dark",
-    intensity: 70,
+    tint: "light",
+    intensity: 10,
     containerStyle: styles.containerGlowPink,
     blurStyle: styles.blurDare,
     textStyle: styles.textDare,
@@ -249,25 +249,25 @@ const styles = StyleSheet.create({
     shadowRadius: 14,
     elevation: 5,
   },
-  containerGlowPink: {
-    shadowColor: "#FF4FD8",
+  containerGlowBlue: {
+    shadowColor: "#2255FF",
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.75,
-    shadowRadius: 18,
-    elevation: 10,
+    shadowOpacity: 1,
+    shadowRadius: 50, // was 32 — wide ambient spread
+    elevation: 25,
+  },
+  containerGlowPink: {
+    shadowColor: "#FF1FCC",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 50, // was 32 — wide ambient spread
+    elevation: 25,
   },
   containerGlowPurple: {
     shadowColor: "#9E67FF",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.58,
     shadowRadius: 14,
-    elevation: 8,
-  },
-  containerGlowBlue: {
-    shadowColor: "#5A7BFF",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.55,
-    shadowRadius: 16,
     elevation: 8,
   },
 
@@ -309,15 +309,15 @@ const styles = StyleSheet.create({
   },
   blurTruth: {
     borderRadius: BORDER_RADIUS.x3,
-    backgroundColor: "rgba(77, 109, 255, 0.3)",
-    borderColor: "rgba(123, 178, 255, 0.98)",
-    borderWidth: 1.4,
+    backgroundColor: "rgba(30, 60, 255, 0.25)", // was 0.3 — more transparent = more glass
+    borderColor: "rgba(100, 160, 255, 1)", // brighter, fully opaque border
+    borderWidth: 3,
   },
   blurDare: {
     borderRadius: BORDER_RADIUS.x3,
-    backgroundColor: "rgba(255, 76, 188, 0.32)",
-    borderColor: "rgba(255, 175, 221, 0.98)",
-    borderWidth: 1.4,
+    backgroundColor: "rgba(220, 30, 140, 0.25)", // was 0.32 — vivid pink, more transparent
+    borderColor: "rgba(255, 120, 200, 1)", // brighter border
+    borderWidth: 3,
   },
 
   overlay: {
@@ -421,13 +421,13 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
   textTruth: {
-    fontSize: 16,
+    fontSize: 24,
     lineHeight: 22,
     fontWeight: "800",
     letterSpacing: 1.2,
   },
   textDare: {
-    fontSize: 16,
+    fontSize: 24,
     lineHeight: 22,
     fontWeight: "800",
     letterSpacing: 1.2,
