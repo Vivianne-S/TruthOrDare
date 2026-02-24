@@ -1,11 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import {
-    Image,
-    ImageBackground,
-    StyleSheet,
-    Text,
-    View,
-} from "react-native";
+import { Image, ImageBackground, StyleSheet, Text, View } from "react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
 import { AVATARS } from "@/constants/avatars";
@@ -38,7 +32,11 @@ export default function GameScreen() {
               {hasPlayers ? `It's ${playerName}'s turn!` : "Your turn!"}
             </Text>
             <View style={styles.iconCircle}>
-              <Ionicons name="settings-outline" size={20} color={COLORS.textInverse} />
+              <Ionicons
+                name="settings-outline"
+                size={20}
+                color={COLORS.textInverse}
+              />
             </View>
           </View>
 
@@ -52,12 +50,8 @@ export default function GameScreen() {
           </View>
 
           <View style={styles.choiceRow}>
-            <AppButton variant="truth">
-              TRUTH
-            </AppButton>
-            <AppButton variant="dare">
-              DARE
-            </AppButton>
+            <AppButton variant="truth">TRUTH</AppButton>
+            <AppButton variant="dare">DARE</AppButton>
           </View>
 
           <View style={styles.cardPlaceholder}>
@@ -76,11 +70,7 @@ export default function GameScreen() {
             >
               Next player
             </AppButton>
-            <AppButton
-              variant="pill"
-              size="small"
-              style={styles.footerButton}
-            >
+            <AppButton variant="pill" size="small" style={styles.footerButton}>
               Pass
             </AppButton>
           </View>
@@ -200,4 +190,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-
