@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as Speech from "expo-speech";
 import React, { useEffect, useRef } from "react";
 import {
   Animated,
@@ -7,6 +8,7 @@ import {
   ImageBackground,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 
@@ -40,6 +42,24 @@ export default function GameScreen() {
     currentQuestion?.question_text ?? "Tap TRUTH or DARE to reveal a question.";
 
   const pulse = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!currentQuestion?.question_text) {
+      Speech.stop();
+      return;
+    }
+
+    Speech.stop();
+    Speech.speak(currentQuestion.question_text, {
+      language: "en-US",
+      pitch: 1.0,
+      rate: 1.0,
+    });
+
+    return () => {
+      Speech.stop();
+    };
+  }, [currentQuestion?.question_text]);
 
   useEffect(() => {
     let loop: Animated.CompositeAnimation | null = null;
@@ -140,7 +160,29 @@ export default function GameScreen() {
           </View>
 
           <View style={styles.cardPlaceholder}>
-            <Text style={styles.cardLabel}>{questionLabel}</Text>
+            <View style={styles.cardHeaderRow}>
+              <Text style={styles.cardLabel}>{questionLabel}</Text>
+              {currentQuestion?.question_text ? (
+                <TouchableOpacity
+                  onPress={() => {
+                    Speech.stop();
+                    Speech.speak(questionText, {
+                      language: "en-US",
+                      pitch: 1.0,
+                      rate: 1.0,
+                    });
+                  }}
+                  style={styles.speakerButton}
+                  accessibilityLabel="Read the question"
+                >
+                  <Ionicons
+                    name="volume-high"
+                    size={18}
+                    color={COLORS.textSecondary}
+                  />
+                </TouchableOpacity>
+              ) : null}
+            </View>
             <Text style={styles.cardPlaceholderText}>{questionText}</Text>
           </View>
 
@@ -273,10 +315,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: SPACING.x5,
   },
+  cardHeaderRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   cardLabel: {
     ...TYPOGRAPHY_BASE.small,
     color: COLORS.textSecondary,
     marginBottom: SPACING.x2,
+  },
+  speakerButton: {
+    paddingHorizontal: SPACING.x1,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
   },
   cardPlaceholderText: {
     fontFamily: FONT_FAMILY.primary.extraBold,
