@@ -40,8 +40,10 @@ export default function GameScreen() {
       : AVATARS[0];
 
   const questionLabel = currentQuestion?.type?.toUpperCase() ?? "TRUTH OR DARE";
-  const questionText =
-    currentQuestion?.question_text ?? "Tap TRUTH or DARE to reveal a question.";
+  const hasQuestion = !!currentQuestion?.question_text;
+  const questionText = hasQuestion
+    ? currentQuestion.question_text
+    : "Tap TRUTH or DARE to reveal a question.";
 
   const pulse = useRef(new Animated.Value(0)).current;
   const { speak } = useQuestionSpeech({
@@ -171,7 +173,14 @@ export default function GameScreen() {
                 </TouchableOpacity>
               ) : null}
             </View>
-            <Text style={styles.cardPlaceholderText}>{questionText}</Text>
+            <Text
+              style={[
+                styles.cardPlaceholderText,
+                !hasQuestion && styles.cardPlaceholderHintText,
+              ]}
+            >
+              {questionText}
+            </Text>
           </View>
 
           <View style={styles.footerRow}>
@@ -321,9 +330,15 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.06)",
   },
   cardPlaceholderText: {
+    ...TYPOGRAPHY_BASE.h3,
     fontFamily: FONT_FAMILY.primary.extraBold,
     color: COLORS.textPrimary,
     textAlign: "center",
+  },
+  cardPlaceholderHintText: {
+    ...TYPOGRAPHY_BASE.body,
+    fontFamily: FONT_FAMILY.primary.regular,
+    color: COLORS.textSecondary,
   },
   footerRow: {
     flexDirection: "row",
