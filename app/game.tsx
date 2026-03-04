@@ -1,6 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import * as Speech from "expo-speech";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Easing,
@@ -19,6 +18,7 @@ import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
 import { FONT_FAMILY, TYPOGRAPHY_BASE } from "@/constants/theme/typography";
 import { useGameSession } from "@/hooks/use-game-session";
+import { useQuestionSpeech } from "@/hooks/use-question-speech";
 
 export default function GameScreen() {
   const {
@@ -31,6 +31,8 @@ export default function GameScreen() {
     showDare,
   } = useGameSession();
 
+  const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
+
   const playerName = currentPlayer?.name || "Player";
   const avatarSource =
     currentPlayer && currentPlayer.avatarId >= 0
@@ -42,24 +44,11 @@ export default function GameScreen() {
     currentQuestion?.question_text ?? "Tap TRUTH or DARE to reveal a question.";
 
   const pulse = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (!currentQuestion?.question_text) {
-      Speech.stop();
-      return;
-    }
-
-    Speech.stop();
-    Speech.speak(currentQuestion.question_text, {
-      language: "en-US",
-      pitch: 1.0,
-      rate: 1.0,
-    });
-
-    return () => {
-      Speech.stop();
-    };
-  }, [currentQuestion?.question_text]);
+  const { speak } = useQuestionSpeech({
+    text: currentQuestion?.question_text ?? null,
+    enabled: isSpeechEnabled,
+    language: "en-US",
+  });
 
   useEffect(() => {
     let loop: Animated.CompositeAnimation | null = null;
@@ -124,13 +113,19 @@ export default function GameScreen() {
                 {hasPlayers ? `It's ${playerName}'s turn!` : "Your turn!"}
               </Text>
             </View>
-            <View style={styles.iconCircle}>
+            <TouchableOpacity
+              style={styles.iconCircle}
+              onPress={() => setIsSpeechEnabled((prev) => !prev)}
+              accessibilityLabel={
+                isSpeechEnabled ? "Turn off speech" : "Turn on speech"
+              }
+            >
               <Ionicons
-                name="settings-outline"
+                name={isSpeechEnabled ? "volume-high" : "volume-mute"}
                 size={20}
                 color={COLORS.textInverse}
               />
-            </View>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.avatarContainer}>
@@ -162,18 +157,11 @@ export default function GameScreen() {
           <View style={styles.cardPlaceholder}>
             <View style={styles.cardHeaderRow}>
               <Text style={styles.cardLabel}>{questionLabel}</Text>
-              {currentQuestion?.question_text ? (
+              {currentQuestion?.question_text && isSpeechEnabled ? (
                 <TouchableOpacity
-                  onPress={() => {
-                    Speech.stop();
-                    Speech.speak(questionText, {
-                      language: "en-US",
-                      pitch: 1.0,
-                      rate: 1.0,
-                    });
-                  }}
+                  onPress={speak}
                   style={styles.speakerButton}
-                  accessibilityLabel="Read the question"
+                  accessibilityLabel="Read the question again"
                 >
                   <Ionicons
                     name="volume-high"
