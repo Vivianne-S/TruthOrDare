@@ -6,7 +6,7 @@
  */
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   ImageBackground,
@@ -26,6 +26,7 @@ import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
+import { useAutoDeselectAfterDelay } from "@/hooks/use-categories-lock-message";
 import { useCategories } from "@/hooks/use-categories";
 import { getQuestionsByCategory } from "@/services/categories";
 import { setGameCategory } from "@/services/game-session";
@@ -105,18 +106,11 @@ export default function CategoriesScreen() {
     openCategory !== null &&
     (isSelectedFreeCategory || isSelectedPremiumAndOwned);
 
-  useEffect(() => {
-    if (!openLockedCategoryId) return;
-    const timeoutId = setTimeout(() => {
-      setSelectedBubbleId((current) =>
-        current === openLockedCategoryId ? null : current,
-      );
-    }, 3500);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [openLockedCategoryId]);
+  useAutoDeselectAfterDelay(
+    openLockedCategoryId,
+    3500,
+    setSelectedBubbleId
+  );
 
   const handleLayout = (event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
