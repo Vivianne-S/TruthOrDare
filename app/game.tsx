@@ -5,10 +5,9 @@
  */
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   Animated,
-  Easing,
   Image,
   ImageBackground,
   StyleSheet,
@@ -25,6 +24,7 @@ import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
 import { FONT_FAMILY, TYPOGRAPHY_BASE } from "@/constants/theme/typography";
 import { useGameSession } from "@/hooks/use-game-session";
+import { usePulseAnimation } from "@/hooks/use-pulse-animation";
 import { useQuestionSpeech } from "@/hooks/use-question-speech";
 
 export default function GameScreen() {
@@ -43,69 +43,28 @@ export default function GameScreen() {
 
   const handleExitGame = () => setShowExitConfirm(true);
 
-  const playerName = currentPlayer?.name || "Player";
+  const playerName = currentPlayer?.name;
   const avatarSource =
     currentPlayer && currentPlayer.avatarId >= 0
       ? AVATARS[currentPlayer.avatarId % AVATARS.length]
       : AVATARS[0];
 
-  const questionLabel = currentQuestion?.type?.toUpperCase() ?? "TRUTH OR DARE";
+  const questionLabel = currentQuestion?.type?.toUpperCase();
   const hasQuestion = !!currentQuestion?.question_text;
   const questionText = hasQuestion
     ? currentQuestion.question_text
     : "Tap TRUTH or DARE to reveal a question.";
 
-  const pulse = useRef(new Animated.Value(0)).current;
+  const nextPlayerGlowStyle = usePulseAnimation(!!currentQuestion, {
+    opacityRange: [0.7, 1],
+    scaleRange: [1, 1.05],
+  });
+
   const { speak } = useQuestionSpeech({
     text: currentQuestion?.question_text ?? null,
     enabled: isSpeechEnabled,
     language: "en-US",
   });
-
-  useEffect(() => {
-    let loop: Animated.CompositeAnimation | null = null;
-
-    if (currentQuestion) {
-      loop = Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulse, {
-            toValue: 1,
-            duration: 900,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulse, {
-            toValue: 0,
-            duration: 900,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ]),
-      );
-      loop.start();
-    } else {
-      pulse.setValue(0);
-    }
-
-    return () => {
-      if (loop) loop.stop();
-    };
-  }, [currentQuestion, pulse]);
-
-  const nextPlayerGlowStyle = {
-    opacity: pulse.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0.7, 1],
-    }),
-    transform: [
-      {
-        scale: pulse.interpolate({
-          inputRange: [0, 1],
-          outputRange: [1, 1.05],
-        }),
-      },
-    ],
-  };
 
   return (
     <>
@@ -178,8 +137,15 @@ export default function GameScreen() {
           </View>
 
           <View style={styles.cardPlaceholder}>
-            <View style={styles.cardHeaderRow}>
-              <Text style={styles.cardLabel}>{questionLabel}</Text>
+            <View style={styles.questionRow}>
+              <Text
+                style={[
+                  styles.cardPlaceholderText,
+                  !hasQuestion && styles.cardPlaceholderHintText,
+                ]}
+              >
+                {questionText}
+              </Text>
               {currentQuestion?.question_text && isSpeechEnabled ? (
                 <TouchableOpacity
                   onPress={speak}
@@ -194,14 +160,6 @@ export default function GameScreen() {
                 </TouchableOpacity>
               ) : null}
             </View>
-            <Text
-              style={[
-                styles.cardPlaceholderText,
-                !hasQuestion && styles.cardPlaceholderHintText,
-              ]}
-            >
-              {questionText}
-            </Text>
           </View>
 
           <View style={styles.footerRow}>
@@ -339,16 +297,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: SPACING.x5,
   },
-  cardHeaderRow: {
+  questionRow: {
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-  },
-  cardLabel: {
-    ...TYPOGRAPHY_BASE.small,
-    color: COLORS.textSecondary,
-    marginBottom: SPACING.x2,
+    gap: SPACING.x3,
   },
   speakerButton: {
     paddingHorizontal: SPACING.x1,
@@ -357,6 +310,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.06)",
   },
   cardPlaceholderText: {
+    flex: 1,
     ...TYPOGRAPHY_BASE.h3,
     fontFamily: FONT_FAMILY.primary.extraBold,
     color: COLORS.textPrimary,

@@ -9,51 +9,15 @@ import { SPACING } from '@/constants/theme/spacing';
 import { TYPOGRAPHY_BASE } from '@/constants/theme/typography';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useEffect, useRef } from 'react';
-import { Animated, Easing, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
+
+import { usePulseAnimation } from '@/hooks/use-pulse-animation';
 
 export default function HowToPlayScreen() {
-  const pulse = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const pulseLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulse, {
-          toValue: 1,
-          duration: 900,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulse, {
-          toValue: 0,
-          duration: 900,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ])
-    );
-
-    pulseLoop.start();
-
-    return () => {
-      pulseLoop.stop();
-    };
-  }, [pulse]);
-
-  const hintAnimatedStyle = {
-    opacity: pulse.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0.45, 1],
-    }),
-    transform: [
-      {
-        scale: pulse.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0.98, 1.02],
-        }),
-      },
-    ],
-  };
+  const hintAnimatedStyle = usePulseAnimation(true, {
+    opacityRange: [0.45, 1],
+    scaleRange: [0.98, 1.02],
+  });
 
   return (
     <ImageBackground

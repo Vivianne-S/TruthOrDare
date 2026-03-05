@@ -10,7 +10,7 @@ import { SPACING } from "@/constants/theme/spacing";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Image,
   ImageBackground,
@@ -27,6 +27,7 @@ import {
 
 import { AppButton } from "@/components/ui/AppButton";
 import { usePlayerSetup } from "@/hooks/use-player-setup";
+import { useResetWhen } from "@/hooks/use-avatar-page-reset";
 import { setGamePlayers } from "@/services/game-session";
 import { MIN_PLAYERS } from "@/types/player";
 
@@ -84,9 +85,7 @@ function AvatarPickerModal({
   const totalPages = Math.max(1, Math.ceil(AVATARS.length / AVATARS_PER_PAGE));
   const hasMultiplePages = totalPages > 1;
 
-  useEffect(() => {
-    if (visible) setPage(0);
-  }, [visible]);
+  useResetWhen(visible, 0, setPage);
 
   const visibleAvatars = useMemo(() => {
     const start = page * AVATARS_PER_PAGE;
