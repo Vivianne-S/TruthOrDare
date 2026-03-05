@@ -1,3 +1,9 @@
+/**
+ * Category selection screen: displays category bubbles from Supabase.
+ * Free categories (love and relationships, funny, chaos) can start the game;
+ * premium categories show a locked panel. On "Start Game" loads questions
+ * and navigates to the game screen.
+ */
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
@@ -33,12 +39,14 @@ type CategoryBubble = {
   sourceCategoryId: string;
 };
 
+// Categories that can be played without in-app purchase
 const FREE_START_CATEGORY_NAMES = new Set([
   "love and relationships",
   "funny",
   "chaos",
 ]);
 
+// Predefined positions for category bubbles on the field (x, y as 0–1, size in px)
 const ORGANIC_CATEGORY_SLOTS: BubbleSlot[] = [
   { x: 0.06, y: 0.22, size: 124 },
   { x: 0.39, y: 0.07, size: 88 },
@@ -56,7 +64,12 @@ const ORGANIC_CATEGORY_SLOTS: BubbleSlot[] = [
 ];
 
 export default function CategoriesScreen() {
-  const { categories, loading } = useCategories();
+  const {
+    categories,
+    loading,
+    questionsByCategory,
+    handlePressCategory,
+  } = useCategories();
   const insets = useSafeAreaInsets();
 
   const touchX = useSharedValue(-1000);
@@ -121,11 +134,17 @@ export default function CategoriesScreen() {
     router.replace("/add-players");
   };
 
+  const handleShop = () => {
+    // TODO: Navigate to shop when implemented
+  };
+
+  // Use cached questions if available, else fetch. Then save to game-session and start.
   const handleStartGame = async () => {
     if (!canStartGame || !openCategory) return;
 
     try {
-      const questions = await getQuestionsByCategory(openCategory.id);
+      const cached = questionsByCategory[openCategory.id];
+      const questions = cached ?? (await getQuestionsByCategory(openCategory.id));
       setGameCategory(openCategory.id, openCategory.name, questions);
       router.replace("/game");
     } catch (error) {
@@ -136,6 +155,8 @@ export default function CategoriesScreen() {
   const handleBubblePress = (bubble: CategoryBubble) => {
     const isClosingCurrent = selectedBubbleId === bubble.id;
     setSelectedBubbleId(isClosingCurrent ? null : bubble.id);
+    // Pre-load questions on select; clear selection state on deselect
+    handlePressCategory(bubble.id);
   };
 
   if (loading) {
@@ -168,11 +189,10 @@ export default function CategoriesScreen() {
             </Pressable>
             <Text style={styles.title}>Select a Category</Text>
             <Pressable
-              onPress={() => {
-                // Placeholder for future shop navigation
-              }}
+              onPress={handleShop}
               style={styles.iconCircle}
               hitSlop={8}
+              accessibilityLabel="Shop"
             >
               <Ionicons
                 name="cart-outline"

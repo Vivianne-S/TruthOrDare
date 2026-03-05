@@ -1,4 +1,10 @@
+/**
+ * Main game screen: shows current player, TRUTH/DARE buttons, and question card.
+ * Uses useGameSession for players/questions and useQuestionSpeech for TTS.
+ * "Next player" advances the turn; TRUTH/DARE reveal a random question from the category.
+ */
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -12,6 +18,7 @@ import {
 } from "react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
+import { ExitConfirmModal } from "@/components/ui/ExitConfirmModal";
 import { AVATARS } from "@/constants/avatars";
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
@@ -32,6 +39,9 @@ export default function GameScreen() {
   } = useGameSession();
 
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+
+  const handleExitGame = () => setShowExitConfirm(true);
 
   const playerName = currentPlayer?.name || "Player";
   const avatarSource =
@@ -98,6 +108,7 @@ export default function GameScreen() {
   };
 
   return (
+    <>
     <ImageBackground
       source={require("@/assets/images/game_background.png")}
       resizeMode="cover"
@@ -106,7 +117,17 @@ export default function GameScreen() {
       <View style={styles.overlay}>
         <View style={styles.screen}>
           <View style={styles.headerRow}>
-            <View style={styles.headerSide} />
+            <TouchableOpacity
+              style={styles.iconCircle}
+              onPress={handleExitGame}
+              accessibilityLabel="Avsluta spelet"
+            >
+              <Ionicons
+                name="exit-outline"
+                size={20}
+                color={COLORS.textInverse}
+              />
+            </TouchableOpacity>
             <View style={styles.headerCenter}>
               {categoryName ? (
                 <Text style={styles.categoryLabel}>{categoryName}</Text>
@@ -204,6 +225,16 @@ export default function GameScreen() {
         </View>
       </View>
     </ImageBackground>
+
+    <ExitConfirmModal
+      visible={showExitConfirm}
+      onNo={() => setShowExitConfirm(false)}
+      onYes={() => {
+        setShowExitConfirm(false);
+        router.replace("/");
+      }}
+    />
+    </>
   );
 }
 
@@ -227,10 +258,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: SPACING.x6,
-  },
-  headerSide: {
-    width: 36,
-    height: 36,
   },
   headerCenter: {
     flex: 1,

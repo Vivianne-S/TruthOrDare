@@ -1,3 +1,7 @@
+/**
+ * Floating category bubble with Reanimated animations.
+ * Shows category name/icon; supports open (selected), locked (premium), and touch-follow glow.
+ */
 import { BubbleSlot } from "@/constants/category-bubbles";
 import { COLORS } from "@/constants/theme/colors";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";

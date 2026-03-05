@@ -1,3 +1,8 @@
+/**
+ * Add players screen: manage player names and avatars before starting a game.
+ * Uses usePlayerSetup for local state; on "Select category" saves players to
+ * game-session and navigates to categories.
+ */
 import { AVATARS } from "@/constants/avatars";
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
@@ -30,6 +35,7 @@ const AVATAR_ROWS_PER_PAGE = 3;
 const AVATARS_PER_PAGE = AVATARS_PER_ROW * AVATAR_ROWS_PER_PAGE;
 const AVATAR_OPTION_SIZE = 68;
 
+// Single avatar button in a player row; shows placeholder (+) if no avatar selected
 function AvatarPickerButton({
   avatarId,
   onPress,
@@ -62,6 +68,7 @@ function AvatarPickerButton({
   );
 }
 
+// Modal to pick an avatar from the AVATARS list; supports pagination when many avatars
 function AvatarPickerModal({
   visible,
   selectedId,
@@ -168,6 +175,7 @@ function AvatarPickerModal({
   );
 }
 
+// One row per player: avatar picker, name input, and optional remove button
 function PlayerInputRow({
   name,
   avatarId,
@@ -223,6 +231,7 @@ export default function AddPlayersScreen() {
     canStart,
   } = usePlayerSetup();
 
+  // Persist players to game-session and navigate to category selection
   const handleStartGame = () => {
     if (canStart) {
       setGamePlayers(players);
@@ -240,8 +249,12 @@ export default function AddPlayersScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
       >
+        <View style={styles.headerRow}>
+          <View style={styles.headerSpacer} />
+          <Text style={styles.headerTitle}>Add Players</Text>
+          <View style={styles.headerSpacer} />
+        </View>
         <View style={styles.content}>
-          <Text style={styles.title}>Add Players</Text>
           <Text style={styles.subtitle}>
             Enter a name and pick an avatar to continue.
           </Text>
@@ -302,18 +315,40 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: SPACING.x8,
-    paddingTop: 72,
-    paddingBottom: SPACING.x10,
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: SPACING.x4,
+    paddingTop: 56,
+    paddingBottom: SPACING.x2,
   },
-  title: {
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(24, 4, 62, 0.52)",
+    borderWidth: 1,
+    borderColor: "rgba(245, 215, 255, 0.9)",
+  },
+  headerSpacer: {
+    width: 36,
+    height: 36,
+  },
+  headerTitle: {
     ...TYPOGRAPHY_BASE.h2,
     color: COLORS.textPrimary,
     fontWeight: "700",
+    flex: 1,
     textAlign: "center",
-    marginBottom: SPACING.x2,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: SPACING.x8,
+    paddingTop: SPACING.x2,
+    paddingBottom: SPACING.x10,
   },
   subtitle: {
     ...TYPOGRAPHY_BASE.body,

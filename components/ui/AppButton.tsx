@@ -1,3 +1,7 @@
+/**
+ * Reusable button with multiple variants: glass, cta, pill, chip, fab, truth, dare.
+ * Uses BlurView, Skia gradients, and neon effects for TRUTH/DARE variants.
+ */
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";

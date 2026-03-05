@@ -1,3 +1,7 @@
+/**
+ * Player setup hook: manages players list, avatar picker state, and validation.
+ * Used by add-players screen. Persists to game-session only when navigating to categories.
+ */
 import { useCallback, useMemo, useState } from "react";
 
 import {
