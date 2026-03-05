@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Easing,
@@ -7,6 +7,7 @@ import {
   ImageBackground,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 
@@ -17,6 +18,7 @@ import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
 import { FONT_FAMILY, TYPOGRAPHY_BASE } from "@/constants/theme/typography";
 import { useGameSession } from "@/hooks/use-game-session";
+import { useQuestionSpeech } from "@/hooks/use-question-speech";
 
 export default function GameScreen() {
   const {
@@ -29,6 +31,8 @@ export default function GameScreen() {
     showDare,
   } = useGameSession();
 
+  const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
+
   const playerName = currentPlayer?.name || "Player";
   const avatarSource =
     currentPlayer && currentPlayer.avatarId >= 0
@@ -36,10 +40,17 @@ export default function GameScreen() {
       : AVATARS[0];
 
   const questionLabel = currentQuestion?.type?.toUpperCase() ?? "TRUTH OR DARE";
-  const questionText =
-    currentQuestion?.question_text ?? "Tap TRUTH or DARE to reveal a question.";
+  const hasQuestion = !!currentQuestion?.question_text;
+  const questionText = hasQuestion
+    ? currentQuestion.question_text
+    : "Tap TRUTH or DARE to reveal a question.";
 
   const pulse = useRef(new Animated.Value(0)).current;
+  const { speak } = useQuestionSpeech({
+    text: currentQuestion?.question_text ?? null,
+    enabled: isSpeechEnabled,
+    language: "en-US",
+  });
 
   useEffect(() => {
     let loop: Animated.CompositeAnimation | null = null;
@@ -104,13 +115,19 @@ export default function GameScreen() {
                 {hasPlayers ? `It's ${playerName}'s turn!` : "Your turn!"}
               </Text>
             </View>
-            <View style={styles.iconCircle}>
+            <TouchableOpacity
+              style={styles.iconCircle}
+              onPress={() => setIsSpeechEnabled((prev) => !prev)}
+              accessibilityLabel={
+                isSpeechEnabled ? "Turn off speech" : "Turn on speech"
+              }
+            >
               <Ionicons
-                name="settings-outline"
+                name={isSpeechEnabled ? "volume-high" : "volume-mute"}
                 size={20}
                 color={COLORS.textInverse}
               />
-            </View>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.avatarContainer}>
@@ -140,8 +157,30 @@ export default function GameScreen() {
           </View>
 
           <View style={styles.cardPlaceholder}>
-            <Text style={styles.cardLabel}>{questionLabel}</Text>
-            <Text style={styles.cardPlaceholderText}>{questionText}</Text>
+            <View style={styles.cardHeaderRow}>
+              <Text style={styles.cardLabel}>{questionLabel}</Text>
+              {currentQuestion?.question_text && isSpeechEnabled ? (
+                <TouchableOpacity
+                  onPress={speak}
+                  style={styles.speakerButton}
+                  accessibilityLabel="Read the question again"
+                >
+                  <Ionicons
+                    name="volume-high"
+                    size={18}
+                    color={COLORS.textSecondary}
+                  />
+                </TouchableOpacity>
+              ) : null}
+            </View>
+            <Text
+              style={[
+                styles.cardPlaceholderText,
+                !hasQuestion && styles.cardPlaceholderHintText,
+              ]}
+            >
+              {questionText}
+            </Text>
           </View>
 
           <View style={styles.footerRow}>
@@ -273,15 +312,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: SPACING.x5,
   },
+  cardHeaderRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   cardLabel: {
     ...TYPOGRAPHY_BASE.small,
     color: COLORS.textSecondary,
     marginBottom: SPACING.x2,
   },
+  speakerButton: {
+    paddingHorizontal: SPACING.x1,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
+  },
   cardPlaceholderText: {
+    ...TYPOGRAPHY_BASE.h3,
     fontFamily: FONT_FAMILY.primary.extraBold,
     color: COLORS.textPrimary,
     textAlign: "center",
+  },
+  cardPlaceholderHintText: {
+    ...TYPOGRAPHY_BASE.body,
+    fontFamily: FONT_FAMILY.primary.regular,
+    color: COLORS.textSecondary,
   },
   footerRow: {
     flexDirection: "row",
