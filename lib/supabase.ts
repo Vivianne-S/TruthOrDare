@@ -1,3 +1,8 @@
+/**
+ * Supabase client for database access.
+ * Uses EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY from env.
+ * Tables: categories, questions.
+ */
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;

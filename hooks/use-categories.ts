@@ -1,3 +1,8 @@
+/**
+ * Categories hook: fetches categories from Supabase and caches questions per category.
+ * When user selects a category, questions are pre-loaded for faster game start.
+ * Used by categories screen.
+ */
 import { getCategories, getQuestionsByCategory } from "@/services/categories";
 import type { Category, Question } from "@/types/category";
 import { useEffect, useState } from "react";
@@ -32,6 +37,7 @@ export function useCategories() {
     };
   }, []);
 
+  // Pre-load questions when user selects a category (for tracking and faster game start)
   const handlePressCategory = async (categoryId: string) => {
     if (openCategoryId === categoryId) {
       setOpenCategoryId(null);

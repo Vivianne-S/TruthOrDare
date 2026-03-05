@@ -1,3 +1,8 @@
+/**
+ * Root layout for the Truth or Dare app.
+ * Configures the main Stack navigator and theme (dark/light).
+ * All screens use file-based routing via Expo Router.
+ */
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import {
   DarkTheme,
@@ -19,10 +24,6 @@ export default function RootLayout() {
         <Stack.Screen name="add-players" options={{ headerShown: false }} />
         <Stack.Screen name="categories" options={{ headerShown: false }} />
         <Stack.Screen name="game" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="modal"
-          options={{ presentation: "modal", title: "Modal" }}
-        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

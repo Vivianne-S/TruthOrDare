@@ -1,3 +1,7 @@
+/**
+ * Player CRUD helpers: create, update, remove players.
+ * Used by usePlayerSetup in add-players screen.
+ */
 import { MIN_PLAYERS, Player, UNSELECTED_AVATAR } from "@/types/player";
 
 let playerIdCounter = 0;
@@ -37,6 +41,7 @@ export const updatePlayerAvatarById = (
 export const removePlayerById = (players: Player[], playerId: string): Player[] =>
   players.filter((player) => player.id !== playerId);
 
+// Player is valid if they have a non-empty name and a selected avatar
 export const isPlayerValid = (player: Player): boolean =>
   player.name.trim().length > 0 && player.avatarId >= 0;
 

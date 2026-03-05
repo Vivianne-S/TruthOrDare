@@ -1,3 +1,7 @@
+/**
+ * Text-to-speech hook for reading questions aloud via expo-speech.
+ * Auto-speaks when text changes (if enabled); exposes speak() for manual replay.
+ */
 import { useEffect } from "react";
 import * as Speech from "expo-speech";
 

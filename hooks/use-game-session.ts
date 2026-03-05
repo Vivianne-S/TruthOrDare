@@ -1,3 +1,8 @@
+/**
+ * Game session hook: reads from game-session service and exposes
+ * currentPlayer, currentQuestion, categoryName, nextPlayer, showTruth, showDare.
+ * Used by the game screen.
+ */
 import { useEffect, useState } from "react";
 
 import {

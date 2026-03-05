@@ -1,3 +1,8 @@
+/**
+ * Supabase-backed category and question fetching.
+ * getCategories: fetches all categories ordered by sort_order.
+ * getQuestionsByCategory: fetches questions for a category (used when starting a game).
+ */
 import { supabase } from "@/lib/supabase";
 import type { Category, Question } from "@/types/category";
 

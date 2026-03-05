@@ -1,3 +1,8 @@
+/**
+ * How-to-play instructions screen.
+ * Shows game rules and a note about in-app purchases.
+ * Tap anywhere to continue to the add-players screen.
+ */
 import { COLORS } from '@/constants/theme/colors';
 import { BORDER_RADIUS } from '@/constants/theme/primitives';
 import { SPACING } from '@/constants/theme/spacing';

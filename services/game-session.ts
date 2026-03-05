@@ -1,3 +1,8 @@
+/**
+ * In-memory game session state.
+ * Holds players, current turn index, selected category, and questions.
+ * Used by add-players (setGamePlayers), categories (setGameCategory), and game screen (useGameSession).
+ */
 import { Player } from "@/types/player";
 import type { Question } from "@/types/category";
 
@@ -41,6 +46,7 @@ export const getSelectedCategoryName = (): string | null =>
 
 export const getGameQuestions = (): Question[] => gameQuestions;
 
+// Returns a random question of type "truth" or "dare" from the current category
 export const getRandomQuestionByType = (type: string): Question | null => {
   const normalized = type.toLowerCase().trim();
   const pool = gameQuestions.filter(
