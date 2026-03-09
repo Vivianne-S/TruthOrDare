@@ -49,7 +49,6 @@ export default function GameScreen() {
       ? AVATARS[currentPlayer.avatarId % AVATARS.length]
       : AVATARS[0];
 
-  const questionLabel = currentQuestion?.type?.toUpperCase();
   const hasQuestion = !!currentQuestion?.question_text;
   const questionText = hasQuestion
     ? currentQuestion.question_text

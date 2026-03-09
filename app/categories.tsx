@@ -5,8 +5,9 @@
  * and navigates to the game screen.
  */
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   ImageBackground,
@@ -21,48 +22,20 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppButton } from "@/components/ui/AppButton";
 import { CategoryBubbleButton } from "@/components/ui/CategoryBubbleButton";
-import { BubbleSlot } from "@/constants/category-bubbles";
+import {
+  FREE_START_CATEGORY_NAMES,
+  ORGANIC_CATEGORY_SLOTS,
+} from "@/constants/category-bubbles";
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
 import { useAutoDeselectAfterDelay } from "@/hooks/use-categories-lock-message";
 import { useCategories } from "@/hooks/use-categories";
+import { useDemoPurchases } from "@/hooks/use-demo-purchases";
 import { getQuestionsByCategory } from "@/services/categories";
 import { setGameCategory } from "@/services/game-session";
-
-type CategoryBubble = {
-  id: string;
-  name: string;
-  icon: string | null;
-  slot: BubbleSlot;
-  isLocked: boolean;
-  sourceCategoryId: string;
-};
-
-// Categories that can be played without in-app purchase
-const FREE_START_CATEGORY_NAMES = new Set([
-  "love and relationships",
-  "funny",
-  "chaos",
-]);
-
-// Predefined positions for category bubbles on the field (x, y as 0–1, size in px)
-const ORGANIC_CATEGORY_SLOTS: BubbleSlot[] = [
-  { x: 0.06, y: 0.22, size: 124 },
-  { x: 0.39, y: 0.07, size: 88 },
-  { x: 0.7, y: 0.04, size: 86 },
-  { x: 0.06, y: 0.03, size: 84 },
-  { x: 0.47, y: 0.23, size: 94 },
-  { x: 0.38, y: 0.42, size: 90 },
-  { x: 0.06, y: 0.45, size: 92 },
-  { x: 0.74, y: 0.22, size: 86 },
-  { x: 0.04, y: 0.67, size: 86 },
-  { x: 0.35, y: 0.6, size: 92 },
-  { x: 0.66, y: 0.45, size: 120 },
-  { x: 0.28, y: 0.79, size: 102 },
-  { x: 0.62, y: 0.71, size: 88 },
-];
+import type { CategoryBubble } from "@/types/category";
 
 export default function CategoriesScreen() {
   const {
@@ -71,7 +44,14 @@ export default function CategoriesScreen() {
     questionsByCategory,
     handlePressCategory,
   } = useCategories();
+  const { isCategoryUnlocked, refreshProStatus } = useDemoPurchases();
   const insets = useSafeAreaInsets();
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshProStatus();
+    }, [refreshProStatus])
+  );
 
   const touchX = useSharedValue(-1000);
   const touchY = useSharedValue(-1000);
@@ -88,10 +68,11 @@ export default function CategoriesScreen() {
         name: category.name,
         icon: category.icon ?? null,
         slot: generatedSlots[i % generatedSlots.length],
-        isLocked: category.is_premium === true,
+        isLocked:
+          category.is_premium === true && !isCategoryUnlocked(category.id),
         sourceCategoryId: category.id,
       })),
-    [categories, generatedSlots],
+    [categories, generatedSlots, isCategoryUnlocked],
   );
 
   const openCategory =
@@ -100,11 +81,9 @@ export default function CategoriesScreen() {
   const selectedCategoryName = openCategory?.name.toLowerCase().trim() ?? "";
   const isSelectedFreeCategory =
     FREE_START_CATEGORY_NAMES.has(selectedCategoryName);
-  // TODO: Replace with real ownership check when shop purchases are implemented.
-  const isSelectedPremiumAndOwned = false;
   const canStartGame =
     openCategory !== null &&
-    (isSelectedFreeCategory || isSelectedPremiumAndOwned);
+    (isSelectedFreeCategory || isCategoryUnlocked(openCategory.id));
 
   useAutoDeselectAfterDelay(
     openLockedCategoryId,
@@ -129,7 +108,7 @@ export default function CategoriesScreen() {
   };
 
   const handleShop = () => {
-    // TODO: Navigate to shop when implemented
+    router.push("/shop");
   };
 
   // Use cached questions if available, else fetch. Then save to game-session and start.
@@ -246,7 +225,7 @@ export default function CategoriesScreen() {
             >
               <Text style={styles.panelTitle}>{openCategory.name}</Text>
               <Text style={styles.panelText}>
-                This category is locked for now. Visit the shop to unlock it.
+                This category is locked for now. Visit the shop to unlock it. 
               </Text>
             </View>
           )}
@@ -339,9 +318,6 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     marginBottom: SPACING.x1,
     lineHeight: 20,
-  },
-  questionsScroll: {
-    maxHeight: 215,
   },
   footerSection: {
     position: "absolute",

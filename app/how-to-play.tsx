@@ -30,10 +30,11 @@ export default function HowToPlayScreen() {
           <Text style={styles.title}>How to Play</Text>
 
           <Text style={styles.instructions}>
-            Sit in a circle. {'\n'}
-            Add players in the next step and choose one category. {'\n'}
-            
-          </Text>
+  Enter each player's name and choose an avatar to add them to the game. {'\n'}
+  Then select the category for this round. {'\n'}
+  Turns follow the same order as the players were added. {'\n'}
+  When it’s your turn, choose Truth or Dare and complete the challenge!
+</Text>
 
           <View style={styles.spacer} />
 
