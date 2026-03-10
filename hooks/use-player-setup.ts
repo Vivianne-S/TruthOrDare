@@ -14,8 +14,12 @@ import {
 } from "@/services/player-service";
 import { Player, UNSELECTED_AVATAR } from "@/types/player";
 
-export function usePlayerSetup() {
-  const [players, setPlayers] = useState<Player[]>(() => createInitialPlayers());
+export function usePlayerSetup(initialPlayers?: Player[] | null) {
+  const [players, setPlayers] = useState<Player[]>(() =>
+    initialPlayers && initialPlayers.length > 0
+      ? initialPlayers
+      : createInitialPlayers()
+  );
   const [avatarPickerPlayerId, setAvatarPickerPlayerId] = useState<string | null>(
     null
   );

@@ -14,6 +14,7 @@ type ExitMenuModalProps = {
   visible: boolean;
   onDismiss: () => void;
   onBackToCategories: () => void;
+  onAddMorePlayers: () => void;
   onExitGame: () => void;
 };
 
@@ -21,6 +22,7 @@ export function ExitMenuModal({
   visible,
   onDismiss,
   onBackToCategories,
+  onAddMorePlayers,
   onExitGame,
 }: ExitMenuModalProps) {
   return (
@@ -61,6 +63,23 @@ export function ExitMenuModal({
                   style={styles.optionIcon}
                 />
                 <Text style={styles.optionText}>Back to categories</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={onAddMorePlayers}
+                style={({ pressed }) => [
+                  styles.optionButton,
+                  styles.optionAdd,
+                  pressed && styles.optionPressed,
+                ]}
+              >
+                <Ionicons
+                  name="person-add"
+                  size={22}
+                  color={COLORS.primary}
+                  style={styles.optionIcon}
+                />
+                <Text style={styles.optionText}>Add more players</Text>
               </Pressable>
 
               <Pressable
@@ -146,6 +165,15 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.successSurface,
     borderColor: "rgba(121, 201, 255, 0.5)",
     shadowColor: COLORS.success,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  optionAdd: {
+    backgroundColor: "rgba(165, 107, 255, 0.2)",
+    borderColor: "rgba(165, 107, 255, 0.5)",
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 12,

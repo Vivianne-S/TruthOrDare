@@ -196,6 +196,10 @@ export default function GameScreen() {
         setShowExitMenu(false);
         router.replace("/categories");
       }}
+      onAddMorePlayers={() => {
+        setShowExitMenu(false);
+        router.push("/add-players?addMore=true");
+      }}
       onExitGame={handleExitGame}
     />
     <ExitConfirmModal
