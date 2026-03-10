@@ -45,8 +45,10 @@
 
 In-memory state (not persisted):
 
-- Players, current turn index, category, questions
-- See [GAME_FLOW.md](./GAME_FLOW.md)
+- Players, current turn index, category
+- Shuffled truth/dare pools (draw without repeats)
+- Player stats (truthCount, dareCount) for awards
+- See [GAME_FLOW.md](./GAME_FLOW.md), [GAME_OVER.md](./GAME_OVER.md)
 
 ---
 
@@ -89,6 +91,21 @@ type Question = {
 ### CategoryBubble
 
 Extended category for UI with `slot` and `isLocked`.
+
+### Game types (`types/game.ts`)
+
+```ts
+type PlayerStats = {
+  truthCount: number;
+  dareCount: number;
+};
+
+type GameAwards = {
+  mostDaring: Player | null;   // Dare Devil
+  truthfulAngel: Player | null; // Truthful Angel
+  superstar: Player | null;     // Challenge Master
+};
+```
 
 ---
 

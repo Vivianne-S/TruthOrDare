@@ -1,0 +1,202 @@
+import { StyleSheet } from "react-native";
+
+import { COLORS } from "@/constants/theme/colors";
+import { BORDER_RADIUS } from "@/constants/theme/primitives";
+import { SPACING } from "@/constants/theme/spacing";
+import { FONT_FAMILY, TYPOGRAPHY_BASE } from "@/constants/theme/typography";
+
+export const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
+  overlay: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingTop: 72,
+    paddingHorizontal: SPACING.x6,
+    paddingBottom: SPACING.x10,
+    alignItems: "center",
+  },
+  titleWrapper: {
+    position: "relative",
+    alignItems: "center",
+    marginBottom: SPACING.x7,
+  },
+  title: {
+    ...TYPOGRAPHY_BASE.hero1,
+    fontFamily: FONT_FAMILY.primary.extraBold,
+    color: COLORS.textPrimary,
+    textAlign: "center",
+    letterSpacing: 4,
+    textShadowColor: COLORS.secondary,
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 24,
+    elevation: 8,
+  },
+  titleGlow: {
+    position: "absolute",
+    width: 200,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "rgba(255, 79, 216, 0.15)",
+    top: -8,
+    zIndex: -1,
+  },
+  avatarRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: SPACING.x5,
+    marginBottom: SPACING.x7,
+  },
+  avatarWrapper: {
+    alignItems: "center",
+  },
+  avatarGlow: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    padding: 4,
+    borderWidth: 2.5,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  avatar: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 36,
+    overflow: "hidden",
+  },
+  awardsSection: {
+    width: "100%",
+    gap: SPACING.x3,
+    marginBottom: SPACING.x7,
+  },
+  awardCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(34, 9, 78, 0.72)",
+    borderRadius: BORDER_RADIUS.x5,
+    borderWidth: 1,
+    borderColor: "rgba(245, 215, 255, 0.35)",
+    padding: SPACING.x4,
+  },
+  awardIconBg: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: SPACING.x4,
+  },
+  awardIconFlame: {
+    backgroundColor: "rgba(255, 106, 174, 0.5)",
+    shadowColor: "#FF6AAE",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.7,
+    shadowRadius: 10,
+  },
+  awardIconHappy: {
+    backgroundColor: "rgba(255, 179, 107, 0.5)",
+    shadowColor: "#FFB36B",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.7,
+    shadowRadius: 10,
+  },
+  awardIconTrophy: {
+    backgroundColor: "rgba(255, 193, 7, 0.5)",
+    shadowColor: "#FFC107",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.7,
+    shadowRadius: 10,
+  },
+  awardContent: {
+    flex: 1,
+  },
+  awardLabel: {
+    ...TYPOGRAPHY_BASE.small,
+    fontFamily: FONT_FAMILY.primary.medium,
+    color: COLORS.textSecondary,
+    marginBottom: 2,
+  },
+  awardSubtitle: {
+    ...TYPOGRAPHY_BASE.xSmall,
+    fontFamily: FONT_FAMILY.primary.regular,
+    color: COLORS.textTertiary,
+    marginBottom: 4,
+  },
+  awardName: {
+    ...TYPOGRAPHY_BASE.body,
+    fontFamily: FONT_FAMILY.primary.extraBold,
+    color: COLORS.textPrimary,
+  },
+  awardNameEmpty: {
+    fontFamily: FONT_FAMILY.primary.regular,
+    color: COLORS.textTertiary,
+  },
+  buttonsSection: {
+    width: "100%",
+    gap: SPACING.x5,
+    alignItems: "center",
+  },
+  playAgainWrapper: {
+    width: "100%",
+    shadowColor: COLORS.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
+    elevation: 12,
+  },
+  playAgainButton: {
+    width: "100%",
+  },
+  secondaryRow: {
+    flexDirection: "row",
+    gap: SPACING.x4,
+    width: "100%",
+    justifyContent: "center",
+  },
+  secondaryButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: SPACING.x4,
+    paddingHorizontal: SPACING.x5,
+    borderRadius: BORDER_RADIUS.x5,
+    borderWidth: 1.5,
+    gap: SPACING.x2,
+  },
+  newGameButton: {
+    backgroundColor: "rgba(121, 201, 255, 0.18)",
+    borderColor: "rgba(121, 201, 255, 0.55)",
+    shadowColor: "#79C9FF",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.65,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  exitButton: {
+    backgroundColor: "rgba(255, 106, 174, 0.18)",
+    borderColor: "rgba(255, 106, 174, 0.5)",
+    shadowColor: "#FF6AAE",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.65,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  buttonPressed: {
+    opacity: 0.88,
+  },
+  secondaryIcon: {},
+  secondaryButtonText: {
+    ...TYPOGRAPHY_BASE.body,
+    fontFamily: FONT_FAMILY.primary.semiBold,
+    color: COLORS.textInverse,
+  },
+});

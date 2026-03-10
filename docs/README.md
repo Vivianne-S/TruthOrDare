@@ -12,7 +12,8 @@ Truth Or Dare is a React Native (Expo) party game app. Players add their names a
 |----------|-------------|
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Tech stack, folder structure, dependencies |
 | [NAVIGATION.md](./NAVIGATION.md) | Screens, routing, and flow between screens |
-| [GAME_FLOW.md](./GAME_FLOW.md) | Game session, player turns, questions |
+| [GAME_FLOW.md](./GAME_FLOW.md) | Game session, shuffled pools, player turns, game end |
+| [GAME_OVER.md](./GAME_OVER.md) | Game Over screen, awards, Play Again |
 | [EXIT_MENU.md](./EXIT_MENU.md) | Exit menu modal and all button flows |
 | [SHOP.md](./SHOP.md) | Shop, demo purchases, premium categories |
 | [DATA.md](./DATA.md) | Data layer, Supabase, types |
@@ -42,6 +43,7 @@ Requires environment variables for Supabase:
 3. **Add Players** → Add names, pick avatars, add more players
 4. **Categories** → Choose category (free or premium)
 5. **Game** → Play Truth or Dare, next player, end round options
+6. **Game Over** → When question pools are empty: awards, Play Again, New Game, Exit
 
 ---
 
@@ -49,7 +51,10 @@ Requires environment variables for Supabase:
 
 - **Player setup**: Add players with names and avatars.
 - **Category selection**: Free and premium categories from Supabase.
-- **Truth or Dare**: Random questions per turn.
+- **Truth or Dare**: Shuffled question pools per session; no repeats until pools exhausted.
+- **Game end**: Finite question list; Game Over screen when pools empty.
+- **Awards**: Dare Devil, Truthful Angel, Challenge Master (computed automatically).
+- **Play Again**: Same category, new shuffle, same players.
 - **Text-to-speech**: Optional speech for questions.
 - **Add more players**: Add players mid-game.
 - **End round options**: Back to categories, add players, or exit app.

@@ -25,16 +25,22 @@ TruthOrDare/
 │   ├── _layout.tsx         # Root layout, Stack navigator
 │   ├── index.tsx           # Splash screen
 │   ├── how-to-play.tsx     # Rules screen
-│   ├── add-players.tsx      # Player setup
-│   ├── categories.tsx       # Category selection
+│   ├── add-players.tsx     # Player setup
+│   ├── categories.tsx     # Category selection
 │   ├── shop.tsx            # In-app purchases (demo)
-│   └── game.tsx            # Main game screen
+│   └── game.tsx            # Game orchestrator (GameView, GameOverScreen, modals)
 ├── components/
+│   ├── game/               # Game-specific components
+│   │   ├── GameView.tsx    # Main game UI (avatar, TRUTH/DARE, question)
+│   │   └── GameView.styles.ts
 │   └── ui/                 # Reusable UI components
 │       ├── AppButton.tsx
 │       ├── CategoryBubbleButton.tsx
 │       ├── ExitConfirmModal.tsx
-│       └── ExitMenuModal.tsx
+│       ├── ExitMenuModal.tsx
+│       └── GameOverScreen/
+│           ├── index.tsx   # Game Over screen
+│           └── styles.ts
 ├── constants/
 │   ├── avatars.ts          # Avatar image sources
 │   ├── category-bubbles.ts # Bubble layout slots
@@ -44,7 +50,7 @@ TruthOrDare/
 │       ├── primitives.ts
 │       ├── spacing.ts
 │       └── typography/
-├── hooks/                   # Custom React hooks
+├── hooks/                  # Custom React hooks
 │   ├── use-avatar-page-reset.ts
 │   ├── use-categories.ts
 │   ├── use-categories-lock-message.ts
@@ -58,11 +64,15 @@ TruthOrDare/
 │   └── supabase.ts         # Supabase client
 ├── services/
 │   ├── categories.ts       # Category/question fetching
-│   ├── game-session.ts    # In-memory game state
-│   └── player-service.ts  # Player CRUD helpers
+│   ├── game-session.ts     # In-memory game state, shuffled pools
+│   └── player-service.ts   # Player CRUD helpers
 ├── types/
 │   ├── category.ts
+│   ├── game.ts             # GameAwards, PlayerStats
 │   └── player.ts
+├── utils/
+│   ├── shuffle.ts          # Fisher-Yates shuffle
+│   └── game-awards.ts      # computeAwards for Game Over
 ├── assets/
 │   └── images/
 └── docs/
@@ -74,7 +84,7 @@ TruthOrDare/
 
 ### In-memory game state
 
-`services/game-session.ts` holds players, current turn, category, and questions in module-level variables. No persistence across app restarts.
+`services/game-session.ts` holds players, current turn, category, and shuffled truth/dare pools. Questions are drawn from pools (no repeats until exhausted). Game ends when a pool is empty. No persistence across app restarts.
 
 ### File-based routing
 
@@ -97,5 +107,10 @@ Screens delegate logic to hooks:
 ### Services for data
 
 - `categories.ts` → Supabase (categories, questions)
-- `game-session.ts` → in-memory game state
+- `game-session.ts` → in-memory game state, shuffled pools
 - `player-service.ts` → player list helpers
+
+### Utils for shared logic
+
+- `utils/shuffle.ts` → Fisher-Yates shuffle (used by game-session)
+- `utils/game-awards.ts` → computeAwards for Game Over
