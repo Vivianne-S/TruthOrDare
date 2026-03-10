@@ -1,6 +1,8 @@
-# Welcome to your Expo app 👋
+# Truth Or Dare
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native (Expo) party game app. Add players, choose categories, and play Truth or Dare with questions from Supabase.
+
+**Documentation:** See the [docs/](./docs/) folder for architecture, navigation, game flow, and more.
 
 ## Get started
 
