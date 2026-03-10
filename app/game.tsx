@@ -18,6 +18,7 @@ import {
 
 import { AppButton } from "@/components/ui/AppButton";
 import { ExitConfirmModal } from "@/components/ui/ExitConfirmModal";
+import { ExitMenuModal } from "@/components/ui/ExitMenuModal";
 import { AVATARS } from "@/constants/avatars";
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
@@ -39,9 +40,14 @@ export default function GameScreen() {
   } = useGameSession();
 
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
+  const [showExitMenu, setShowExitMenu] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
 
-  const handleExitGame = () => setShowExitConfirm(true);
+  const handleDoorPress = () => setShowExitMenu(true);
+  const handleExitGame = () => {
+    setShowExitMenu(false);
+    setShowExitConfirm(true);
+  };
 
   const playerName = currentPlayer?.name;
   const avatarSource =
@@ -77,8 +83,8 @@ export default function GameScreen() {
           <View style={styles.headerRow}>
             <TouchableOpacity
               style={styles.iconCircle}
-              onPress={handleExitGame}
-              accessibilityLabel="Avsluta spelet"
+              onPress={handleDoorPress}
+              accessibilityLabel="Meny för att avsluta eller gå tillbaka"
             >
               <Ionicons
                 name="exit-outline"
@@ -183,6 +189,19 @@ export default function GameScreen() {
       </View>
     </ImageBackground>
 
+    <ExitMenuModal
+      visible={showExitMenu}
+      onDismiss={() => setShowExitMenu(false)}
+      onBackToCategories={() => {
+        setShowExitMenu(false);
+        router.replace("/categories");
+      }}
+      onAddMorePlayers={() => {
+        setShowExitMenu(false);
+        router.push("/add-players?addMore=true");
+      }}
+      onExitGame={handleExitGame}
+    />
     <ExitConfirmModal
       visible={showExitConfirm}
       onNo={() => setShowExitConfirm(false)}

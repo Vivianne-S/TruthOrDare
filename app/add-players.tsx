@@ -9,7 +9,7 @@ import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { useLocalSearchParams, router } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   Image,
@@ -28,7 +28,7 @@ import {
 import { AppButton } from "@/components/ui/AppButton";
 import { usePlayerSetup } from "@/hooks/use-player-setup";
 import { useResetWhen } from "@/hooks/use-avatar-page-reset";
-import { setGamePlayers } from "@/services/game-session";
+import { getGamePlayers, setGamePlayers } from "@/services/game-session";
 import { MIN_PLAYERS } from "@/types/player";
 
 const AVATARS_PER_ROW = 3;
@@ -217,6 +217,9 @@ function PlayerInputRow({
 }
 
 export default function AddPlayersScreen() {
+  const { addMore } = useLocalSearchParams<{ addMore?: string }>();
+  const isAddMoreMode = addMore === "true";
+
   const {
     players,
     addPlayer,
@@ -228,13 +231,16 @@ export default function AddPlayersScreen() {
     closeAvatarPicker,
     selectAvatarForActivePlayer,
     canStart,
-  } = usePlayerSetup();
+  } = usePlayerSetup(isAddMoreMode ? getGamePlayers() : null);
 
-  // Persist players to game-session and navigate to category selection
   const handleStartGame = () => {
     if (canStart) {
       setGamePlayers(players);
-      router.replace("/categories");
+      if (isAddMoreMode) {
+        router.replace("/game");
+      } else {
+        router.replace("/categories");
+      }
     }
   };
 
@@ -249,8 +255,24 @@ export default function AddPlayersScreen() {
         style={styles.keyboardView}
       >
         <View style={styles.headerRow}>
-          <View style={styles.headerSpacer} />
-          <Text style={styles.headerTitle}>Add Players</Text>
+          {isAddMoreMode ? (
+            <Pressable
+              onPress={() => router.back()}
+              style={styles.iconCircle}
+              hitSlop={8}
+            >
+              <Ionicons
+                name="chevron-back"
+                size={20}
+                color={COLORS.textInverse}
+              />
+            </Pressable>
+          ) : (
+            <View style={styles.headerSpacer} />
+          )}
+          <Text style={styles.headerTitle}>
+            {isAddMoreMode ? "Add More Players" : "Add Players"}
+          </Text>
           <View style={styles.headerSpacer} />
         </View>
         <View style={styles.content}>
@@ -289,7 +311,7 @@ export default function AddPlayersScreen() {
               onPress={handleStartGame}
               disabled={!canStart}
             >
-              Select category
+              {isAddMoreMode ? "Back to game" : "Select category"}
             </AppButton>
           </View>
         </View>
