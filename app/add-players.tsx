@@ -266,21 +266,19 @@ export default function AddPlayersScreen() {
             <LanguageSwitcher />
           </View>
           <View style={styles.headerBottomRow}>
-            {isAddMoreMode ? (
-              <Pressable
-                onPress={() => router.back()}
-                style={styles.iconCircle}
-                hitSlop={8}
-              >
-                <Ionicons
-                  name="chevron-back"
-                  size={20}
-                  color={COLORS.textInverse}
-                />
-              </Pressable>
-            ) : (
-              <View style={styles.headerSpacer} />
-            )}
+            <Pressable
+              onPress={() =>
+                isAddMoreMode ? router.back() : router.replace("/game-mode-select")
+              }
+              style={styles.iconCircle}
+              hitSlop={8}
+            >
+              <Ionicons
+                name="chevron-back"
+                size={20}
+                color={COLORS.textInverse}
+              />
+            </Pressable>
             <Text style={styles.headerTitle}>
               {isAddMoreMode
                 ? t("addPlayers.addMorePlayers")

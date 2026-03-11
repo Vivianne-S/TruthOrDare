@@ -1,4 +1,35 @@
 {
+  "gameModeSelect": {
+    "title": "Välj spelläge",
+    "subtitle": "Hur vill du spela?",
+    "localGame": "Lokalt spel",
+    "localGameDesc": "Spela tillsammans på en enhet.",
+    "joinGame": "Gå med i spel",
+    "joinGameDesc": "Ange en kod för att gå med i någon annans spel.",
+    "createGame": "Skapa spel",
+    "createGameDesc": "Skapa ett rum och bjud in andra att gå med."
+  },
+  "joinGame": {
+    "title": "Gå med i spel",
+    "subtitle": "Ange rumskoden eller scanna värdens QR-kod.",
+    "codePlaceholder": "Rumskod",
+    "join": "Gå med",
+    "scanQR": "Scanna QR-kod",
+    "invalidCodeTitle": "Ogiltig kod",
+    "invalidCodeMessage": "Ange en 6-teckens rumskod.",
+    "comingSoonTitle": "Kommer snart",
+    "comingSoonMessage": "Online multiplayer kommer i en framtida uppdatering."
+  },
+  "createGame": {
+    "title": "Skapa spel",
+    "subtitle": "Dela denna kod eller QR-kod så andra kan gå med.",
+    "roomCode": "Rumskod",
+    "hint": "Andra kan scanna denna QR-kod eller ange koden för att gå med.",
+    "copyCode": "Kopiera kod",
+    "startGame": "Starta spel",
+    "comingSoonTitle": "Kommer snart",
+    "comingSoonMessage": "Online multiplayer kommer i en framtida uppdatering."
+  },
   "howToPlay": {
     "title": "Så spelar du",
     "step1": "Lägg till spelare – skriv in varje persons namn och välj en avatar.",

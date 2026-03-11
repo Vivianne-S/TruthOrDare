@@ -1,7 +1,7 @@
 /**
  * How-to-play instructions screen.
  * Shows game rules and a note about in-app purchases.
- * Tap anywhere to continue to the add-players screen.
+ * Tap anywhere to continue to the game mode select screen.
  */
 import { COLORS } from '@/constants/theme/colors';
 import { BORDER_RADIUS } from '@/constants/theme/primitives';
@@ -41,7 +41,7 @@ export default function HowToPlayScreen() {
         <View style={styles.topBarSpacer} />
         <LanguageSwitcher />
       </View>
-      <Pressable style={styles.overlay} onPress={() => router.replace('/add-players')}>
+      <Pressable style={styles.overlay} onPress={() => router.replace('/game-mode-select')}>
         <View style={styles.content}>
           <Text style={styles.title}>{t('howToPlay.title')}</Text>
 
