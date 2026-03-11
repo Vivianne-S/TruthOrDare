@@ -6,7 +6,7 @@
  */
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -37,11 +37,19 @@ import { useAutoDeselectAfterDelay } from "@/hooks/use-categories-lock-message";
 import { useCategories } from "@/hooks/use-categories";
 import { useDemoPurchases } from "@/hooks/use-demo-purchases";
 import { getQuestionsByCategory } from "@/services/categories";
-import { setGameCategory } from "@/services/game-session";
+import {
+  getRoomById,
+  getRoomPlayers,
+  roomPlayersToPlayers,
+  startGameInRoom,
+} from "@/services/game-room";
+import { setGameCategory, setGamePlayers } from "@/services/game-session";
 import type { CategoryBubble } from "@/types/category";
 
 export default function CategoriesScreen() {
   const { t } = useI18n();
+  const { roomId } = useLocalSearchParams<{ roomId?: string }>();
+  const isMultiplayer = Boolean(roomId);
   const {
     categories,
     loading,
@@ -108,7 +116,11 @@ export default function CategoriesScreen() {
   };
 
   const handleGoBack = () => {
-    router.replace("/add-players");
+    if (isMultiplayer && roomId) {
+      router.replace({ pathname: "/game-lobby", params: { roomId, isHost: "true" } });
+    } else {
+      router.replace("/add-players");
+    }
   };
 
   const handleShop = () => {
@@ -123,6 +135,22 @@ export default function CategoriesScreen() {
       const cached = questionsByCategory[openCategory.id];
       const questions = cached ?? (await getQuestionsByCategory(openCategory.id));
       setGameCategory(openCategory.id, openCategory.name, questions);
+
+      if (isMultiplayer && roomId) {
+        const [players, room] = await Promise.all([
+          getRoomPlayers(roomId),
+          getRoomById(roomId),
+        ]);
+        const hostUserId = room?.host_user_id ?? "";
+        setGamePlayers(roomPlayersToPlayers(players, hostUserId));
+        await startGameInRoom(
+          roomId,
+          openCategory.id,
+          openCategory.name,
+          questions
+        );
+      }
+
       router.replace("/game");
     } catch (error) {
       console.log("Failed to load questions for game:", error);

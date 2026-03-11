@@ -13,12 +13,16 @@
     "title": "Join game",
     "subtitle": "Enter the room code or scan the host's QR code.",
     "codePlaceholder": "Room code",
+    "yourName": "Your name",
     "join": "Join",
     "scanQR": "Scan QR code",
     "invalidCodeTitle": "Invalid code",
     "invalidCodeMessage": "Please enter a 6-character room code.",
     "comingSoonTitle": "Coming soon",
-    "comingSoonMessage": "Online multiplayer will be available in a future update."
+    "comingSoonMessage": "Online multiplayer will be available in a future update.",
+    "roomNotFound": "Room not found",
+    "roomNotFoundMessage": "Check the code or ask the host to share it again.",
+    "joinError": "Could not join room"
   },
   "createGame": {
     "title": "Create game",
@@ -28,7 +32,18 @@
     "copyCode": "Copy code",
     "startGame": "Start game",
     "comingSoonTitle": "Coming soon",
-    "comingSoonMessage": "Online multiplayer will be available in a future update."
+    "comingSoonMessage": "Online multiplayer will be available in a future update.",
+    "copySuccess": "Code copied!",
+    "yourName": "Your name",
+    "createRoom": "Create room",
+    "createError": "Could not create room"
+  },
+  "lobby": {
+    "title": "Game lobby",
+    "waitingForHost": "Waiting for host to start...",
+    "players": "Players",
+    "startGame": "Start game",
+    "youAreHost": "You are the host"
   },
   "howToPlay": {
     "title": "How to Play",

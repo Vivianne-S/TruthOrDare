@@ -37,11 +37,22 @@ export default function GameScreen() {
 
   if (isGameOver) {
     return (
-      <GameOverScreen
-        players={players}
-        awards={awards}
-        onPlayAgain={restartGameSession}
-      />
+      <>
+        <GameOverScreen
+          players={players}
+          awards={awards}
+          onPlayAgain={restartGameSession}
+          onExitPress={() => setShowExitConfirm(true)}
+        />
+        <ExitConfirmModal
+          visible={showExitConfirm}
+          onNo={() => setShowExitConfirm(false)}
+          onYes={() => {
+            setShowExitConfirm(false);
+            router.replace("/");
+          }}
+        />
+      </>
     );
   }
 

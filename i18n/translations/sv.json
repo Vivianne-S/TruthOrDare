@@ -13,12 +13,16 @@
     "title": "Gå med i spel",
     "subtitle": "Ange rumskoden eller scanna värdens QR-kod.",
     "codePlaceholder": "Rumskod",
+    "yourName": "Ditt namn",
     "join": "Gå med",
     "scanQR": "Scanna QR-kod",
     "invalidCodeTitle": "Ogiltig kod",
     "invalidCodeMessage": "Ange en 6-teckens rumskod.",
     "comingSoonTitle": "Kommer snart",
-    "comingSoonMessage": "Online multiplayer kommer i en framtida uppdatering."
+    "comingSoonMessage": "Online multiplayer kommer i en framtida uppdatering.",
+    "roomNotFound": "Rummet hittades inte",
+    "roomNotFoundMessage": "Kontrollera koden eller be värden dela den igen.",
+    "joinError": "Kunde inte gå med i rummet"
   },
   "createGame": {
     "title": "Skapa spel",
@@ -28,7 +32,18 @@
     "copyCode": "Kopiera kod",
     "startGame": "Starta spel",
     "comingSoonTitle": "Kommer snart",
-    "comingSoonMessage": "Online multiplayer kommer i en framtida uppdatering."
+    "comingSoonMessage": "Online multiplayer kommer i en framtida uppdatering.",
+    "copySuccess": "Kod kopierad!",
+    "yourName": "Ditt namn",
+    "createRoom": "Skapa rum",
+    "createError": "Kunde inte skapa rum"
+  },
+  "lobby": {
+    "title": "Spellobbyn",
+    "waitingForHost": "Väntar på att värden startar...",
+    "players": "Spelare",
+    "startGame": "Starta spel",
+    "youAreHost": "Du är värd"
   },
   "howToPlay": {
     "title": "Så spelar du",

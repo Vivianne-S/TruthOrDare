@@ -1,57 +1,79 @@
 /**
- * Create game screen: creates a room, shows code and QR for others to join.
- * Placeholder – backend integration coming in Phase 2.
+ * Create game screen: host enters name + avatar, creates room, shows code and QR.
  */
 import { Ionicons } from "@expo/vector-icons";
+import * as Clipboard from "expo-clipboard";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   ImageBackground,
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { AVATARS } from "@/constants/avatars";
 import { AppButton } from "@/components/ui/AppButton";
+import { AvatarPickerButton } from "@/components/ui/AvatarPickerButton";
+import { AvatarPickerModal } from "@/components/ui/AvatarPickerModal";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useI18n } from "@/context/I18nContext";
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
-
-const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
-function generateRoomCode(length: number): string {
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    result += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
-  }
-  return result;
-}
+import { UNSELECTED_AVATAR } from "@/types/player";
+import { createGameRoom } from "@/services/game-room";
 
 export default function CreateGameScreen() {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
-  const [roomCode] = useState(() => generateRoomCode(6));
+  const [name, setName] = useState("");
+  const [avatarId, setAvatarId] = useState(UNSELECTED_AVATAR);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [roomCode, setRoomCode] = useState<string | null>(null);
+  const [roomId, setRoomId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleCreateRoom = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { room, roomCode: code } = await createGameRoom(
+        name.trim() || "Host",
+        avatarId >= 0 ? avatarId : 0
+      );
+      setRoomCode(code);
+      setRoomId(room.id);
+    } catch (e) {
+      setError((e as Error).message);
+      Alert.alert(t("createGame.comingSoonTitle"), t("createGame.createError"));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const joinUrl = useMemo(() => {
-    // Placeholder – Phase 2: use actual app URL scheme or deep link
+    if (!roomCode) return "truthordare://join/WAITING";
     return `truthordare://join/${roomCode}`;
   }, [roomCode]);
 
-  const handleCopyCode = () => {
-    // Placeholder – Phase 2: use expo-clipboard
-    Alert.alert(t("createGame.comingSoonTitle"), t("createGame.comingSoonMessage"));
+  const handleCopyCode = async () => {
+    if (!roomCode) return;
+    await Clipboard.setStringAsync(roomCode);
+    Alert.alert(t("createGame.copySuccess"));
   };
 
   const handleStartGame = () => {
-    // Placeholder – Phase 2: navigate to lobby or add-players with room context
-    Alert.alert(t("createGame.comingSoonTitle"), t("createGame.comingSoonMessage"));
+    if (!roomId) return;
+    router.replace({ pathname: "/game-lobby", params: { roomId, isHost: "true" } });
   };
 
   return (
@@ -90,6 +112,46 @@ export default function CreateGameScreen() {
               { paddingBottom: insets.bottom + SPACING.x8 },
             ]}
           >
+            {!roomCode ? (
+              <>
+                <Text style={styles.subtitle}>{t("createGame.subtitle")}</Text>
+                <View style={styles.playerRow}>
+                  <AvatarPickerButton
+                    avatarId={avatarId}
+                    onPress={() => setShowAvatarPicker(true)}
+                  />
+                  <TextInput
+                    style={styles.nameInput}
+                    value={name}
+                    onChangeText={setName}
+                    placeholder={t("createGame.yourName")}
+                    placeholderTextColor={COLORS.textDisabled}
+                    autoCapitalize="words"
+                  />
+                </View>
+                {loading ? (
+                  <View style={styles.loadingContainer}>
+                    <ActivityIndicator color="#FFFFFF" size="large" />
+                  </View>
+                ) : error ? (
+                  <View style={styles.errorContainer}>
+                    <Text style={styles.errorText}>{error}</Text>
+                  </View>
+                ) : null}
+                <AppButton
+                  variant="cta"
+                  onPress={handleCreateRoom}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator color="#FFF" size="small" />
+                  ) : (
+                    t("createGame.createRoom")
+                  )}
+                </AppButton>
+              </>
+            ) : (
+              <>
             <Text style={styles.subtitle}>{t("createGame.subtitle")}</Text>
 
             <View style={styles.codeCard}>
@@ -115,7 +177,21 @@ export default function CreateGameScreen() {
             <AppButton variant="cta" onPress={handleStartGame}>
               {t("createGame.startGame")}
             </AppButton>
+              </>
+            )}
           </View>
+
+      {showAvatarPicker && (
+        <AvatarPickerModal
+          visible={true}
+          selectedId={avatarId >= 0 ? avatarId : 0}
+          onSelect={(id) => {
+            setAvatarId(id);
+            setShowAvatarPicker(false);
+          }}
+          onClose={() => setShowAvatarPicker(false)}
+        />
+      )}
         </View>
       </View>
     </ImageBackground>
@@ -177,6 +253,23 @@ const styles = StyleSheet.create({
     gap: SPACING.x4,
     paddingHorizontal: SPACING.x4,
   },
+  playerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.x3,
+    backgroundColor: "rgba(138, 74, 255, 0.34)",
+    borderWidth: 1.2,
+    borderColor: "rgba(220, 181, 255, 0.8)",
+    borderRadius: BORDER_RADIUS.x6,
+    paddingHorizontal: SPACING.x4,
+    paddingVertical: SPACING.x3,
+  },
+  nameInput: {
+    flex: 1,
+    ...TYPOGRAPHY_BASE.body,
+    color: COLORS.textPrimary,
+    paddingVertical: SPACING.x2,
+  },
   subtitle: {
     ...TYPOGRAPHY_BASE.body,
     color: COLORS.textSecondary,
@@ -213,6 +306,27 @@ const styles = StyleSheet.create({
   hint: {
     ...TYPOGRAPHY_BASE.small,
     color: COLORS.textSecondary,
+    textAlign: "center",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: SPACING.x4,
+  },
+  loadingText: {
+    ...TYPOGRAPHY_BASE.body,
+    color: COLORS.textSecondary,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: SPACING.x4,
+  },
+  errorText: {
+    ...TYPOGRAPHY_BASE.body,
+    color: COLORS.error,
     textAlign: "center",
   },
 });

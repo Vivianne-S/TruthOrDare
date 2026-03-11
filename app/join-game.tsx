@@ -1,11 +1,11 @@
 /**
- * Join game screen: enter room code or scan QR to join an existing game.
- * Placeholder – backend integration coming in Phase 2.
+ * Join game screen: enter room code, name, and avatar to join an existing game.
  */
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   ImageBackground,
   Pressable,
@@ -17,12 +17,16 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppButton } from "@/components/ui/AppButton";
+import { AvatarPickerButton } from "@/components/ui/AvatarPickerButton";
+import { AvatarPickerModal } from "@/components/ui/AvatarPickerModal";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useI18n } from "@/context/I18nContext";
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
+import { UNSELECTED_AVATAR } from "@/types/player";
+import { joinGameRoom } from "@/services/game-room";
 
 const CODE_LENGTH = 6;
 
@@ -30,8 +34,12 @@ export default function JoinGameScreen() {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const [code, setCode] = useState("");
+  const [name, setName] = useState("");
+  const [avatarId, setAvatarId] = useState(UNSELECTED_AVATAR);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [joining, setJoining] = useState(false);
 
-  const handleJoin = () => {
+  const handleJoin = async () => {
     const trimmed = code.trim().toUpperCase();
     if (trimmed.length !== CODE_LENGTH) {
       Alert.alert(
@@ -40,12 +48,28 @@ export default function JoinGameScreen() {
       );
       return;
     }
-    // Placeholder – Phase 2: connect to room
-    Alert.alert(t("joinGame.comingSoonTitle"), t("joinGame.comingSoonMessage"));
+    setJoining(true);
+    try {
+      const { room } = await joinGameRoom(
+        trimmed,
+        name.trim() || "Player",
+        avatarId >= 0 ? avatarId : 0
+      );
+      router.replace({
+        pathname: "/game-lobby",
+        params: { roomId: room.id, isHost: "false" },
+      });
+    } catch (e) {
+      Alert.alert(
+        t("joinGame.roomNotFound"),
+        t("joinGame.roomNotFoundMessage")
+      );
+    } finally {
+      setJoining(false);
+    }
   };
 
   const handleScanQR = () => {
-    // Placeholder – Phase 2: open camera for QR scan
     Alert.alert(t("joinGame.comingSoonTitle"), t("joinGame.comingSoonMessage"));
   };
 
@@ -87,6 +111,21 @@ export default function JoinGameScreen() {
           >
             <Text style={styles.subtitle}>{t("joinGame.subtitle")}</Text>
 
+            <View style={styles.playerRow}>
+              <AvatarPickerButton
+                avatarId={avatarId}
+                onPress={() => setShowAvatarPicker(true)}
+              />
+              <TextInput
+                style={styles.nameInput}
+                value={name}
+                onChangeText={setName}
+                placeholder={t("joinGame.yourName")}
+                placeholderTextColor={COLORS.textDisabled}
+                autoCapitalize="words"
+              />
+            </View>
+
             <TextInput
               style={styles.codeInput}
               value={code}
@@ -100,8 +139,16 @@ export default function JoinGameScreen() {
               autoCorrect={false}
             />
 
-            <AppButton variant="cta" onPress={handleJoin}>
-              {t("joinGame.join")}
+            <AppButton
+              variant="cta"
+              onPress={handleJoin}
+              disabled={joining}
+            >
+              {joining ? (
+                <ActivityIndicator color="#FFF" size="small" />
+              ) : (
+                t("joinGame.join")
+              )}
             </AppButton>
 
             <AppButton variant="glass" onPress={handleScanQR}>
@@ -110,6 +157,18 @@ export default function JoinGameScreen() {
           </View>
         </View>
       </View>
+
+      {showAvatarPicker && (
+        <AvatarPickerModal
+          visible={true}
+          selectedId={avatarId >= 0 ? avatarId : 0}
+          onSelect={(id) => {
+            setAvatarId(id);
+            setShowAvatarPicker(false);
+          }}
+          onClose={() => setShowAvatarPicker(false)}
+        />
+      )}
     </ImageBackground>
   );
 }
@@ -174,6 +233,23 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     textAlign: "center",
     marginBottom: SPACING.x2,
+  },
+  playerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.x3,
+    backgroundColor: "rgba(138, 74, 255, 0.34)",
+    borderWidth: 1.2,
+    borderColor: "rgba(220, 181, 255, 0.8)",
+    borderRadius: BORDER_RADIUS.x6,
+    paddingHorizontal: SPACING.x4,
+    paddingVertical: SPACING.x3,
+  },
+  nameInput: {
+    flex: 1,
+    ...TYPOGRAPHY_BASE.body,
+    color: COLORS.textPrimary,
+    paddingVertical: SPACING.x2,
   },
   codeInput: {
     ...TYPOGRAPHY_BASE.h2,
