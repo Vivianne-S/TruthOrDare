@@ -260,7 +260,7 @@ export default function AddPlayersScreen() {
         style={styles.keyboardView}
       >
         <View style={styles.headerRow}>
-          {hasExistingPlayers ? (
+          {isAddMoreMode ? (
             <Pressable
               onPress={() => router.back()}
               style={styles.iconCircle}
