@@ -14,9 +14,7 @@ import { useMemo, useState } from "react";
 import {
   Image,
   ImageBackground,
-  KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -261,10 +259,7 @@ export default function AddPlayersScreen() {
       resizeMode="cover"
       style={styles.background}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardView}
-      >
+      <View style={styles.keyboardView}>
         <View style={styles.headerRow}>
           {isAddMoreMode ? (
             <Pressable
@@ -331,7 +326,7 @@ export default function AddPlayersScreen() {
             </AppButton>
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </View>
 
       {avatarPickerPlayerId !== null && (
         <AvatarPickerModal
