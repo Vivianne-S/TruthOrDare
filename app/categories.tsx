@@ -15,6 +15,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { useSharedValue } from "react-native-reanimated";
@@ -68,8 +69,18 @@ export default function CategoriesScreen() {
   const touchX = useSharedValue(-1000);
   const touchY = useSharedValue(-1000);
   const touching = useSharedValue(0);
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [fieldSize, setFieldSize] = useState({ width: 0, height: 0 });
   const [selectedBubbleId, setSelectedBubbleId] = useState<string | null>(null);
+
+  const effectiveWidth =
+    fieldSize.width > 0
+      ? fieldSize.width
+      : Math.max(0, windowWidth - SPACING.x4 * 2);
+  const effectiveHeight =
+    fieldSize.height > 0
+      ? fieldSize.height
+      : Math.max(510, windowHeight * 0.5);
 
   const generatedSlots = useMemo(() => ORGANIC_CATEGORY_SLOTS, []);
 
@@ -235,7 +246,7 @@ export default function CategoriesScreen() {
               touchY.value = -1000;
             }}
           >
-            {fieldSize.width > 0 &&
+            {effectiveWidth > 0 &&
               bubbles.map((bubble) => (
                 <CategoryBubbleButton
                   key={bubble.id}
@@ -245,8 +256,8 @@ export default function CategoriesScreen() {
                   isOpen={selectedBubbleId === bubble.id}
                   isLocked={bubble.isLocked}
                   onPress={() => handleBubblePress(bubble)}
-                  fieldWidth={fieldSize.width}
-                  fieldHeight={fieldSize.height}
+                  fieldWidth={effectiveWidth}
+                  fieldHeight={effectiveHeight}
                   touchX={touchX}
                   touchY={touchY}
                   touching={touching}
