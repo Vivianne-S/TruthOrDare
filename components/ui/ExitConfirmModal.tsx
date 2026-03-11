@@ -3,6 +3,7 @@
  */
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
+import { useI18n } from "@/context/I18nContext";
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
@@ -19,6 +20,7 @@ export function ExitConfirmModal({
   onNo,
   onYes,
 }: ExitConfirmModalProps) {
+  const { t } = useI18n();
   return (
     <Modal visible={visible} transparent animationType="fade">
       <Pressable style={styles.overlay} onPress={onNo}>
@@ -26,9 +28,9 @@ export function ExitConfirmModal({
           style={styles.content}
           onStartShouldSetResponder={() => true}
         >
-          <Text style={styles.title}>Exit game</Text>
+          <Text style={styles.title}>{t("exitConfirm.title")}</Text>
           <Text style={styles.message}>
-            Are you sure you want to close the game?
+            {t("exitConfirm.message")}
           </Text>
           <View style={styles.buttons}>
             <Pressable
@@ -39,7 +41,7 @@ export function ExitConfirmModal({
                 pressed && styles.buttonPressed,
               ]}
             >
-              <Text style={styles.buttonText}>No</Text>
+              <Text style={styles.buttonText}>{t("exitConfirm.no")}</Text>
             </Pressable>
             <Pressable
               onPress={onYes}
@@ -49,7 +51,7 @@ export function ExitConfirmModal({
                 pressed && styles.buttonPressed,
               ]}
             >
-              <Text style={styles.buttonText}>Yes</Text>
+              <Text style={styles.buttonText}>{t("exitConfirm.yes")}</Text>
             </Pressable>
           </View>
         </View>

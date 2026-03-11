@@ -4,6 +4,8 @@
  */
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+
+import { useI18n } from "@/context/I18nContext";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { COLORS } from "@/constants/theme/colors";
@@ -26,6 +28,7 @@ export function ExitMenuModal({
   onAddMorePlayers,
   onExitGame,
 }: ExitMenuModalProps) {
+  const { t } = useI18n();
   return (
     <Modal visible={visible} transparent animationType="fade">
       <Pressable style={styles.overlay} onPress={onDismiss}>
@@ -42,9 +45,9 @@ export function ExitMenuModal({
             style={styles.content}
           >
             <View style={styles.header}>
-              <Text style={styles.title}>End the round?</Text>
+              <Text style={styles.title}>{t("exitMenu.title")}</Text>
               <Text style={styles.subtitle}>
-                Choose what you'd like to do.
+                {t("exitMenu.subtitle")}
               </Text>
             </View>
 
@@ -63,7 +66,7 @@ export function ExitMenuModal({
                   color={COLORS.success}
                   style={styles.optionIcon}
                 />
-                <Text style={styles.optionText}>Back to categories</Text>
+                <Text style={styles.optionText}>{t("exitMenu.backToCategories")}</Text>
               </Pressable>
 
               <Pressable
@@ -80,7 +83,7 @@ export function ExitMenuModal({
                   color={COLORS.primary}
                   style={styles.optionIcon}
                 />
-                <Text style={styles.optionText}>Add more players</Text>
+                <Text style={styles.optionText}>{t("exitMenu.addMorePlayers")}</Text>
               </Pressable>
 
               <Pressable
@@ -97,12 +100,12 @@ export function ExitMenuModal({
                   color={COLORS.error}
                   style={styles.optionIcon}
                 />
-                <Text style={styles.optionText}>Exit Game</Text>
+                <Text style={styles.optionText}>{t("exitMenu.exitGame")}</Text>
               </Pressable>
             </View>
 
             <Pressable onPress={onDismiss} style={styles.cancelTouch} hitSlop={12}>
-              <Text style={styles.cancelText}>Cancel</Text>
+              <Text style={styles.cancelText}>{t("exitMenu.cancel")}</Text>
             </Pressable>
           </LinearGradient>
         </View>

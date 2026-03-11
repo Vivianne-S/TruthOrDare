@@ -3,6 +3,8 @@
  * Shows category name/icon; supports open (selected), locked (premium), and touch-follow glow.
  */
 import { BubbleSlot } from "@/constants/category-bubbles";
+import { translateCategoryName } from "@/i18n";
+import { useI18n } from "@/context/I18nContext";
 import { COLORS } from "@/constants/theme/colors";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
 import {
@@ -53,6 +55,7 @@ export function CategoryBubbleButton({
   touchY,
   touching,
 }: CategoryBubbleButtonProps) {
+  const { t } = useI18n();
   const diameter = slot.size;
   const isLongLabel = name.length > 10;
   const isVeryLongLabel = name.length > 15;
@@ -170,11 +173,11 @@ export function CategoryBubbleButton({
       {isOpen && <View pointerEvents="none" style={styles.openHalo} />}
       {isLocked && (
         <View pointerEvents="none" style={styles.lockBadge}>
-          <Text style={styles.lockBadgeText}>🔒</Text>
+          <Text style={styles.lockBadgeText}>{t("categoryBubble.lockEmoji")}</Text>
         </View>
       )}
       <Pressable style={styles.bubbleTouch} onPress={onPress}>
-        <Text style={styles.emoji}>{icon?.trim() ? icon : "✨"}</Text>
+        <Text style={styles.emoji}>{icon?.trim() ? icon : t("categoryBubble.fallbackEmoji")}</Text>
         <Text
           numberOfLines={isVeryLongLabel ? 3 : 2}
           style={[
@@ -183,7 +186,7 @@ export function CategoryBubbleButton({
             isVeryLongLabel && styles.bubbleLabelVerySmall,
           ]}
         >
-          {name}
+          {translateCategoryName(name, t)}
         </Text>
       </Pressable>
     </Animated.View>

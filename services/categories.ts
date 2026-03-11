@@ -21,7 +21,7 @@ export async function getQuestionsByCategory(
 ): Promise<Question[]> {
   const { data, error } = await supabase
     .from("questions")
-    .select("type, question_text")
+    .select("type, question_text, question_text_sv")
     .eq("category_id", categoryId)
     .order("created_at", { ascending: true });
 

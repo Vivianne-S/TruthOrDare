@@ -17,7 +17,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppButton } from "@/components/ui/AppButton";
-import { CATEGORY_PRICE, PREMIUM_PRICE } from "@/constants/shop";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
+import { useI18n } from "@/context/I18nContext";
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
@@ -26,6 +27,7 @@ import { useDemoPurchases } from "@/hooks/use-demo-purchases";
 import { useShopCategories } from "@/hooks/use-shop-categories";
 
 export default function ShopScreen() {
+  const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const {
     isPro,
@@ -80,8 +82,8 @@ export default function ShopScreen() {
                 color={COLORS.textInverse}
               />
             </Pressable>
-            <Text style={styles.title}>Shop</Text>
-            <View style={styles.iconCirclePlaceholder} />
+            <Text style={styles.title}>{t("shop.title")}</Text>
+            <LanguageSwitcher />
           </View>
 
           <ScrollView
@@ -100,16 +102,16 @@ export default function ShopScreen() {
                   color={COLORS.primary}
                   style={styles.premiumIcon}
                 />
-                <Text style={styles.premiumTitle}>Truth Or Dare Pro</Text>
+                <Text style={styles.premiumTitle}>{t("shop.premiumTitle")}</Text>
               </View>
               <Text style={styles.premiumDesc}>
-                Unlock all premium categories. Best value!
+                {t("shop.premiumDesc")}
               </Text>
-              <Text style={styles.price}>{PREMIUM_PRICE}</Text>
+              <Text style={styles.price}>{t("shop.premiumPrice")}</Text>
               {isPro ? (
                 <View style={styles.ownedBadge}>
                   <Ionicons name="checkmark-circle" size={20} color={COLORS.success} />
-                  <Text style={styles.ownedText}>Owned</Text>
+                  <Text style={styles.ownedText}>{t("shop.owned")}</Text>
                 </View>
               ) : (
                 <AppButton
@@ -118,22 +120,22 @@ export default function ShopScreen() {
                   disabled={purchasingId !== null}
                   loading={purchasingId === "premium"}
                 >
-                  Buy Premium
+                  {t("shop.buyPremium")}
                 </AppButton>
               )}
             </View>
 
-            <Text style={styles.sectionTitle}>Premium Categories</Text>
+            <Text style={styles.sectionTitle}>{t("shop.premiumCategories")}</Text>
             {premiumCategories.map((category) => {
               const owned = isCategoryUnlocked(category.id);
               return (
                 <View key={category.id} style={styles.categoryCard}>
                   <Text style={styles.categoryName}>{category.name}</Text>
-                  <Text style={styles.categoryPrice}>{CATEGORY_PRICE}</Text>
+                  <Text style={styles.categoryPrice}>{t("shop.categoryPrice")}</Text>
                   {owned ? (
                     <View style={styles.ownedBadge}>
                       <Ionicons name="checkmark-circle" size={18} color={COLORS.success} />
-                      <Text style={styles.ownedTextSmall}>Owned</Text>
+                      <Text style={styles.ownedTextSmall}>{t("shop.owned")}</Text>
                     </View>
                   ) : (
                     <AppButton
@@ -143,7 +145,7 @@ export default function ShopScreen() {
                       disabled={purchasingId !== null}
                       loading={purchasingId === category.id}
                     >
-                      Buy
+                      {t("shop.buy")}
                     </AppButton>
                   )}
                 </View>
@@ -155,7 +157,7 @@ export default function ShopScreen() {
               style={styles.resetButton}
               hitSlop={8}
             >
-              <Text style={styles.resetText}>Reset Purchases (dev)</Text>
+              <Text style={styles.resetText}>{t("shop.resetPurchases")}</Text>
             </Pressable>
           </ScrollView>
         </View>
