@@ -260,30 +260,36 @@ export default function AddPlayersScreen() {
       style={styles.background}
     >
       <View style={styles.keyboardView}>
-        <View style={styles.headerRow}>
-          {isAddMoreMode ? (
-            <Pressable
-              onPress={() => router.back()}
-              style={styles.iconCircle}
-              hitSlop={8}
-            >
-              <Ionicons
-                name="chevron-back"
-                size={20}
-                color={COLORS.textInverse}
-              />
-            </Pressable>
-          ) : (
+        <View style={styles.header}>
+          <View style={styles.headerTopRow}>
             <View style={styles.headerSpacer} />
-          )}
-          <Text style={styles.headerTitle}>
-            {isAddMoreMode
-              ? t("addPlayers.addMorePlayers")
-              : isNewGameMode
-                ? t("addPlayers.newGame")
-                : t("addPlayers.addPlayers")}
-          </Text>
-          <LanguageSwitcher />
+            <LanguageSwitcher />
+          </View>
+          <View style={styles.headerBottomRow}>
+            {isAddMoreMode ? (
+              <Pressable
+                onPress={() => router.back()}
+                style={styles.iconCircle}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name="chevron-back"
+                  size={20}
+                  color={COLORS.textInverse}
+                />
+              </Pressable>
+            ) : (
+              <View style={styles.headerSpacer} />
+            )}
+            <Text style={styles.headerTitle}>
+              {isAddMoreMode
+                ? t("addPlayers.addMorePlayers")
+                : isNewGameMode
+                  ? t("addPlayers.newGame")
+                  : t("addPlayers.addPlayers")}
+            </Text>
+            <View style={styles.headerSpacer} />
+          </View>
         </View>
         <View style={styles.content}>
           <Text style={styles.subtitle}>
@@ -347,12 +353,22 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  headerRow: {
+  header: {
+    marginBottom: SPACING.x1,
+  },
+  headerTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingHorizontal: SPACING.x4,
+    paddingTop: 56,
+    paddingBottom: SPACING.x1,
+  },
+  headerBottomRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: SPACING.x4,
-    paddingTop: 56,
     paddingBottom: SPACING.x2,
   },
   iconCircle: {
