@@ -9,7 +9,16 @@ import { SPACING } from '@/constants/theme/spacing';
 import { TYPOGRAPHY_BASE } from '@/constants/theme/typography';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Animated, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Animated,
+  Dimensions,
+  ImageBackground,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { usePulseAnimation } from '@/hooks/use-pulse-animation';
 
@@ -29,13 +38,18 @@ export default function HowToPlayScreen() {
         <View style={styles.content}>
           <Text style={styles.title}>How to Play</Text>
 
-          <Text style={styles.instructions}>
-  Enter each player's name and choose an avatar to add them to the game. {'\n'}
-  Then select the category for this round. {'\n'}
-  Turns follow the same order as the players were added. {'\n'}
-  When it’s your turn, choose Truth or Dare and complete the challenge!
-</Text>
-
+          <ScrollView
+            style={styles.instructionsScroll}
+            contentContainerStyle={styles.instructionsScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <Text style={styles.instructions}>
+              <Text style={styles.stepLabel}>1.</Text> Add players – enter each person's name and pick an avatar.{'\n'}
+              <Text style={styles.stepLabel}>2.</Text> Choose a category – pick the theme for this round.{'\n'}
+              <Text style={styles.stepLabel}>3.</Text> Take turns – play goes in the order you added players.{'\n'}
+              <Text style={styles.stepLabel}>4.</Text> Truth or Dare – when it's your turn, pick one and complete the challenge!
+            </Text>
+          </ScrollView>
           <View style={styles.spacer} />
 
           <Animated.Text style={[styles.hintText, hintAnimatedStyle]}>
@@ -83,12 +97,22 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },
+  stepLabel: {
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+  },
+  instructionsScroll: {
+    maxHeight: Dimensions.get('window').height * 0.32,
+    marginTop: SPACING.x6,
+  },
+  instructionsScrollContent: {
+    flexGrow: 1,
+  },
   instructions: {
     ...TYPOGRAPHY_BASE.large,
     color: COLORS.textSecondary,
     fontWeight: '600',
     textAlign: 'center',
-    marginTop: SPACING.x6,
     textShadowColor: 'rgba(0,0,0,0.42)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
