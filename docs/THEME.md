@@ -89,11 +89,15 @@ Uses `BASE_SPACING` (e.g. 4px). `SPACING.x1`, `SPACING.x2`, … scale up.
 - **ExitMenuModal:** Gradient background, purple border, option buttons
 - **ExitConfirmModal:** Dark background, red/green buttons
 
+### Game Over Screen
+
+- **GameOverScreen:** Neon "GAME OVER" title, player avatars with glow, awards list (flame, happy, trophy icons), Play Again (cta), New Game / Exit (pill)
+
 ---
 
 ## Background Images
 
 - `purple_galaxy.png` – Categories, shop, add-players
-- `game_background.png` – Game screen
+- `game_background.png` – Game screen, Game Over screen
 - `instruction_pic.png` – How-to-play
 - `SplashBigger.png` – Splash

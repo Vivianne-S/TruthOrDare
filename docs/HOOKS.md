@@ -11,17 +11,21 @@ Custom hooks encapsulate screen logic and shared behavior.
 **File:** `hooks/use-game-session.ts`  
 **Used by:** `app/game.tsx`
 
-Manages game state from `game-session` service.
+Manages game state from `game-session` service. Uses `drawNextQuestionByType` (no repeats); sets `isGameOver` when pool empty.
 
 | Return | Type | Description |
 |--------|------|-------------|
+| players | Player[] | All players |
 | currentPlayer | Player \| null | Current turn |
 | hasPlayers | boolean | At least one player |
 | nextPlayer | () => void | Advance turn |
 | currentQuestion | Question \| null | Shown question |
 | categoryName | string \| null | Category name |
-| showTruth | () => void | Pick Truth question |
-| showDare | () => void | Pick Dare question |
+| isGameOver | boolean | Pools exhausted |
+| awards | GameAwards | Dare Devil, Truthful Angel, Best of Both Worlds |
+| restartGameSession | () => void | Play Again (re-shuffle) |
+| showTruth | () => void | Draw next truth |
+| showDare | () => void | Draw next dare |
 
 ---
 
@@ -97,7 +101,7 @@ Premium categories for the shop (filters `is_premium`).
 ## useQuestionSpeech
 
 **File:** `hooks/use-question-speech.ts`  
-**Used by:** `app/game.tsx`
+**Used by:** `components/game/GameView.tsx`
 
 Text-to-speech for questions via expo-speech.
 
@@ -116,7 +120,7 @@ Text-to-speech for questions via expo-speech.
 ## usePulseAnimation
 
 **File:** `hooks/use-pulse-animation.ts`  
-**Used by:** `app/game.tsx`, `app/how-to-play.tsx`
+**Used by:** `components/game/GameView.tsx`, `app/how-to-play.tsx`
 
 Reanimated pulse animation.
 

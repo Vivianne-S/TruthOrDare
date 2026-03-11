@@ -1,7 +1,7 @@
 /**
  * Add players screen: manage player names and avatars before starting a game.
- * Uses usePlayerSetup for local state; on "Select category" saves players to
- * game-session and navigates to categories.
+ * Uses usePlayerSetup for local state. On "Select category" (or "Back to game"
+ * in add-more/new-game mode) saves players to game-session and navigates.
  */
 import { AVATARS } from "@/constants/avatars";
 import { COLORS } from "@/constants/theme/colors";
@@ -217,8 +217,13 @@ function PlayerInputRow({
 }
 
 export default function AddPlayersScreen() {
-  const { addMore } = useLocalSearchParams<{ addMore?: string }>();
+  const { addMore, newGame } = useLocalSearchParams<{
+    addMore?: string;
+    newGame?: string;
+  }>();
   const isAddMoreMode = addMore === "true";
+  const isNewGameMode = newGame === "true";
+  const hasExistingPlayers = isAddMoreMode || isNewGameMode;
 
   const {
     players,
@@ -231,7 +236,7 @@ export default function AddPlayersScreen() {
     closeAvatarPicker,
     selectAvatarForActivePlayer,
     canStart,
-  } = usePlayerSetup(isAddMoreMode ? getGamePlayers() : null);
+  } = usePlayerSetup(hasExistingPlayers ? getGamePlayers() : null);
 
   const handleStartGame = () => {
     if (canStart) {
@@ -271,7 +276,11 @@ export default function AddPlayersScreen() {
             <View style={styles.headerSpacer} />
           )}
           <Text style={styles.headerTitle}>
-            {isAddMoreMode ? "Add More Players" : "Add Players"}
+            {isAddMoreMode
+              ? "Add More Players"
+              : isNewGameMode
+                ? "New Game"
+                : "Add Players"}
           </Text>
           <View style={styles.headerSpacer} />
         </View>

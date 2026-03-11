@@ -1,5 +1,6 @@
 /**
- * Menu modal shown when tapping the door icon. Offers "Back to categories" or "Exit Game".
+ * Menu modal shown when tapping the door icon. Offers "Back to categories",
+ * "Add more players", and "Exit Game".
  */
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";

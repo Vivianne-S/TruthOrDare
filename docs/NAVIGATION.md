@@ -29,11 +29,16 @@ categories ◄──────────────────┐
     │                         │ "Back" from header
     │ "Start Game"            │
     ▼                         │
-game                          │
+game ◄────────────────────────┤ "Play Again" (Game Over)
     │                         │ "Back to categories"
     ├─ "Add more players" ───► add-players?addMore=true
     │       │                         │ "Back to game"
     │       └────────────────────────┘
+    │
+    ├─ Pools exhausted ──► Game Over screen
+    │       ├─ "Play Again" ──► stay on game (new shuffle)
+    │       ├─ "New Game" ──► add-players?newGame=true
+    │       └─ "Exit" ──► index
     │
     └─ "Exit Game" ──► ExitConfirmModal ──► Yes ──► index
 ```
@@ -54,6 +59,8 @@ game                          │
 - Game → Add-players (add more): `push` (so user can go back)
 - Add-players (add more) → Game: `replace`
 - Categories → Shop: `push` (back returns to categories)
+- Game Over → New Game: `replace` to add-players?newGame=true (edit players, then select category)
+- Game Over → Exit: `replace` to index
 - Exit Game → Index: `replace`
 
 ---
@@ -63,5 +70,7 @@ game                          │
 | Route | Param | Purpose |
 |-------|-------|---------|
 | `/add-players` | `addMore=true` | Pre-load current players, show "Back to game" |
+| `/add-players` | `newGame=true` | Pre-load current players (from Game Over), show "Select category" |
 
-Example: `router.push("/add-players?addMore=true")`
+Example: `router.push("/add-players?addMore=true")`  
+Example: `router.replace("/add-players?newGame=true")` (from Game Over)
