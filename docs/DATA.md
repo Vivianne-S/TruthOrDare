@@ -103,7 +103,7 @@ type PlayerStats = {
 type GameAwards = {
   mostDaring: Player | null;   // Dare Devil
   truthfulAngel: Player | null; // Truthful Angel
-  superstar: Player | null;     // Challenge Master
+  superstar: Player | null;     // Best of Both Worlds
 };
 ```
 

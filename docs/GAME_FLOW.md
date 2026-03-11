@@ -58,7 +58,7 @@ Each game session gets a fresh shuffle of truths and dares:
 | currentQuestion | Question \| null | Shown question |
 | categoryName | string \| null | Category name |
 | isGameOver | boolean | Pools exhausted |
-| awards | GameAwards | Dare Devil, Truthful Angel, Challenge Master |
+| awards | GameAwards | Dare Devil, Truthful Angel, Best of Both Worlds |
 | restartGameSession | () => void | Play Again |
 | showTruth | () => void | Draw next truth |
 | showDare | () => void | Draw next dare |

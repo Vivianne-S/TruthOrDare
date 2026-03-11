@@ -7,7 +7,7 @@ export type PlayerStats = {
 
 /**
  * Awards for Game Over screen.
- * mostDaring → Dare Devil, truthfulAngel → Truthful Angel, superstar → Challenge Master.
+ * mostDaring → Dare Devil, truthfulAngel → Truthful Angel, superstar → Best of Both Worlds.
  */
 export type GameAwards = {
   mostDaring: Player | null;

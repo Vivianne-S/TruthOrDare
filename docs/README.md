@@ -53,7 +53,7 @@ Requires environment variables for Supabase:
 - **Category selection**: Free and premium categories from Supabase.
 - **Truth or Dare**: Shuffled question pools per session; no repeats until pools exhausted.
 - **Game end**: Finite question list; Game Over screen when pools empty.
-- **Awards**: Dare Devil, Truthful Angel, Challenge Master (computed automatically).
+- **Awards**: Dare Devil, Truthful Angel, Best of Both Worlds (computed automatically).
 - **Play Again**: Same category, new shuffle, same players.
 - **Text-to-speech**: Optional speech for questions.
 - **Add more players**: Add players mid-game.

@@ -3,7 +3,7 @@ import type { GameAwards, PlayerStats } from "@/types/game";
 
 /**
  * Computes Game Over awards: Dare Devil (most dares), Truthful Angel (most truths),
- * Challenge Master (most total; prefers player who did both types over one who did only one).
+ * Best of Both Worlds (only players who did both truths AND dares; highest total among those).
  */
 export function computeAwards(
   players: Player[],
@@ -32,21 +32,14 @@ export function computeAwards(
       maxTruths = s.truthCount;
       truthfulAngel = p;
     }
-    const total = s.truthCount + s.dareCount;
+    // Best of Both Worlds: only players who did BOTH truths and dares; highest total among those
     const didBoth = s.truthCount > 0 && s.dareCount > 0;
-    const currentDidBoth =
-      superstar &&
-      (stats[superstar.id]?.truthCount ?? 0) > 0 &&
-      (stats[superstar.id]?.dareCount ?? 0) > 0;
-
-    // Challenge Master: prefer player who did both types; if same, higher total wins
-    const pWins =
-      (didBoth && !currentDidBoth) ||
-      (didBoth === !!currentDidBoth && total > maxTotal);
-
-    if (pWins) {
-      maxTotal = total;
-      superstar = p;
+    if (didBoth) {
+      const total = s.truthCount + s.dareCount;
+      if (total > maxTotal) {
+        maxTotal = total;
+        superstar = p;
+      }
     }
   }
 

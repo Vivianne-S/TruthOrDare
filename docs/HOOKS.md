@@ -22,7 +22,7 @@ Manages game state from `game-session` service. Uses `drawNextQuestionByType` (n
 | currentQuestion | Question \| null | Shown question |
 | categoryName | string \| null | Category name |
 | isGameOver | boolean | Pools exhausted |
-| awards | GameAwards | Dare Devil, Truthful Angel, Challenge Master |
+| awards | GameAwards | Dare Devil, Truthful Angel, Best of Both Worlds |
 | restartGameSession | () => void | Play Again (re-shuffle) |
 | showTruth | () => void | Draw next truth |
 | showDare | () => void | Draw next dare |

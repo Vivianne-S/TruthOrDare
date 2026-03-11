@@ -15,7 +15,7 @@ The Game Over screen appears when all questions in a pool are exhausted (player 
 - **Awards section:**
   - Dare Devil: [player with max dareCount]
   - Truthful Angel: [player with max truthCount]
-  - Challenge Master: [player with max truthCount + dareCount]
+  - Best of Both Worlds: [player with most combined truths+dares among those who did both; empty if no one mixed]
 - **Buttons:**
   - **Play Again** – Same category, new shuffle, same players
   - **New Game** – Navigate to add-players (edit players, then select category)
@@ -31,7 +31,7 @@ The Game Over screen appears when all questions in a pool are exhausted (player 
 |-------|------|
 | Dare Devil | Player with highest dareCount |
 | Truthful Angel | Player with highest truthCount |
-| Challenge Master | Highest (truthCount + dareCount); prefer player who did both types over one who did only one type (even with lower total) |
+| Best of Both Worlds | Only players who did both truths AND dares; highest total among those. Empty if no one mixed. |
 
 Ties: first player with max count wins.
 

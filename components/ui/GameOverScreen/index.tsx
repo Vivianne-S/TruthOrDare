@@ -1,6 +1,6 @@
 /**
  * Game Over screen shown when all questions are exhausted.
- * Displays awards (Dare Devil, Truthful Angel, Challenge Master) and action buttons.
+ * Displays awards (Dare Devil, Truthful Angel, Best of Both Worlds) and action buttons.
  */
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -128,7 +128,7 @@ export function GameOverScreen({
                 <Ionicons name="trophy" size={20} color="#FFF" />
               </View>
               <View style={styles.awardContent}>
-                <Text style={styles.awardLabel}>Challenge Master</Text>
+                <Text style={styles.awardLabel}>Best of Both Worlds</Text>
                 <Text style={styles.awardSubtitle}>
                   Most combined truths and dares
                 </Text>
