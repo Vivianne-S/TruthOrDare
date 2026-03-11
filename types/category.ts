@@ -23,4 +23,5 @@ export type CategoryBubble = {
 export type Question = {
   type: string;
   question_text: string;
+  question_text_sv?: string | null;
 };

@@ -20,9 +20,12 @@ import {
   View,
 } from 'react-native';
 
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { useI18n } from '@/context/I18nContext';
 import { usePulseAnimation } from '@/hooks/use-pulse-animation';
 
 export default function HowToPlayScreen() {
+  const { t } = useI18n();
   const hintAnimatedStyle = usePulseAnimation(true, {
     opacityRange: [0.45, 1],
     scaleRange: [0.98, 1.02],
@@ -34,9 +37,13 @@ export default function HowToPlayScreen() {
       resizeMode="cover"
       style={styles.background}
     >
+      <View style={styles.topBar}>
+        <View style={styles.topBarSpacer} />
+        <LanguageSwitcher />
+      </View>
       <Pressable style={styles.overlay} onPress={() => router.replace('/add-players')}>
         <View style={styles.content}>
-          <Text style={styles.title}>How to Play</Text>
+          <Text style={styles.title}>{t('howToPlay.title')}</Text>
 
           <ScrollView
             style={styles.instructionsScroll}
@@ -44,16 +51,16 @@ export default function HowToPlayScreen() {
             showsVerticalScrollIndicator={false}
           >
             <Text style={styles.instructions}>
-              <Text style={styles.stepLabel}>1.</Text> Add players – enter each person's name and pick an avatar.{'\n'}
-              <Text style={styles.stepLabel}>2.</Text> Choose a category – pick the theme for this round.{'\n'}
-              <Text style={styles.stepLabel}>3.</Text> Take turns – play goes in the order you added players.{'\n'}
-              <Text style={styles.stepLabel}>4.</Text> Truth or Dare – when it's your turn, pick one and complete the challenge!
+              <Text style={styles.stepLabel}>1.</Text> {t('howToPlay.step1')}{'\n'}
+              <Text style={styles.stepLabel}>2.</Text> {t('howToPlay.step2')}{'\n'}
+              <Text style={styles.stepLabel}>3.</Text> {t('howToPlay.step3')}{'\n'}
+              <Text style={styles.stepLabel}>4.</Text> {t('howToPlay.step4')}
             </Text>
           </ScrollView>
           <View style={styles.spacer} />
 
           <Animated.Text style={[styles.hintText, hintAnimatedStyle]}>
-            Press the screen to continue.
+            {t('howToPlay.hint')}
           </Animated.Text>
 
           <View style={styles.noteCard}>
@@ -64,8 +71,7 @@ export default function HowToPlayScreen() {
               style={styles.noteIcon}
             />
             <Text style={styles.noteText}>
-              <Text style={styles.noteLabel}>Note:</Text> Access even more questions{'\n'}
-              and categories with in-app purchases!
+              <Text style={styles.noteLabel}>{t('howToPlay.note')}</Text> {t('howToPlay.noteText')}
             </Text>
           </View>
         </View>
@@ -79,13 +85,24 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.backgroundPrimary,
   },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingHorizontal: SPACING.x4,
+    paddingTop: 56,
+    paddingBottom: SPACING.x2,
+  },
+  topBarSpacer: {
+    flex: 1,
+  },
   overlay: {
     flex: 1,
   },
   content: {
     flex: 1,
     paddingHorizontal: SPACING.x7,
-    paddingTop: 84,
+    paddingTop: SPACING.x1,
     paddingBottom: SPACING.x8,
   },
   title: {
@@ -103,7 +120,7 @@ const styles = StyleSheet.create({
   },
   instructionsScroll: {
     maxHeight: Dimensions.get('window').height * 0.32,
-    marginTop: SPACING.x6,
+    marginTop: SPACING.x2,
   },
   instructionsScrollContent: {
     flexGrow: 1,

@@ -26,6 +26,8 @@ import {
 } from "react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
+import { useI18n } from "@/context/I18nContext";
 import { usePlayerSetup } from "@/hooks/use-player-setup";
 import { useResetWhen } from "@/hooks/use-avatar-page-reset";
 import { getGamePlayers, setGamePlayers } from "@/services/game-session";
@@ -81,6 +83,7 @@ function AvatarPickerModal({
   onSelect: (id: number) => void;
   onClose: () => void;
 }) {
+  const { t } = useI18n();
   const [page, setPage] = useState(0);
   const totalPages = Math.max(1, Math.ceil(AVATARS.length / AVATARS_PER_PAGE));
   const hasMultiplePages = totalPages > 1;
@@ -109,7 +112,7 @@ function AvatarPickerModal({
           style={styles.modalContent}
           onStartShouldSetResponder={() => true}
         >
-          <Text style={styles.modalTitle}>Select avatar</Text>
+          <Text style={styles.modalTitle}>{t("addPlayers.selectAvatar")}</Text>
           <View style={styles.avatarGrid}>
             {visibleAvatars.map((avatarSource, index) => {
               const id = page * AVATARS_PER_PAGE + index;
@@ -178,6 +181,7 @@ function AvatarPickerModal({
 function PlayerInputRow({
   name,
   avatarId,
+  placeholder,
   onNameChange,
   onAvatarPress,
   onRemove,
@@ -185,6 +189,7 @@ function PlayerInputRow({
 }: {
   name: string;
   avatarId: number;
+  placeholder: string;
   onNameChange: (text: string) => void;
   onAvatarPress: () => void;
   onRemove: () => void;
@@ -197,7 +202,7 @@ function PlayerInputRow({
         style={styles.playerInput}
         value={name}
         onChangeText={onNameChange}
-        placeholder="Name"
+        placeholder={placeholder}
         placeholderTextColor={COLORS.textDisabled}
       />
       {canRemove && (
@@ -217,6 +222,7 @@ function PlayerInputRow({
 }
 
 export default function AddPlayersScreen() {
+  const { t } = useI18n();
   const { addMore, newGame } = useLocalSearchParams<{
     addMore?: string;
     newGame?: string;
@@ -277,16 +283,16 @@ export default function AddPlayersScreen() {
           )}
           <Text style={styles.headerTitle}>
             {isAddMoreMode
-              ? "Add More Players"
+              ? t("addPlayers.addMorePlayers")
               : isNewGameMode
-                ? "New Game"
-                : "Add Players"}
+                ? t("addPlayers.newGame")
+                : t("addPlayers.addPlayers")}
           </Text>
-          <View style={styles.headerSpacer} />
+          <LanguageSwitcher />
         </View>
         <View style={styles.content}>
           <Text style={styles.subtitle}>
-            Enter a name and pick an avatar to continue.
+            {t("addPlayers.subtitle")}
           </Text>
 
           <ScrollView
@@ -300,6 +306,7 @@ export default function AddPlayersScreen() {
                 key={player.id}
                 name={player.name}
                 avatarId={player.avatarId}
+                placeholder={t("addPlayers.namePlaceholder")}
                 onNameChange={(text) => updatePlayerName(player.id, text)}
                 onAvatarPress={() => openAvatarPicker(player.id)}
                 onRemove={() => removePlayer(player.id)}
@@ -313,14 +320,14 @@ export default function AddPlayersScreen() {
               <AppButton variant="fab" onPress={addPlayer}>
                 <Ionicons name="add" size={34} color="#FFF" />
               </AppButton>
-              <Text style={styles.addPlayerLabel}>Add Player</Text>
+              <Text style={styles.addPlayerLabel}>{t("addPlayers.addPlayer")}</Text>
             </View>
             <AppButton
               variant="cta"
               onPress={handleStartGame}
               disabled={!canStart}
             >
-              {isAddMoreMode ? "Back to game" : "Select category"}
+              {isAddMoreMode ? t("addPlayers.backToGame") : t("addPlayers.selectCategory")}
             </AppButton>
           </View>
         </View>

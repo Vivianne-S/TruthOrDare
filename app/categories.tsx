@@ -22,6 +22,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppButton } from "@/components/ui/AppButton";
 import { CategoryBubbleButton } from "@/components/ui/CategoryBubbleButton";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import {
   FREE_START_CATEGORY_NAMES,
   ORGANIC_CATEGORY_SLOTS,
@@ -30,6 +31,8 @@ import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
+import { translateCategoryName } from "@/i18n";
+import { useI18n } from "@/context/I18nContext";
 import { useAutoDeselectAfterDelay } from "@/hooks/use-categories-lock-message";
 import { useCategories } from "@/hooks/use-categories";
 import { useDemoPurchases } from "@/hooks/use-demo-purchases";
@@ -38,6 +41,7 @@ import { setGameCategory } from "@/services/game-session";
 import type { CategoryBubble } from "@/types/category";
 
 export default function CategoriesScreen() {
+  const { t } = useI18n();
   const {
     categories,
     loading,
@@ -148,31 +152,37 @@ export default function CategoriesScreen() {
     >
       <View style={styles.overlay}>
         <View style={styles.screen}>
-          <View style={styles.headerRow}>
-            <Pressable
-              onPress={handleGoBack}
-              style={styles.iconCircle}
-              hitSlop={8}
-            >
-              <Ionicons
-                name="chevron-back"
-                size={20}
-                color={COLORS.textInverse}
-              />
-            </Pressable>
-            <Text style={styles.title}>Select a Category</Text>
-            <Pressable
-              onPress={handleShop}
-              style={styles.iconCircle}
-              hitSlop={8}
-              accessibilityLabel="Shop"
-            >
-              <Ionicons
-                name="cart-outline"
-                size={20}
-                color={COLORS.textInverse}
-              />
-            </Pressable>
+          <View style={styles.header}>
+            <View style={styles.headerTopRow}>
+              <View style={styles.headerSpacer} />
+              <LanguageSwitcher />
+            </View>
+            <View style={styles.headerBottomRow}>
+              <Pressable
+                onPress={handleGoBack}
+                style={styles.iconCircle}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name="chevron-back"
+                  size={20}
+                  color={COLORS.textInverse}
+                />
+              </Pressable>
+              <Text style={styles.title}>{t("categories.title")}</Text>
+              <Pressable
+                onPress={handleShop}
+                style={styles.iconCircle}
+                hitSlop={8}
+                accessibilityLabel={t("categories.shopA11y")}
+              >
+                <Ionicons
+                  name="cart-outline"
+                  size={20}
+                  color={COLORS.textInverse}
+                />
+              </Pressable>
+            </View>
           </View>
 
           <View
@@ -223,9 +233,9 @@ export default function CategoriesScreen() {
                 { bottom: Math.max(112, insets.bottom + 92) },
               ]}
             >
-              <Text style={styles.panelTitle}>{openCategory.name}</Text>
+              <Text style={styles.panelTitle}>{translateCategoryName(openCategory.name, t)}</Text>
               <Text style={styles.panelText}>
-                This category is locked for now. Visit the shop to unlock it. 
+                {t("categories.lockedMessage")}
               </Text>
             </View>
           )}
@@ -241,7 +251,7 @@ export default function CategoriesScreen() {
               onPress={handleStartGame}
               disabled={!canStartGame}
             >
-              Start Game
+              {t("categories.startGame")}
             </AppButton>
           </View>
         </View>
@@ -269,11 +279,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerRow: {
+  header: {
+    marginBottom: SPACING.x1,
+  },
+  headerTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    marginBottom: SPACING.x2,
+  },
+  headerSpacer: {
+    flex: 1,
+  },
+  headerBottomRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: SPACING.x1,
   },
   title: {
     ...TYPOGRAPHY_BASE.h2,

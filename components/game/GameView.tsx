@@ -13,6 +13,8 @@ import {
 
 import { AppButton } from "@/components/ui/AppButton";
 import { AVATARS } from "@/constants/avatars";
+import { translateCategoryName } from "@/i18n";
+import { useI18n } from "@/context/I18nContext";
 import { COLORS } from "@/constants/theme/colors";
 import { usePulseAnimation } from "@/hooks/use-pulse-animation";
 import { useQuestionSpeech } from "@/hooks/use-question-speech";
@@ -46,26 +48,33 @@ export function GameView({
   onShowDare,
   onNextPlayer,
 }: GameViewProps) {
+  const { t, locale } = useI18n();
+  const displayedQuestionText = currentQuestion
+    ? (locale === "sv" && currentQuestion.question_text_sv?.trim()
+        ? currentQuestion.question_text_sv
+        : currentQuestion.question_text)
+    : null;
   const playerName = currentPlayer?.name;
   const avatarSource =
     currentPlayer && currentPlayer.avatarId >= 0
       ? AVATARS[currentPlayer.avatarId % AVATARS.length]
       : AVATARS[0];
 
-  const hasQuestion = !!currentQuestion?.question_text;
+  const hasQuestion = !!displayedQuestionText;
   const questionText = hasQuestion
-    ? currentQuestion.question_text
-    : "Tap TRUTH or DARE to reveal a question.";
+    ? displayedQuestionText
+    : t("game.tapToReveal");
 
   const nextPlayerGlowStyle = usePulseAnimation(!!currentQuestion, {
     opacityRange: [0.7, 1],
     scaleRange: [1, 1.05],
   });
 
+  const speechLocale = locale === "sv" ? "sv-SE" : "en-US";
   const { speak } = useQuestionSpeech({
-    text: currentQuestion?.question_text ?? null,
+    text: displayedQuestionText ?? null,
     enabled: isSpeechEnabled,
-    language: "en-US",
+    language: speechLocale,
   });
 
   return (
@@ -80,7 +89,7 @@ export function GameView({
             <TouchableOpacity
               style={styles.iconCircle}
               onPress={onDoorPress}
-              accessibilityLabel="Meny för att avsluta eller gå tillbaka"
+              accessibilityLabel={t("game.exitMenuA11y")}
             >
               <Ionicons
                 name="exit-outline"
@@ -90,17 +99,17 @@ export function GameView({
             </TouchableOpacity>
             <View style={styles.headerCenter}>
               {categoryName ? (
-                <Text style={styles.categoryLabel}>{categoryName}</Text>
+                <Text style={styles.categoryLabel}>{translateCategoryName(categoryName, t)}</Text>
               ) : null}
               <Text style={styles.headerText}>
-                {hasPlayers ? `It's ${playerName}'s turn!` : "Your turn!"}
+                {hasPlayers ? t("game.playersTurn", { name: playerName ?? "" }) : t("game.yourTurn")}
               </Text>
             </View>
             <TouchableOpacity
               style={styles.iconCircle}
               onPress={onToggleSpeech}
               accessibilityLabel={
-                isSpeechEnabled ? "Turn off speech" : "Turn on speech"
+                isSpeechEnabled ? t("game.turnOffSpeech") : t("game.turnOnSpeech")
               }
             >
               <Ionicons
@@ -126,14 +135,14 @@ export function GameView({
               onPress={onShowTruth}
               disabled={!hasPlayers || !!currentQuestion}
             >
-              TRUTH
+              {t("game.truth")}
             </AppButton>
             <AppButton
               variant="dare"
               onPress={onShowDare}
               disabled={!hasPlayers || !!currentQuestion}
             >
-              DARE
+              {t("game.dare")}
             </AppButton>
           </View>
 
@@ -147,11 +156,11 @@ export function GameView({
               >
                 {questionText}
               </Text>
-              {currentQuestion?.question_text && isSpeechEnabled ? (
+              {displayedQuestionText && isSpeechEnabled ? (
                 <TouchableOpacity
                   onPress={speak}
                   style={styles.speakerButton}
-                  accessibilityLabel="Read the question again"
+                  accessibilityLabel={t("game.readAgain")}
                 >
                   <Ionicons
                     name="volume-high"
@@ -177,7 +186,7 @@ export function GameView({
                 onPress={onNextPlayer}
                 disabled={!hasPlayers}
               >
-                Next player
+                {t("game.nextPlayer")}
               </AppButton>
             </Animated.View>
           </View>

@@ -1,0 +1,87 @@
+{
+  "howToPlay": {
+    "title": "Så spelar du",
+    "step1": "Lägg till spelare – skriv in varje persons namn och välj en avatar.",
+    "step2": "Välj en kategori – välj temat för denna runda.",
+    "step3": "Spela i turordning – spelordningen följer ordningen ni lade till spelarna.",
+    "step4": "Sanning eller konsekvens – när det är din tur, välj ett och genomför utmaningen!",
+    "hint": "Tryck på skärmen för att fortsätta.",
+    "note": "Obs:",
+    "noteText": "Få tillgång till ännu fler frågor\noch kategorier med köp i appen!"
+  },
+  "addPlayers": {
+    "selectAvatar": "Välj avatar",
+    "namePlaceholder": "Namn",
+    "addMorePlayers": "Lägg till fler spelare",
+    "newGame": "Nytt spel",
+    "addPlayers": "Lägg till spelare",
+    "subtitle": "Skriv in ett namn och välj en avatar för att fortsätta.",
+    "addPlayer": "Lägg till spelare",
+    "backToGame": "Tillbaka till spelet",
+    "selectCategory": "Välj kategori"
+  },
+  "categories": {
+    "title": "Välj en kategori",
+    "shopA11y": "Butik",
+    "lockedMessage": "Denna kategori är låst för tillfället. Besök butiken för att låsa upp den.",
+    "startGame": "Starta spelet",
+    "loveAndRelationships": "kärlek och relationer",
+    "funny": "roligt",
+    "chaos": "kaos"
+  },
+  "shop": {
+    "title": "Butik",
+    "premiumTitle": "Truth Or Dare Pro",
+    "premiumDesc": "Lås upp alla premiumkategorier. Bästa värdet!",
+    "owned": "Ägd",
+    "buyPremium": "Köp Premium",
+    "premiumCategories": "Premiumkategorier",
+    "buy": "Köp",
+    "resetPurchases": "Återställ köp (utvecklare)",
+    "categoryPrice": "49 kr",
+    "premiumPrice": "299 kr"
+  },
+  "game": {
+    "tapToReveal": "Tryck på SANNING eller KONSEKVENS för att visa en fråga.",
+    "playersTurn": "Det är {{name}}s tur!",
+    "yourTurn": "Din tur!",
+    "turnOffSpeech": "Stäng av tal",
+    "turnOnSpeech": "Slå på tal",
+    "readAgain": "Läs frågan igen",
+    "truth": "SANNING",
+    "dare": "KONSEKVENS",
+    "nextPlayer": "Nästa spelare",
+    "exitMenuA11y": "Meny för att avsluta eller gå tillbaka"
+  },
+  "gameOver": {
+    "title": "SPELET ÄR SLUT",
+    "dareDevil": "Konsekvensdjävul",
+    "dareDevilSubtitle": "Spelare med flest konsekvenser",
+    "truthfulAngel": "Sanningsängel",
+    "truthfulAngelSubtitle": "Spelare med flest sanningar",
+    "bestOfBoth": "Bäst av båda",
+    "bestOfBothSubtitle": "Flest kombinerade sanningar och konsekvenser",
+    "playAgain": "Spela igen",
+    "newGame": "Nytt spel",
+    "exit": "Avsluta",
+    "noWinner": "–"
+  },
+  "exitMenu": {
+    "title": "Avsluta rundan?",
+    "subtitle": "Välj vad du vill göra.",
+    "backToCategories": "Tillbaka till kategorier",
+    "addMorePlayers": "Lägg till fler spelare",
+    "exitGame": "Avsluta spelet",
+    "cancel": "Avbryt"
+  },
+  "exitConfirm": {
+    "title": "Avsluta spelet",
+    "message": "Är du säker på att du vill stänga spelet?",
+    "no": "Nej",
+    "yes": "Ja"
+  },
+  "categoryBubble": {
+    "lockEmoji": "🔒",
+    "fallbackEmoji": "✨"
+  }
+}

@@ -16,6 +16,7 @@ import {
 
 import { AppButton } from "@/components/ui/AppButton";
 import { AVATARS } from "@/constants/avatars";
+import { useI18n } from "@/context/I18nContext";
 import { COLORS } from "@/constants/theme/colors";
 import type { GameAwards } from "@/types/game";
 import type { Player } from "@/types/player";
@@ -35,6 +36,7 @@ export function GameOverScreen({
   awards,
   onPlayAgain,
 }: GameOverScreenProps) {
+  const { t } = useI18n();
   const handleNewGame = () => router.replace("/add-players?newGame=true");
   const handleExit = () => router.replace("/");
 
@@ -59,7 +61,7 @@ export function GameOverScreen({
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.titleWrapper}>
-            <Text style={styles.title}>GAME OVER</Text>
+            <Text style={styles.title}>{t("gameOver.title")}</Text>
             <View style={styles.titleGlow} />
           </View>
 
@@ -94,15 +96,15 @@ export function GameOverScreen({
                 <Ionicons name="flame" size={20} color="#FFF" />
               </View>
               <View style={styles.awardContent}>
-                <Text style={styles.awardLabel}>Dare Devil</Text>
-                <Text style={styles.awardSubtitle}>Player with most dares</Text>
+                <Text style={styles.awardLabel}>{t("gameOver.dareDevil")}</Text>
+                <Text style={styles.awardSubtitle}>{t("gameOver.dareDevilSubtitle")}</Text>
                 <Text
                   style={[
                     styles.awardName,
                     !awards.mostDaring && styles.awardNameEmpty,
                   ]}
                 >
-                  {awards.mostDaring?.name ?? "–"}
+                  {awards.mostDaring?.name ?? t("gameOver.noWinner")}
                 </Text>
               </View>
             </View>
@@ -111,15 +113,15 @@ export function GameOverScreen({
                 <Ionicons name="happy" size={20} color="#FFF" />
               </View>
               <View style={styles.awardContent}>
-                <Text style={styles.awardLabel}>Truthful Angel</Text>
-                <Text style={styles.awardSubtitle}>Player with most truths</Text>
+                <Text style={styles.awardLabel}>{t("gameOver.truthfulAngel")}</Text>
+                <Text style={styles.awardSubtitle}>{t("gameOver.truthfulAngelSubtitle")}</Text>
                 <Text
                   style={[
                     styles.awardName,
                     !awards.truthfulAngel && styles.awardNameEmpty,
                   ]}
                 >
-                  {awards.truthfulAngel?.name ?? "–"}
+                  {awards.truthfulAngel?.name ?? t("gameOver.noWinner")}
                 </Text>
               </View>
             </View>
@@ -128,9 +130,9 @@ export function GameOverScreen({
                 <Ionicons name="trophy" size={20} color="#FFF" />
               </View>
               <View style={styles.awardContent}>
-                <Text style={styles.awardLabel}>Best of Both Worlds</Text>
+                <Text style={styles.awardLabel}>{t("gameOver.bestOfBoth")}</Text>
                 <Text style={styles.awardSubtitle}>
-                  Most combined truths and dares
+                  {t("gameOver.bestOfBothSubtitle")}
                 </Text>
                 <Text
                   style={[
@@ -138,7 +140,7 @@ export function GameOverScreen({
                     !awards.superstar && styles.awardNameEmpty,
                   ]}
                 >
-                  {awards.superstar?.name ?? "–"}
+                  {awards.superstar?.name ?? t("gameOver.noWinner")}
                 </Text>
               </View>
             </View>
@@ -151,7 +153,7 @@ export function GameOverScreen({
                 onPress={onPlayAgain}
                 style={styles.playAgainButton}
               >
-                Play Again
+                {t("gameOver.playAgain")}
               </AppButton>
             </View>
             <View style={styles.secondaryRow}>
@@ -169,7 +171,7 @@ export function GameOverScreen({
                   color={COLORS.success}
                   style={styles.secondaryIcon}
                 />
-                <Text style={styles.secondaryButtonText}>New Game</Text>
+                <Text style={styles.secondaryButtonText}>{t("gameOver.newGame")}</Text>
               </Pressable>
               <Pressable
                 onPress={handleExit}
@@ -185,7 +187,7 @@ export function GameOverScreen({
                   color={COLORS.error}
                   style={styles.secondaryIcon}
                 />
-                <Text style={styles.secondaryButtonText}>Exit</Text>
+                <Text style={styles.secondaryButtonText}>{t("gameOver.exit")}</Text>
               </Pressable>
             </View>
           </View>

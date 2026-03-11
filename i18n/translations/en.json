@@ -1,0 +1,87 @@
+{
+  "howToPlay": {
+    "title": "How to Play",
+    "step1": "Add players – enter each person's name and pick an avatar.",
+    "step2": "Choose a category – pick the theme for this round.",
+    "step3": "Take turns – play goes in the order you added players.",
+    "step4": "Truth or Dare – when it's your turn, pick one and complete the challenge!",
+    "hint": "Press the screen to continue.",
+    "note": "Note:",
+    "noteText": "Access even more questions\nand categories with in-app purchases!"
+  },
+  "addPlayers": {
+    "selectAvatar": "Select avatar",
+    "namePlaceholder": "Name",
+    "addMorePlayers": "Add More Players",
+    "newGame": "New Game",
+    "addPlayers": "Add Players",
+    "subtitle": "Enter a name and pick an avatar to continue.",
+    "addPlayer": "Add Player",
+    "backToGame": "Back to game",
+    "selectCategory": "Select category"
+  },
+  "categories": {
+    "title": "Select a Category",
+    "shopA11y": "Shop",
+    "lockedMessage": "This category is locked for now. Visit the shop to unlock it.",
+    "startGame": "Start Game",
+    "loveAndRelationships": "love and relationships",
+    "funny": "funny",
+    "chaos": "chaos"
+  },
+  "shop": {
+    "title": "Shop",
+    "premiumTitle": "Truth Or Dare Pro",
+    "premiumDesc": "Unlock all premium categories. Best value!",
+    "owned": "Owned",
+    "buyPremium": "Buy Premium",
+    "premiumCategories": "Premium Categories",
+    "buy": "Buy",
+    "resetPurchases": "Reset Purchases (dev)",
+    "categoryPrice": "$4.99",
+    "premiumPrice": "$29.99"
+  },
+  "game": {
+    "tapToReveal": "Tap TRUTH or DARE to reveal a question.",
+    "playersTurn": "It's {{name}}'s turn!",
+    "yourTurn": "Your turn!",
+    "turnOffSpeech": "Turn off speech",
+    "turnOnSpeech": "Turn on speech",
+    "readAgain": "Read the question again",
+    "truth": "TRUTH",
+    "dare": "DARE",
+    "nextPlayer": "Next player",
+    "exitMenuA11y": "Menu to exit or go back"
+  },
+  "gameOver": {
+    "title": "GAME OVER",
+    "dareDevil": "Dare Devil",
+    "dareDevilSubtitle": "Player with most dares",
+    "truthfulAngel": "Truthful Angel",
+    "truthfulAngelSubtitle": "Player with most truths",
+    "bestOfBoth": "Best of Both Worlds",
+    "bestOfBothSubtitle": "Most combined truths and dares",
+    "playAgain": "Play Again",
+    "newGame": "New Game",
+    "exit": "Exit",
+    "noWinner": "–"
+  },
+  "exitMenu": {
+    "title": "End the round?",
+    "subtitle": "Choose what you'd like to do.",
+    "backToCategories": "Back to categories",
+    "addMorePlayers": "Add more players",
+    "exitGame": "Exit Game",
+    "cancel": "Cancel"
+  },
+  "exitConfirm": {
+    "title": "Exit game",
+    "message": "Are you sure you want to close the game?",
+    "no": "No",
+    "yes": "Yes"
+  },
+  "categoryBubble": {
+    "lockEmoji": "🔒",
+    "fallbackEmoji": "✨"
+  }
+}
