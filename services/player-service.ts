@@ -48,7 +48,9 @@ export const isPlayerValid = (player: Player): boolean =>
   player.name.trim().length > 0 && player.avatarId >= 0;
 
 export const hasUniqueAvatars = (players: Player[]): boolean => {
-  const avatarIds = players.map((player) => player.avatarId);
+  const avatarIds = players
+    .map((player) => player.avatarId)
+    .filter((avatarId) => avatarId >= 0);
   return new Set(avatarIds).size === avatarIds.length;
 };
 
