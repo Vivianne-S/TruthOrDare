@@ -15,7 +15,6 @@ export default function GameScreen() {
     players,
     currentPlayer,
     hasPlayers,
-    hasChosenThisTurn,
     nextPlayer,
     currentQuestion,
     categoryName,
@@ -53,7 +52,6 @@ export default function GameScreen() {
         categoryName={categoryName}
         currentQuestion={currentQuestion}
         hasPlayers={hasPlayers}
-        hasChosenThisTurn={hasChosenThisTurn}
         isSpeechEnabled={isSpeechEnabled}
         onToggleSpeech={() => setIsSpeechEnabled((prev) => !prev)}
         onDoorPress={handleDoorPress}

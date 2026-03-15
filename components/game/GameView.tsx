@@ -28,7 +28,6 @@ type GameViewProps = {
   categoryName: string | null;
   currentQuestion: Question | null;
   hasPlayers: boolean;
-  hasChosenThisTurn?: boolean;
   isSpeechEnabled: boolean;
   onToggleSpeech: () => void;
   onDoorPress: () => void;
