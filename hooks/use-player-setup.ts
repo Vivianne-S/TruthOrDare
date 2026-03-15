@@ -57,13 +57,26 @@ export function usePlayerSetup(initialPlayers?: Player[] | null) {
     );
   }, [avatarPickerPlayerId, players]);
 
+  const unavailableAvatarIds = useMemo(() => {
+    if (!avatarPickerPlayerId) return [];
+    return players
+      .filter(
+        (player) => player.id !== avatarPickerPlayerId && player.avatarId >= 0
+      )
+      .map((player) => player.avatarId);
+  }, [avatarPickerPlayerId, players]);
+
   const selectAvatarForActivePlayer = useCallback(
     (avatarId: number) => {
       if (!avatarPickerPlayerId) return;
+      const isTaken = players.some(
+        (player) => player.id !== avatarPickerPlayerId && player.avatarId === avatarId
+      );
+      if (isTaken) return;
       updatePlayerAvatar(avatarPickerPlayerId, avatarId);
       closeAvatarPicker();
     },
-    [avatarPickerPlayerId, closeAvatarPicker, updatePlayerAvatar]
+    [avatarPickerPlayerId, closeAvatarPicker, players, updatePlayerAvatar]
   );
 
   const canStart = useMemo(() => canStartGame(players), [players]);
@@ -75,6 +88,7 @@ export function usePlayerSetup(initialPlayers?: Player[] | null) {
     removePlayer,
     avatarPickerPlayerId,
     selectedAvatarId,
+    unavailableAvatarIds,
     openAvatarPicker,
     closeAvatarPicker,
     selectAvatarForActivePlayer,

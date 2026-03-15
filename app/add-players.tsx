@@ -9,7 +9,7 @@ import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   Image,
@@ -26,8 +26,8 @@ import {
 import { AppButton } from "@/components/ui/AppButton";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useI18n } from "@/context/I18nContext";
-import { usePlayerSetup } from "@/hooks/use-player-setup";
 import { useResetWhen } from "@/hooks/use-avatar-page-reset";
+import { usePlayerSetup } from "@/hooks/use-player-setup";
 import { getGamePlayers, setGamePlayers } from "@/services/game-session";
 import { MIN_PLAYERS } from "@/types/player";
 
@@ -73,11 +73,13 @@ function AvatarPickerButton({
 function AvatarPickerModal({
   visible,
   selectedId,
+  unavailableIds,
   onSelect,
   onClose,
 }: {
   visible: boolean;
   selectedId: number;
+  unavailableIds: number[];
   onSelect: (id: number) => void;
   onClose: () => void;
 }) {
@@ -114,15 +116,21 @@ function AvatarPickerModal({
           <View style={styles.avatarGrid}>
             {visibleAvatars.map((avatarSource, index) => {
               const id = page * AVATARS_PER_PAGE + index;
+              const isUnavailable = unavailableIds.includes(id);
               return (
                 <Pressable
                   key={id}
                   onPress={() => {
-                    onSelect(id);
+                    if (!isUnavailable) {
+                      onSelect(id);
+                    }
                   }}
-                  style={[
+                  disabled={isUnavailable}
+                  style={({ pressed }) => [
                     styles.avatarOption,
                     selectedId === id && styles.avatarOptionSelected,
+                    isUnavailable && styles.avatarOptionUnavailable,
+                    pressed && !isUnavailable && styles.avatarOptionPressed,
                   ]}
                 >
                   <Image
@@ -130,6 +138,9 @@ function AvatarPickerModal({
                     style={styles.avatarOptionImage}
                     resizeMode="cover"
                   />
+                  {isUnavailable ? (
+                    <View style={styles.avatarOptionOverlay} />
+                  ) : null}
                 </Pressable>
               );
             })}
@@ -236,6 +247,7 @@ export default function AddPlayersScreen() {
     removePlayer,
     avatarPickerPlayerId,
     selectedAvatarId,
+    unavailableAvatarIds,
     openAvatarPicker,
     closeAvatarPicker,
     selectAvatarForActivePlayer,
@@ -292,9 +304,7 @@ export default function AddPlayersScreen() {
           </View>
         </View>
         <View style={styles.content}>
-          <Text style={styles.subtitle}>
-            {t("addPlayers.subtitle")}
-          </Text>
+          <Text style={styles.subtitle}>{t("addPlayers.subtitle")}</Text>
 
           <ScrollView
             style={styles.playersScrollView}
@@ -321,14 +331,18 @@ export default function AddPlayersScreen() {
               <AppButton variant="fab" onPress={addPlayer}>
                 <Ionicons name="add" size={34} color="#FFF" />
               </AppButton>
-              <Text style={styles.addPlayerLabel}>{t("addPlayers.addPlayer")}</Text>
+              <Text style={styles.addPlayerLabel}>
+                {t("addPlayers.addPlayer")}
+              </Text>
             </View>
             <AppButton
               variant="cta"
               onPress={handleStartGame}
               disabled={!canStart}
             >
-              {isAddMoreMode ? t("addPlayers.backToGame") : t("addPlayers.selectCategory")}
+              {isAddMoreMode
+                ? t("addPlayers.backToGame")
+                : t("addPlayers.selectCategory")}
             </AppButton>
           </View>
         </View>
@@ -338,6 +352,7 @@ export default function AddPlayersScreen() {
         <AvatarPickerModal
           visible={true}
           selectedId={selectedAvatarId}
+          unavailableIds={unavailableAvatarIds}
           onSelect={selectAvatarForActivePlayer}
           onClose={closeAvatarPicker}
         />
@@ -513,13 +528,27 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 2,
     borderColor: "transparent",
+    position: "relative",
   },
   avatarOptionSelected: {
     borderColor: COLORS.secondary,
   },
+  avatarOptionPressed: {
+    opacity: 0.9,
+  },
   avatarOptionImage: {
     width: "100%",
     height: "100%",
+  },
+  avatarOptionOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.65)", // Ganska mörkt
+    // Lägg till en subtle gradient-känsla (simuleras med extra lager)
+  },
+
+  avatarOptionUnavailable: {
+    // Ingen border alls, bara förlitar sig på overlay:n
+    opacity: 0.9,
   },
   paginationRow: {
     marginTop: SPACING.x3,

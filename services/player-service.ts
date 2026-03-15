@@ -45,7 +45,15 @@ export const removePlayerById = (players: Player[], playerId: string): Player[] 
 export const isPlayerValid = (player: Player): boolean =>
   player.name.trim().length > 0 && player.avatarId >= 0;
 
+export const hasUniqueAvatars = (players: Player[]): boolean => {
+  const avatarIds = players.map((player) => player.avatarId);
+  return new Set(avatarIds).size === avatarIds.length;
+};
+
 export const canStartGame = (
   players: Player[],
   minPlayers = MIN_PLAYERS
-): boolean => players.length >= minPlayers && players.every(isPlayerValid);
+): boolean =>
+  players.length >= minPlayers &&
+  players.every(isPlayerValid) &&
+  hasUniqueAvatars(players);
