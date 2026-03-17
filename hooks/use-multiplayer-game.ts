@@ -33,6 +33,7 @@ export function useMultiplayerGame(roomId: string | undefined) {
       : null;
   const currentQuestion = (room?.current_question ?? null) as Question | null;
   const categoryName = room?.category_name ?? null;
+  const categoryId = room?.category_id ?? null;
   const isGameOver = room?.status === "game_over";
   const isMyTurn =
     !!myUserId &&
@@ -127,6 +128,7 @@ export function useMultiplayerGame(roomId: string | undefined) {
     hasPlayers: players.length > 0,
     currentQuestion,
     categoryName,
+    categoryId,
     isGameOver,
     awards,
     isMyTurn,
@@ -135,5 +137,6 @@ export function useMultiplayerGame(roomId: string | undefined) {
     showDare,
     nextPlayer,
     restartGameSession: () => {},
+    refreshAfterPremiumPurchase: undefined,
   };
 }

@@ -1,19 +1,28 @@
 /**
  * Shop screen: purchasable categories ($4.99) and premium all-in-one ($19.99).
  * Demo mode – purchases unlock without real payment.
+ * When opened from "Buy more" (out of questions), scrolls to Extra Questions
+ * and highlights the current category's Buy button.
  */
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   ImageBackground,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppButton } from "@/components/ui/AppButton";
@@ -26,30 +35,166 @@ import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
 import { useDemoPurchases } from "@/hooks/use-demo-purchases";
 import { useShopCategories } from "@/hooks/use-shop-categories";
 
+function BlinkingBuyButton({
+  shouldBlink,
+  owned,
+  onPress,
+  disabled,
+  loading,
+  price,
+  categoryName,
+  packageLabel,
+  buyLabel,
+  ownedLabel,
+}: {
+  shouldBlink: boolean;
+  owned: boolean;
+  onPress: () => void;
+  disabled: boolean;
+  loading: boolean;
+  price: string;
+  categoryName: string;
+  packageLabel: string;
+  buyLabel: string;
+  ownedLabel: string;
+}) {
+  const opacity = useSharedValue(1);
+  useEffect(() => {
+    if (shouldBlink) {
+      opacity.value = withRepeat(
+        withTiming(0.5, { duration: 600 }),
+        -1,
+        true
+      );
+    } else {
+      opacity.value = withTiming(1);
+    }
+  }, [shouldBlink, opacity]);
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+  return (
+    <View style={styles.categoryCard}>
+      <View style={styles.premiumQuestionsCardContent}>
+        <Text style={styles.premiumQuestionsCategoryName}>
+          {categoryName}
+        </Text>
+        <Text style={styles.premiumQuestionsPackage}>
+          {packageLabel}
+        </Text>
+      </View>
+      <Text style={styles.categoryPrice}>{price}</Text>
+      {owned ? (
+        <View style={styles.ownedBadge}>
+          <Ionicons
+            name="checkmark-circle"
+            size={18}
+            color={COLORS.success}
+          />
+          <Text style={styles.ownedTextSmall}>{ownedLabel}</Text>
+        </View>
+      ) : (
+        <Animated.View style={animatedStyle}>
+          <AppButton
+            variant="pill"
+            size="small"
+            onPress={onPress}
+            disabled={disabled}
+            loading={loading}
+          >
+            {buyLabel}
+          </AppButton>
+        </Animated.View>
+      )}
+    </View>
+  );
+}
+
 export default function ShopScreen() {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
+  const { categoryId: paramCategoryId, fromOutOfQuestions } =
+    useLocalSearchParams<{
+      categoryId?: string;
+      fromOutOfQuestions?: string;
+      roomId?: string;
+    }>();
+  const scrollRef = useRef<ScrollView>(null);
+  const [extraQuestionsSectionY, setExtraQuestionsSectionY] = useState<
+    number | null
+  >(null);
+  const [purchaseCompleted, setPurchaseCompleted] = useState<{
+    returnToGame: boolean;
+  } | null>(null);
+  const shouldReturnToGame = fromOutOfQuestions === "true" && !!paramCategoryId;
+
   const {
     isPro,
     isCategoryUnlocked,
+    isPremiumQuestionsUnlocked,
     unlockCategory,
     unlockPremium,
+    unlockPremiumQuestionsForCategory,
     resetPurchases,
     loading: purchasesLoading,
   } = useDemoPurchases();
-  const { premiumCategories, loading: categoriesLoading } = useShopCategories();
+  const {
+    premiumCategories,
+    freeCategoriesWithPremiumQuestions,
+    loading: categoriesLoading,
+  } = useShopCategories();
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
 
   const handleBuyCategory = async (categoryId: string) => {
     setPurchasingId(categoryId);
     await unlockCategory(categoryId);
     setPurchasingId(null);
+    setPurchaseCompleted({ returnToGame: false });
   };
+
+  const handleBuyPremiumQuestions = async (categoryId: string) => {
+    setPurchasingId(`premium-questions-${categoryId}`);
+    await unlockPremiumQuestionsForCategory(categoryId);
+    setPurchasingId(null);
+    setPurchaseCompleted({
+      returnToGame: shouldReturnToGame && categoryId === paramCategoryId,
+    });
+  };
+
+  useEffect(() => {
+    if (
+      fromOutOfQuestions === "true" &&
+      extraQuestionsSectionY !== null &&
+      scrollRef.current
+    ) {
+      const timer = setTimeout(() => {
+        scrollRef.current?.scrollTo({
+          y: Math.max(0, extraQuestionsSectionY - 20),
+          animated: true,
+        });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [fromOutOfQuestions, extraQuestionsSectionY]);
+
+  useEffect(() => {
+    if (purchaseCompleted) {
+      const timer = setTimeout(() => {
+        const { returnToGame } = purchaseCompleted;
+        setPurchaseCompleted(null);
+        if (returnToGame) {
+          router.back();
+        }
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [purchaseCompleted]);
 
   const handleBuyPremium = async () => {
     setPurchasingId("premium");
     await unlockPremium();
     setPurchasingId(null);
+    setPurchaseCompleted({ returnToGame: false });
   };
 
   const loading = purchasesLoading || categoriesLoading;
@@ -87,6 +232,7 @@ export default function ShopScreen() {
           </View>
 
           <ScrollView
+            ref={scrollRef}
             style={styles.scroll}
             contentContainerStyle={[
               styles.scrollContent,
@@ -152,6 +298,47 @@ export default function ShopScreen() {
               );
             })}
 
+            {freeCategoriesWithPremiumQuestions.length > 0 && (
+              <>
+                <View
+                  onLayout={(e) =>
+                    setExtraQuestionsSectionY(e.nativeEvent.layout.y)
+                  }
+                  style={styles.extraQuestionsSection}
+                >
+                <Text style={styles.sectionTitle}>
+                  {t("shop.premiumQuestionsSection")}
+                </Text>
+                <Text style={styles.premiumQuestionsDesc}>
+                  {t("shop.premiumQuestionsDesc")}
+                </Text>
+                {freeCategoriesWithPremiumQuestions.map((category) => {
+                  const owned = isPremiumQuestionsUnlocked(category.id);
+                  const purchaseKey = `premium-questions-${category.id}`;
+                  const shouldBlink =
+                    shouldReturnToGame &&
+                    paramCategoryId === category.id &&
+                    !owned;
+                  return (
+                    <BlinkingBuyButton
+                      key={category.id}
+                      shouldBlink={shouldBlink}
+                      owned={owned}
+                      onPress={() => handleBuyPremiumQuestions(category.id)}
+                      disabled={purchasingId !== null}
+                      loading={purchasingId === purchaseKey}
+                      price={t("shop.premiumQuestionsPrice")}
+                      categoryName={category.name}
+                      packageLabel={t("shop.premiumQuestionsPackage")}
+                      buyLabel={t("shop.buy")}
+                      ownedLabel={t("shop.owned")}
+                    />
+                  );
+                })}
+                </View>
+              </>
+            )}
+
             <Pressable
               onPress={resetPurchases}
               style={styles.resetButton}
@@ -160,6 +347,25 @@ export default function ShopScreen() {
               <Text style={styles.resetText}>{t("shop.resetPurchases")}</Text>
             </Pressable>
           </ScrollView>
+
+          <Modal
+            visible={purchaseCompleted !== null}
+            transparent
+            animationType="fade"
+          >
+            <View style={styles.purchaseCompletedOverlay}>
+              <View style={styles.purchaseCompletedContent}>
+                <Ionicons
+                  name="checkmark-circle"
+                  size={48}
+                  color={COLORS.success}
+                />
+                <Text style={styles.purchaseCompletedText}>
+                  {t("shop.purchaseCompleted")}
+                </Text>
+              </View>
+            </View>
+          </Modal>
         </View>
       </View>
     </ImageBackground>
@@ -254,6 +460,11 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginTop: SPACING.x2,
   },
+  premiumQuestionsDesc: {
+    ...TYPOGRAPHY_BASE.small,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.x2,
+  },
   categoryCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -266,7 +477,21 @@ const styles = StyleSheet.create({
   categoryName: {
     ...TYPOGRAPHY_BASE.body,
     color: COLORS.textPrimary,
+    fontWeight: "600",
     flex: 1,
+  },
+  premiumQuestionsCardContent: {
+    flex: 1,
+  },
+  premiumQuestionsCategoryName: {
+    ...TYPOGRAPHY_BASE.body,
+    color: COLORS.textPrimary,
+    fontWeight: "600",
+  },
+  premiumQuestionsPackage: {
+    ...TYPOGRAPHY_BASE.small,
+    color: COLORS.textSecondary,
+    marginTop: SPACING.x1,
   },
   categoryPrice: {
     ...TYPOGRAPHY_BASE.body,
@@ -298,5 +523,29 @@ const styles = StyleSheet.create({
   resetText: {
     ...TYPOGRAPHY_BASE.xSmall,
     color: COLORS.textDisabled,
+  },
+  extraQuestionsSection: {
+    gap: SPACING.x4,
+  },
+  purchaseCompletedOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: SPACING.x6,
+  },
+  purchaseCompletedContent: {
+    backgroundColor: COLORS.backgroundSecondary,
+    borderRadius: BORDER_RADIUS.x6,
+    padding: SPACING.x8,
+    alignItems: "center",
+    gap: SPACING.x4,
+    minWidth: 260,
+  },
+  purchaseCompletedText: {
+    ...TYPOGRAPHY_BASE.h3,
+    color: COLORS.textPrimary,
+    fontWeight: "700",
+    textAlign: "center",
   },
 });

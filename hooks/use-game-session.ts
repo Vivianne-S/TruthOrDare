@@ -5,18 +5,22 @@
  */
 import { useEffect, useState } from "react";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
+  addQuestionsToPools,
   drawNextQuestionByType,
   getCurrentPlayer,
   getGamePlayers,
   getGameQuestions,
   getRemainingCount,
   getPlayerStats,
+  getSelectedCategoryId,
   getSelectedCategoryName,
   moveToNextPlayer,
   recordQuestionForPlayer,
   restartGame,
 } from "@/services/game-session";
+import { getQuestionsByCategory } from "@/services/categories";
 import type { Question } from "@/types/category";
 import type { GameAwards } from "@/types/game";
 import type { Player } from "@/types/player";
@@ -33,6 +37,7 @@ export function useGameSession() {
   const [categoryName, setCategoryName] = useState<string | null>(() =>
     getSelectedCategoryName(),
   );
+  const categoryId = getSelectedCategoryId();
   const [hasChosenThisTurn, setHasChosenThisTurn] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [endAfterThisTurn, setEndAfterThisTurn] = useState(false);
@@ -93,6 +98,23 @@ export function useGameSession() {
     setHasChosenThisTurn(false);
   };
 
+  const refreshAfterPremiumPurchase = async (categoryId: string) => {
+    const [proValue, pqValue] = await Promise.all([
+      AsyncStorage.getItem("demo_pro_purchased"),
+      AsyncStorage.getItem("demo_unlocked_premium_questions"),
+    ]);
+    const isPro = proValue === "true";
+    const unlockedIds: string[] = pqValue ? JSON.parse(pqValue) : [];
+    const hasPremium =
+      isPro || unlockedIds.includes(categoryId);
+    if (!hasPremium) return;
+    const allQuestions = await getQuestionsByCategory(categoryId, {
+      includePremium: true,
+    });
+    addQuestionsToPools(allQuestions);
+    setEndAfterThisTurn(false);
+  };
+
   return {
     players,
     currentPlayer,
@@ -100,6 +122,7 @@ export function useGameSession() {
     nextPlayer,
     currentQuestion,
     categoryName,
+    categoryId,
     isGameOver,
     endAfterThisTurn,
     awards,
@@ -108,5 +131,6 @@ export function useGameSession() {
     showDare: () => showQuestion("dare"),
     isMyTurn: true,
     loading: false,
+    refreshAfterPremiumPurchase,
   };
 }

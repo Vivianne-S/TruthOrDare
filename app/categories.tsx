@@ -56,6 +56,7 @@ export default function CategoriesScreen() {
     loading,
     questionsByCategory,
     handlePressCategory,
+    getIncludePremium,
   } = useCategories();
   const { isCategoryUnlocked, refreshProStatus } = useDemoPurchases();
   const insets = useSafeAreaInsets();
@@ -144,7 +145,11 @@ export default function CategoriesScreen() {
 
     try {
       const cached = questionsByCategory[openCategory.id];
-      const questions = cached ?? (await getQuestionsByCategory(openCategory.id));
+      const includePremium = getIncludePremium(openCategory.id);
+      const questions =
+        cached?.includePremium === includePremium
+          ? cached.questions
+          : await getQuestionsByCategory(openCategory.id, { includePremium });
       setGameCategory(openCategory.id, openCategory.name, questions);
 
       if (isMultiplayer && roomId) {

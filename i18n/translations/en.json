@@ -82,10 +82,15 @@
     "owned": "Owned",
     "buyPremium": "Buy Premium",
     "premiumCategories": "Premium Categories",
+    "premiumQuestionsSection": "Extra Questions",
+    "premiumQuestionsDesc": "10 truths + 10 dares per category. Unlock more content for Chaos, Funny and Love & Relationships.",
     "buy": "Buy",
     "resetPurchases": "Reset Purchases (dev)",
     "categoryPrice": "$4.99",
-    "premiumPrice": "$29.99"
+    "premiumPrice": "$29.99",
+    "premiumQuestionsPrice": "$2.99",
+    "premiumQuestionsPackage": "10 truths + 10 dares",
+    "purchaseCompleted": "Purchase completed!"
   },
   "game": {
     "tapToReveal": "Tap TRUTH or DARE to reveal a question.",
