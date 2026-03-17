@@ -86,7 +86,7 @@ export default function GameLobbyScreen() {
             question_text_sv?: string | null;
           }[];
           setGameCategory(r.category_id, r.category_name, questions);
-          router.replace("/game");
+          router.replace({ pathname: "/game", params: { roomId } });
         }
       },
       (p) => setPlayers(p)

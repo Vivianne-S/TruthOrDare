@@ -162,7 +162,7 @@ export default function CategoriesScreen() {
         );
       }
 
-      router.replace("/game");
+      router.replace(isMultiplayer && roomId ? { pathname: "/game", params: { roomId } } : "/game");
     } catch (error) {
       console.log("Failed to load questions for game:", error);
     }

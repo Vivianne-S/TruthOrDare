@@ -18,6 +18,8 @@ export type GameRoom = {
   truth_pool: unknown[];
   dare_pool: unknown[];
   current_player_index: number;
+  current_question?: { type: string; question_text: string; question_text_sv?: string | null } | null;
+  current_choice?: "truth" | "dare" | null;
   player_stats: Record<string, { truthCount: number; dareCount: number }>;
   created_at: string;
 };
@@ -201,15 +203,17 @@ export async function getRoomPlayers(roomId: string): Promise<GameRoomPlayer[]> 
 
 /**
  * Convert game_room_players to Player[] for game-session.
+ * Includes userId for multiplayer "is my turn" check.
  */
 export function roomPlayersToPlayers(
   roomPlayers: GameRoomPlayer[],
-  hostUserId: string
+  _hostUserId?: string
 ): Player[] {
   return roomPlayers.map((rp) => ({
     id: rp.id,
     name: rp.name || "Player",
     avatarId: rp.avatar_id,
+    userId: rp.user_id,
   }));
 }
 
@@ -267,10 +271,96 @@ export async function startGameInRoom(
       game_questions: questions,
       truth_pool: truths,
       dare_pool: dares,
+      current_player_index: 0,
+      current_question: null,
+      current_choice: null,
     })
     .eq("id", roomId);
 
   if (error) throw new Error(`Start game failed: ${error.message}`);
+}
+
+type QuestionLike = { type: string; question_text: string; question_text_sv?: string | null };
+
+/**
+ * Current player chooses Truth or Dare. Pops from pool, updates room.
+ * Only the current player should call this.
+ */
+export async function chooseTruthOrDareInRoom(
+  roomId: string,
+  type: "truth" | "dare"
+): Promise<void> {
+  const room = await getRoomById(roomId);
+  if (!room || room.status !== "playing") throw new Error("Room not found or not playing");
+
+  const players = await getRoomPlayers(roomId);
+  const idx = room.current_player_index % players.length;
+  const currentPlayerId = players[idx]?.id;
+  if (!currentPlayerId) throw new Error("No current player");
+
+  const truthPool = (room.truth_pool ?? []) as QuestionLike[];
+  const darePool = (room.dare_pool ?? []) as QuestionLike[];
+  const pool = type === "truth" ? truthPool : darePool;
+
+  if (pool.length === 0) {
+    const { error } = await supabase
+      .from("game_rooms")
+      .update({ status: "game_over" })
+      .eq("id", roomId);
+    if (error) throw new Error(`Game over update failed: ${error.message}`);
+    return;
+  }
+
+  const question = pool[0];
+  const newPool = pool.slice(1);
+  const newTruthPool = type === "truth" ? newPool : truthPool;
+  const newDarePool = type === "dare" ? newPool : darePool;
+
+  const stats = room.player_stats ?? {};
+  const playerStats = stats[currentPlayerId] ?? { truthCount: 0, dareCount: 0 };
+  if (type === "truth") playerStats.truthCount += 1;
+  else playerStats.dareCount += 1;
+  const newStats = { ...stats, [currentPlayerId]: playerStats };
+
+  const gameOver = newTruthPool.length === 0 && newDarePool.length === 0;
+
+  const { error } = await supabase
+    .from("game_rooms")
+    .update({
+      truth_pool: newTruthPool,
+      dare_pool: newDarePool,
+      current_question: question,
+      current_choice: type,
+      player_stats: newStats,
+      status: gameOver ? "game_over" : room.status,
+    })
+    .eq("id", roomId);
+
+  if (error) throw new Error(`Choose failed: ${error.message}`);
+}
+
+/**
+ * Advance to next player. Clears current question. Only current player should call.
+ */
+export async function nextPlayerInRoom(roomId: string): Promise<void> {
+  const room = await getRoomById(roomId);
+  if (!room || room.status !== "playing") throw new Error("Room not found or not playing");
+
+  const players = await getRoomPlayers(roomId);
+  if (players.length === 0) return;
+
+  const newIndex = (room.current_player_index + 1) % players.length;
+
+  const { error } = await supabase
+    .from("game_rooms")
+    .update({
+      current_player_index: newIndex,
+      current_question: null,
+      current_choice: null,
+    })
+    .eq("id", roomId);
+
+  if (error) throw new Error(`Next player failed: ${error.message}`);
 }
 
 /**
