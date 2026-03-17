@@ -10,6 +10,7 @@ import {
   getCurrentPlayer,
   getGamePlayers,
   getGameQuestions,
+  getRemainingCount,
   getPlayerStats,
   getSelectedCategoryName,
   moveToNextPlayer,
@@ -34,6 +35,7 @@ export function useGameSession() {
   );
   const [hasChosenThisTurn, setHasChosenThisTurn] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [endAfterThisTurn, setEndAfterThisTurn] = useState(false);
   const [awards, setAwards] = useState<GameAwards>({
     mostDaring: null,
     truthfulAngel: null,
@@ -48,6 +50,11 @@ export function useGameSession() {
   }, []);
 
   const nextPlayer = () => {
+    if (endAfterThisTurn) {
+      setIsGameOver(true);
+      setAwards(computeAwards(getGamePlayers(), getPlayerStats()));
+      return;
+    }
     const updated = moveToNextPlayer();
     setCurrentPlayer(updated);
     setCurrentQuestion(null);
@@ -67,6 +74,11 @@ export function useGameSession() {
     }
     setCurrentQuestion(question);
     setHasChosenThisTurn(true);
+
+    const remaining = getRemainingCount();
+    if (remaining.truths === 0 || remaining.dares === 0) {
+      setEndAfterThisTurn(true);
+    }
   };
 
   const hasPlayers = players.length > 0;
@@ -74,6 +86,7 @@ export function useGameSession() {
   const restartGameSession = () => {
     restartGame();
     setIsGameOver(false);
+    setEndAfterThisTurn(false);
     setAwards({ mostDaring: null, truthfulAngel: null, superstar: null });
     setCurrentPlayer(getCurrentPlayer());
     setCurrentQuestion(null);
