@@ -126,6 +126,12 @@
     "no": "Nej",
     "yes": "Ja"
   },
+  "outOfQuestions": {
+    "title": "Oops, frågorna börjar ta slut",
+    "message": "Det finns inga fler Sanningar eller Konsekvenser i den här kategorin. Du kan köpa fler, eller avsluta och se resultatet.",
+    "buyMore": "Köp fler",
+    "finish": "Avsluta"
+  },
   "categoryBubble": {
     "lockEmoji": "🔒",
     "fallbackEmoji": "✨"

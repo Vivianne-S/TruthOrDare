@@ -101,6 +101,7 @@ export function useGameSession() {
     currentQuestion,
     categoryName,
     isGameOver,
+    endAfterThisTurn,
     awards,
     restartGameSession,
     showTruth: () => showQuestion("truth"),

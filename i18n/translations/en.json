@@ -126,6 +126,12 @@
     "no": "No",
     "yes": "Yes"
   },
+  "outOfQuestions": {
+    "title": "Oops, the questions are running out",
+    "message": "There are no more Truths or Dares in this category. You can buy more, or finish and see the results.",
+    "buyMore": "Buy more",
+    "finish": "Finish"
+  },
   "categoryBubble": {
     "lockEmoji": "🔒",
     "fallbackEmoji": "✨"

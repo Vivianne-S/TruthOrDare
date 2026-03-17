@@ -10,6 +10,7 @@ import { GameView } from "@/components/game/GameView";
 import { ExitConfirmModal } from "@/components/ui/ExitConfirmModal";
 import { ExitMenuModal } from "@/components/ui/ExitMenuModal";
 import { GameOverScreen } from "@/components/ui/GameOverScreen/index";
+import { OutOfQuestionsModal } from "@/components/ui/OutOfQuestionsModal";
 import { useGameSession } from "@/hooks/use-game-session";
 import { useMultiplayerGame } from "@/hooks/use-multiplayer-game";
 
@@ -40,6 +41,7 @@ export default function GameScreen() {
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
   const [showExitMenu, setShowExitMenu] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [showOutOfQuestions, setShowOutOfQuestions] = useState(false);
 
   const handleDoorPress = () => setShowExitMenu(true);
   const handleExitGame = () => {
@@ -48,6 +50,16 @@ export default function GameScreen() {
   };
 
   const canInteract = isMultiplayer ? (isMyTurn ?? false) : true;
+  const endAfterThisTurn =
+    "endAfterThisTurn" in session ? (session.endAfterThisTurn ?? false) : false;
+
+  const handleNextPlayer = () => {
+    if (endAfterThisTurn) {
+      setShowOutOfQuestions(true);
+      return;
+    }
+    nextPlayer();
+  };
 
   if (isMultiplayer && sessionLoading) {
     return (
@@ -90,7 +102,7 @@ export default function GameScreen() {
         onDoorPress={handleDoorPress}
         onShowTruth={showTruth}
         onShowDare={showDare}
-        onNextPlayer={nextPlayer}
+        onNextPlayer={handleNextPlayer}
         canInteract={canInteract}
       />
       <ExitMenuModal
@@ -112,6 +124,17 @@ export default function GameScreen() {
         onYes={() => {
           setShowExitConfirm(false);
           router.replace("/");
+        }}
+      />
+      <OutOfQuestionsModal
+        visible={showOutOfQuestions}
+        onBuyMore={() => {
+          setShowOutOfQuestions(false);
+          router.push("/shop");
+        }}
+        onFinish={() => {
+          setShowOutOfQuestions(false);
+          nextPlayer();
         }}
       />
     </>
