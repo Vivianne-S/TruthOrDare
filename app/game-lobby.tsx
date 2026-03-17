@@ -2,7 +2,7 @@
  * Multiplayer game lobby: host sees players and can start; players wait.
  */
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -15,14 +15,14 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AVATARS } from "@/constants/avatars";
 import { AppButton } from "@/components/ui/AppButton";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
-import { useI18n } from "@/context/I18nContext";
+import { AVATARS } from "@/constants/avatars";
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
+import { useI18n } from "@/context/I18nContext";
 import {
   getRoomById,
   getRoomPlayers,

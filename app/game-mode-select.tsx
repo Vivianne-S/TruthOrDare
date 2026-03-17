@@ -14,11 +14,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppButton } from "@/components/ui/AppButton";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
-import { useI18n } from "@/context/I18nContext";
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
+import { useI18n } from "@/context/I18nContext";
 
 export default function GameModeSelectScreen() {
   const { t } = useI18n();
@@ -26,7 +26,7 @@ export default function GameModeSelectScreen() {
 
   return (
     <ImageBackground
-      source={require("@/assets/images/purple_galaxy.png")}
+      source={require("@/assets/images/background5.png")}
       resizeMode="cover"
       style={styles.background}
     >
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     gap: SPACING.x2,
     paddingVertical: SPACING.x2,
     paddingHorizontal: SPACING.x1,
-    backgroundColor: "rgba(34, 10, 64, 0.25)",
+    backgroundColor: "rgba(34, 10, 64, 0.48)",
     borderRadius: BORDER_RADIUS.x6,
     borderWidth: 1,
     borderColor: "rgba(184, 130, 255, 0.15)",
