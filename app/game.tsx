@@ -1,16 +1,26 @@
 /**
  * Game screen: orchestrates game session, GameView, GameOverScreen, and exit modals.
+ * Uses useMultiplayerGame when roomId is present (synced via Supabase).
  */
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
+import { ActivityIndicator, View } from "react-native";
 
 import { GameView } from "@/components/game/GameView";
 import { ExitConfirmModal } from "@/components/ui/ExitConfirmModal";
 import { ExitMenuModal } from "@/components/ui/ExitMenuModal";
 import { GameOverScreen } from "@/components/ui/GameOverScreen/index";
 import { useGameSession } from "@/hooks/use-game-session";
+import { useMultiplayerGame } from "@/hooks/use-multiplayer-game";
 
 export default function GameScreen() {
+  const { roomId } = useLocalSearchParams<{ roomId?: string }>();
+  const isMultiplayer = Boolean(roomId);
+
+  const localSession = useGameSession();
+  const multiplayerSession = useMultiplayerGame(roomId);
+
+  const session = isMultiplayer ? multiplayerSession : localSession;
   const {
     players,
     currentPlayer,
@@ -23,7 +33,9 @@ export default function GameScreen() {
     restartGameSession,
     showTruth,
     showDare,
-  } = useGameSession();
+    isMyTurn = true,
+    loading: sessionLoading = false,
+  } = session;
 
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
   const [showExitMenu, setShowExitMenu] = useState(false);
@@ -35,13 +47,34 @@ export default function GameScreen() {
     setShowExitConfirm(true);
   };
 
+  const canInteract = isMultiplayer ? (isMyTurn ?? false) : true;
+
+  if (isMultiplayer && sessionLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator color="#FFFFFF" size="large" />
+      </View>
+    );
+  }
+
   if (isGameOver) {
     return (
-      <GameOverScreen
-        players={players}
-        awards={awards}
-        onPlayAgain={restartGameSession}
-      />
+      <>
+        <GameOverScreen
+          players={players}
+          awards={awards}
+          onPlayAgain={restartGameSession}
+          onExitPress={() => setShowExitConfirm(true)}
+        />
+        <ExitConfirmModal
+          visible={showExitConfirm}
+          onNo={() => setShowExitConfirm(false)}
+          onYes={() => {
+            setShowExitConfirm(false);
+            router.replace("/");
+          }}
+        />
+      </>
     );
   }
 
@@ -58,6 +91,7 @@ export default function GameScreen() {
         onShowTruth={showTruth}
         onShowDare={showDare}
         onNextPlayer={nextPlayer}
+        canInteract={canInteract}
       />
       <ExitMenuModal
         visible={showExitMenu}

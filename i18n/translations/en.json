@@ -1,4 +1,50 @@
 {
+  "gameModeSelect": {
+    "title": "Choose Game Mode",
+    "subtitle": "How do you want to play?",
+    "localGame": "Local game",
+    "localGameDesc": "Play together on one device.",
+    "joinGame": "Join game",
+    "joinGameDesc": "Enter a code to join someone else's game.",
+    "createGame": "Create game",
+    "createGameDesc": "Create a room and invite others to join."
+  },
+  "joinGame": {
+    "title": "Join game",
+    "subtitle": "Enter the room code or scan the host's QR code.",
+    "codePlaceholder": "Room code",
+    "yourName": "Your name",
+    "join": "Join",
+    "scanQR": "Scan QR code",
+    "invalidCodeTitle": "Invalid code",
+    "invalidCodeMessage": "Please enter a 6-character room code.",
+    "comingSoonTitle": "Coming soon",
+    "comingSoonMessage": "Online multiplayer will be available in a future update.",
+    "roomNotFound": "Room not found",
+    "roomNotFoundMessage": "Check the code or ask the host to share it again.",
+    "joinError": "Could not join room"
+  },
+  "createGame": {
+    "title": "Create game",
+    "subtitle": "Share this code or QR code so others can join.",
+    "roomCode": "Room code",
+    "hint": "Others can scan this QR code or enter the code to join.",
+    "copyCode": "Copy code",
+    "startGame": "Start game",
+    "comingSoonTitle": "Coming soon",
+    "comingSoonMessage": "Online multiplayer will be available in a future update.",
+    "copySuccess": "Code copied!",
+    "yourName": "Your name",
+    "createRoom": "Create room",
+    "createError": "Could not create room"
+  },
+  "lobby": {
+    "title": "Game lobby",
+    "waitingForHost": "Waiting for host to start...",
+    "players": "Players",
+    "startGame": "Select category",
+    "youAreHost": "You are the host"
+  },
   "howToPlay": {
     "title": "How to Play",
     "step1": "Add players – enter each person's name and pick an avatar.",

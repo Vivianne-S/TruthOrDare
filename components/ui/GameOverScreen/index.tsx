@@ -29,16 +29,17 @@ type GameOverScreenProps = {
   players: Player[];
   awards: GameAwards;
   onPlayAgain: () => void;
+  onExitPress: () => void;
 };
 
 export function GameOverScreen({
   players,
   awards,
   onPlayAgain,
+  onExitPress,
 }: GameOverScreenProps) {
   const { t } = useI18n();
   const handleNewGame = () => router.replace("/add-players?newGame=true");
-  const handleExit = () => router.replace("/");
 
   const displayPlayers = players.slice(0, 3);
 
@@ -174,7 +175,7 @@ export function GameOverScreen({
                 <Text style={styles.secondaryButtonText}>{t("gameOver.newGame")}</Text>
               </Pressable>
               <Pressable
-                onPress={handleExit}
+                onPress={onExitPress}
                 style={({ pressed }) => [
                   styles.secondaryButton,
                   styles.exitButton,

@@ -20,7 +20,6 @@ export function useCategories() {
 
   useEffect(() => {
     let alive = true;
-
     (async () => {
       try {
         const data = await getCategories();
@@ -31,10 +30,7 @@ export function useCategories() {
         if (alive) setLoading(false);
       }
     })();
-
-    return () => {
-      alive = false;
-    };
+    return () => { alive = false; };
   }, []);
 
   // Pre-load questions when user selects a category (for tracking and faster game start)

@@ -6,7 +6,7 @@
  */
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -15,6 +15,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { useSharedValue } from "react-native-reanimated";
@@ -37,11 +38,19 @@ import { useAutoDeselectAfterDelay } from "@/hooks/use-categories-lock-message";
 import { useCategories } from "@/hooks/use-categories";
 import { useDemoPurchases } from "@/hooks/use-demo-purchases";
 import { getQuestionsByCategory } from "@/services/categories";
-import { setGameCategory } from "@/services/game-session";
+import {
+  getRoomById,
+  getRoomPlayers,
+  roomPlayersToPlayers,
+  startGameInRoom,
+} from "@/services/game-room";
+import { setGameCategory, setGamePlayers } from "@/services/game-session";
 import type { CategoryBubble } from "@/types/category";
 
 export default function CategoriesScreen() {
   const { t } = useI18n();
+  const { roomId } = useLocalSearchParams<{ roomId?: string }>();
+  const isMultiplayer = Boolean(roomId);
   const {
     categories,
     loading,
@@ -60,8 +69,18 @@ export default function CategoriesScreen() {
   const touchX = useSharedValue(-1000);
   const touchY = useSharedValue(-1000);
   const touching = useSharedValue(0);
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [fieldSize, setFieldSize] = useState({ width: 0, height: 0 });
   const [selectedBubbleId, setSelectedBubbleId] = useState<string | null>(null);
+
+  const effectiveWidth =
+    fieldSize.width > 0
+      ? fieldSize.width
+      : Math.max(0, windowWidth - SPACING.x4 * 2);
+  const effectiveHeight =
+    fieldSize.height > 0
+      ? fieldSize.height
+      : Math.max(510, windowHeight * 0.5);
 
   const generatedSlots = useMemo(() => ORGANIC_CATEGORY_SLOTS, []);
 
@@ -108,7 +127,11 @@ export default function CategoriesScreen() {
   };
 
   const handleGoBack = () => {
-    router.replace("/add-players");
+    if (isMultiplayer && roomId) {
+      router.replace({ pathname: "/game-lobby", params: { roomId, isHost: "true" } });
+    } else {
+      router.replace("/add-players");
+    }
   };
 
   const handleShop = () => {
@@ -123,7 +146,23 @@ export default function CategoriesScreen() {
       const cached = questionsByCategory[openCategory.id];
       const questions = cached ?? (await getQuestionsByCategory(openCategory.id));
       setGameCategory(openCategory.id, openCategory.name, questions);
-      router.replace("/game");
+
+      if (isMultiplayer && roomId) {
+        const [players, room] = await Promise.all([
+          getRoomPlayers(roomId),
+          getRoomById(roomId),
+        ]);
+        const hostUserId = room?.host_user_id ?? "";
+        setGamePlayers(roomPlayersToPlayers(players, hostUserId));
+        await startGameInRoom(
+          roomId,
+          openCategory.id,
+          openCategory.name,
+          questions
+        );
+      }
+
+      router.replace(isMultiplayer && roomId ? { pathname: "/game", params: { roomId } } : "/game");
     } catch (error) {
       console.log("Failed to load questions for game:", error);
     }
@@ -207,7 +246,7 @@ export default function CategoriesScreen() {
               touchY.value = -1000;
             }}
           >
-            {fieldSize.width > 0 &&
+            {effectiveWidth > 0 &&
               bubbles.map((bubble) => (
                 <CategoryBubbleButton
                   key={bubble.id}
@@ -217,8 +256,8 @@ export default function CategoriesScreen() {
                   isOpen={selectedBubbleId === bubble.id}
                   isLocked={bubble.isLocked}
                   onPress={() => handleBubblePress(bubble)}
-                  fieldWidth={fieldSize.width}
-                  fieldHeight={fieldSize.height}
+                  fieldWidth={effectiveWidth}
+                  fieldHeight={effectiveHeight}
                   touchX={touchX}
                   touchY={touchY}
                   touching={touching}

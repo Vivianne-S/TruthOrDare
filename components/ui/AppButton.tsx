@@ -29,6 +29,8 @@ import {
 export type AppButtonVariant =
   | "glass"
   | "cta"
+  | "ctaPurple"
+  | "ctaBlue"
   | "pill"
   | "chip"
   | "fab"
@@ -77,6 +79,22 @@ const getVariantPreset = (): Record<
     intensity: 90,
     containerStyle: styles.containerGlowPink,
     blurStyle: styles.blurCta,
+    textStyle: styles.textCta,
+    sizeStyle: styles.sizeCta,
+  },
+  ctaPurple: {
+    tint: "light",
+    intensity: 76,
+    containerStyle: styles.containerGlowPurple,
+    blurStyle: styles.blurCtaPurple,
+    textStyle: styles.textCta,
+    sizeStyle: styles.sizeCta,
+  },
+  ctaBlue: {
+    tint: "light",
+    intensity: 76,
+    containerStyle: styles.containerGlowBlueCard,
+    blurStyle: styles.blurCtaBlue,
     textStyle: styles.textCta,
     sizeStyle: styles.sizeCta,
   },
@@ -330,10 +348,10 @@ const styles = StyleSheet.create({
     elevation: 25,
   },
   containerGlowBlueCard: {
-    shadowColor: "#4FA3FF",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.72,
-    shadowRadius: 26,
+    shadowColor: "#3B82F6",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.85,
+    shadowRadius: 28,
     elevation: 26,
   },
   containerGlowPink: {
@@ -373,6 +391,16 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 46, 159, 0.45)",
     borderColor: "rgba(255, 225, 252, 0.98)",
     borderWidth: 1.8,
+  },
+  blurCtaPurple: {
+    backgroundColor: "rgba(138, 74, 255, 0.4)",
+    borderColor: "rgba(220, 181, 255, 0.9)",
+    borderWidth: 1.6,
+  },
+  blurCtaBlue: {
+    backgroundColor: "rgba(37, 99, 235, 0.55)",
+    borderColor: "rgba(96, 165, 250, 0.95)",
+    borderWidth: 1.6,
   },
   blurPill: {
     backgroundColor: "rgba(138, 74, 255, 0.34)",

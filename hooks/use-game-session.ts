@@ -105,5 +105,7 @@ export function useGameSession() {
     restartGameSession,
     showTruth: () => showQuestion("truth"),
     showDare: () => showQuestion("dare"),
+    isMyTurn: true,
+    loading: false,
   };
 }

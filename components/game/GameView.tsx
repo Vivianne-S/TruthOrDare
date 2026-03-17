@@ -34,6 +34,8 @@ type GameViewProps = {
   onShowTruth: () => void;
   onShowDare: () => void;
   onNextPlayer: () => void;
+  /** When false (multiplayer, not my turn), Truth/Dare/Next buttons are disabled */
+  canInteract?: boolean;
 };
 
 export function GameView({
@@ -47,6 +49,7 @@ export function GameView({
   onShowTruth,
   onShowDare,
   onNextPlayer,
+  canInteract = true,
 }: GameViewProps) {
   const { t, locale } = useI18n();
   const displayedQuestionText = currentQuestion
@@ -139,14 +142,14 @@ export function GameView({
             <AppButton
               variant="truth"
               onPress={onShowTruth}
-              disabled={!hasPlayers || !!currentQuestion}
+              disabled={!canInteract || !hasPlayers || !!currentQuestion}
             >
               {t("game.truth")}
             </AppButton>
             <AppButton
               variant="dare"
               onPress={onShowDare}
-              disabled={!hasPlayers || !!currentQuestion}
+              disabled={!canInteract || !hasPlayers || !!currentQuestion}
             >
               {t("game.dare")}
             </AppButton>
@@ -190,7 +193,7 @@ export function GameView({
                 size="small"
                 style={styles.footerButton}
                 onPress={onNextPlayer}
-                disabled={!hasPlayers || !currentQuestion}
+                disabled={!canInteract || !hasPlayers || !currentQuestion}
               >
                 {t("game.nextPlayer")}
               </AppButton>
