@@ -42,7 +42,7 @@
     "title": "Game lobby",
     "waitingForHost": "Waiting for host to start...",
     "players": "Players",
-    "startGame": "Start game",
+    "startGame": "Select category",
     "youAreHost": "You are the host"
   },
   "howToPlay": {
