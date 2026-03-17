@@ -140,5 +140,9 @@
   "categoryBubble": {
     "lockEmoji": "🔒",
     "fallbackEmoji": "✨"
+  },
+  "multiplayer": {
+    "hostInMenuTitle": "Host is in the menu",
+    "hostInMenuMessage": "The host has entered the menu. The game will continue when the host is back."
   }
 }

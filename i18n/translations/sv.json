@@ -140,5 +140,9 @@
   "categoryBubble": {
     "lockEmoji": "🔒",
     "fallbackEmoji": "✨"
+  },
+  "multiplayer": {
+    "hostInMenuTitle": "Värden är i menyn",
+    "hostInMenuMessage": "Värden har gått in i menyn. Spelet fortsätter när värden är tillbaka."
   }
 }

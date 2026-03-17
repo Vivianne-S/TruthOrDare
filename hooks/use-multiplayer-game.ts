@@ -35,6 +35,18 @@ export function useMultiplayerGame(roomId: string | undefined) {
   const categoryName = room?.category_name ?? null;
   const categoryId = room?.category_id ?? null;
   const isGameOver = room?.status === "game_over";
+  const isHost =
+    !!room?.host_user_id && !!myUserId && room.host_user_id === myUserId;
+  const truthPoolLength = Array.isArray(room?.truth_pool)
+    ? room!.truth_pool.length
+    : 0;
+  const darePoolLength = Array.isArray(room?.dare_pool)
+    ? room!.dare_pool.length
+    : 0;
+  const endAfterThisTurn =
+    !!room &&
+    room.status === "playing" &&
+    (truthPoolLength === 0 || darePoolLength === 0);
   const isMyTurn =
     !!myUserId &&
     !!currentPlayer?.userId &&
@@ -130,7 +142,9 @@ export function useMultiplayerGame(roomId: string | undefined) {
     categoryName,
     categoryId,
     isGameOver,
+    endAfterThisTurn,
     awards,
+    isHost,
     isMyTurn,
     loading,
     showTruth,
