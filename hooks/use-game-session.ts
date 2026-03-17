@@ -16,21 +16,21 @@ import {
   recordQuestionForPlayer,
   restartGame,
 } from "@/services/game-session";
-import { computeAwards } from "@/utils/game-awards";
-import type { GameAwards } from "@/types/game";
 import type { Question } from "@/types/category";
+import type { GameAwards } from "@/types/game";
 import type { Player } from "@/types/player";
+import { computeAwards } from "@/utils/game-awards";
 
 export type { GameAwards };
 
 export function useGameSession() {
   const [players, setPlayers] = useState<Player[]>(() => getGamePlayers());
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(() =>
-    getCurrentPlayer()
+    getCurrentPlayer(),
   );
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [categoryName, setCategoryName] = useState<string | null>(() =>
-    getSelectedCategoryName()
+    getSelectedCategoryName(),
   );
   const [hasChosenThisTurn, setHasChosenThisTurn] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -87,7 +87,6 @@ export function useGameSession() {
     nextPlayer,
     currentQuestion,
     categoryName,
-    hasChosenThisTurn,
     isGameOver,
     awards,
     restartGameSession,

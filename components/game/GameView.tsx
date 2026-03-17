@@ -13,11 +13,11 @@ import {
 
 import { AppButton } from "@/components/ui/AppButton";
 import { AVATARS } from "@/constants/avatars";
-import { translateCategoryName } from "@/i18n";
-import { useI18n } from "@/context/I18nContext";
 import { COLORS } from "@/constants/theme/colors";
+import { useI18n } from "@/context/I18nContext";
 import { usePulseAnimation } from "@/hooks/use-pulse-animation";
 import { useQuestionSpeech } from "@/hooks/use-question-speech";
+import { translateCategoryName } from "@/i18n";
 import type { Question } from "@/types/category";
 import type { Player } from "@/types/player";
 
@@ -50,9 +50,9 @@ export function GameView({
 }: GameViewProps) {
   const { t, locale } = useI18n();
   const displayedQuestionText = currentQuestion
-    ? (locale === "sv" && currentQuestion.question_text_sv?.trim()
-        ? currentQuestion.question_text_sv
-        : currentQuestion.question_text)
+    ? locale === "sv" && currentQuestion.question_text_sv?.trim()
+      ? currentQuestion.question_text_sv
+      : currentQuestion.question_text
     : null;
   const playerName = currentPlayer?.name;
   const avatarSource =
@@ -99,17 +99,23 @@ export function GameView({
             </TouchableOpacity>
             <View style={styles.headerCenter}>
               {categoryName ? (
-                <Text style={styles.categoryLabel}>{translateCategoryName(categoryName, t)}</Text>
+                <Text style={styles.categoryLabel}>
+                  {translateCategoryName(categoryName, t)}
+                </Text>
               ) : null}
               <Text style={styles.headerText}>
-                {hasPlayers ? t("game.playersTurn", { name: playerName ?? "" }) : t("game.yourTurn")}
+                {hasPlayers
+                  ? t("game.playersTurn", { name: playerName ?? "" })
+                  : t("game.yourTurn")}
               </Text>
             </View>
             <TouchableOpacity
               style={styles.iconCircle}
               onPress={onToggleSpeech}
               accessibilityLabel={
-                isSpeechEnabled ? t("game.turnOffSpeech") : t("game.turnOnSpeech")
+                isSpeechEnabled
+                  ? t("game.turnOffSpeech")
+                  : t("game.turnOnSpeech")
               }
             >
               <Ionicons
@@ -184,7 +190,7 @@ export function GameView({
                 size="small"
                 style={styles.footerButton}
                 onPress={onNextPlayer}
-                disabled={!hasPlayers}
+                disabled={!hasPlayers || !currentQuestion}
               >
                 {t("game.nextPlayer")}
               </AppButton>
