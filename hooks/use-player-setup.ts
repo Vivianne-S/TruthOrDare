@@ -18,11 +18,11 @@ export function usePlayerSetup(initialPlayers?: Player[] | null) {
   const [players, setPlayers] = useState<Player[]>(() =>
     initialPlayers && initialPlayers.length > 0
       ? initialPlayers
-      : createInitialPlayers()
+      : createInitialPlayers(),
   );
-  const [avatarPickerPlayerId, setAvatarPickerPlayerId] = useState<string | null>(
-    null
-  );
+  const [avatarPickerPlayerId, setAvatarPickerPlayerId] = useState<
+    string | null
+  >(null);
 
   const addPlayer = useCallback(() => {
     setPlayers((prev) => [...prev, createEmptyPlayer()]);
@@ -32,9 +32,12 @@ export function usePlayerSetup(initialPlayers?: Player[] | null) {
     setPlayers((prev) => updatePlayerNameById(prev, playerId, name));
   }, []);
 
-  const updatePlayerAvatar = useCallback((playerId: string, avatarId: number) => {
-    setPlayers((prev) => updatePlayerAvatarById(prev, playerId, avatarId));
-  }, []);
+  const updatePlayerAvatar = useCallback(
+    (playerId: string, avatarId: number) => {
+      setPlayers((prev) => updatePlayerAvatarById(prev, playerId, avatarId));
+    },
+    [],
+  );
 
   const removePlayer = useCallback((playerId: string) => {
     setPlayers((prev) => removePlayerById(prev, playerId));
@@ -57,13 +60,27 @@ export function usePlayerSetup(initialPlayers?: Player[] | null) {
     );
   }, [avatarPickerPlayerId, players]);
 
+  const unavailableAvatarIds = useMemo(() => {
+    if (!avatarPickerPlayerId) return [];
+    return players
+      .filter(
+        (player) => player.id !== avatarPickerPlayerId && player.avatarId >= 0,
+      )
+      .map((player) => player.avatarId);
+  }, [avatarPickerPlayerId, players]);
+
   const selectAvatarForActivePlayer = useCallback(
     (avatarId: number) => {
       if (!avatarPickerPlayerId) return;
+      const isTaken = players.some(
+        (player) =>
+          player.id !== avatarPickerPlayerId && player.avatarId === avatarId,
+      );
+      if (isTaken) return;
       updatePlayerAvatar(avatarPickerPlayerId, avatarId);
       closeAvatarPicker();
     },
-    [avatarPickerPlayerId, closeAvatarPicker, updatePlayerAvatar]
+    [avatarPickerPlayerId, closeAvatarPicker, players, updatePlayerAvatar],
   );
 
   const canStart = useMemo(() => canStartGame(players), [players]);
@@ -75,6 +92,7 @@ export function usePlayerSetup(initialPlayers?: Player[] | null) {
     removePlayer,
     avatarPickerPlayerId,
     selectedAvatarId,
+    unavailableAvatarIds,
     openAvatarPicker,
     closeAvatarPicker,
     selectAvatarForActivePlayer,

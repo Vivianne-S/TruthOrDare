@@ -4,10 +4,10 @@
 import { router } from "expo-router";
 import React, { useState } from "react";
 
+import { GameView } from "@/components/game/GameView";
 import { ExitConfirmModal } from "@/components/ui/ExitConfirmModal";
 import { ExitMenuModal } from "@/components/ui/ExitMenuModal";
 import { GameOverScreen } from "@/components/ui/GameOverScreen/index";
-import { GameView } from "@/components/game/GameView";
 import { useGameSession } from "@/hooks/use-game-session";
 
 export default function GameScreen() {

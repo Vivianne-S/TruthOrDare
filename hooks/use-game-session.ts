@@ -10,30 +10,32 @@ import {
   getCurrentPlayer,
   getGamePlayers,
   getGameQuestions,
+  getRemainingCount,
   getPlayerStats,
   getSelectedCategoryName,
   moveToNextPlayer,
   recordQuestionForPlayer,
   restartGame,
 } from "@/services/game-session";
-import { computeAwards } from "@/utils/game-awards";
-import type { GameAwards } from "@/types/game";
 import type { Question } from "@/types/category";
+import type { GameAwards } from "@/types/game";
 import type { Player } from "@/types/player";
+import { computeAwards } from "@/utils/game-awards";
 
 export type { GameAwards };
 
 export function useGameSession() {
   const [players, setPlayers] = useState<Player[]>(() => getGamePlayers());
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(() =>
-    getCurrentPlayer()
+    getCurrentPlayer(),
   );
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [categoryName, setCategoryName] = useState<string | null>(() =>
-    getSelectedCategoryName()
+    getSelectedCategoryName(),
   );
   const [hasChosenThisTurn, setHasChosenThisTurn] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [endAfterThisTurn, setEndAfterThisTurn] = useState(false);
   const [awards, setAwards] = useState<GameAwards>({
     mostDaring: null,
     truthfulAngel: null,
@@ -48,6 +50,11 @@ export function useGameSession() {
   }, []);
 
   const nextPlayer = () => {
+    if (endAfterThisTurn) {
+      setIsGameOver(true);
+      setAwards(computeAwards(getGamePlayers(), getPlayerStats()));
+      return;
+    }
     const updated = moveToNextPlayer();
     setCurrentPlayer(updated);
     setCurrentQuestion(null);
@@ -67,6 +74,11 @@ export function useGameSession() {
     }
     setCurrentQuestion(question);
     setHasChosenThisTurn(true);
+
+    const remaining = getRemainingCount();
+    if (remaining.truths === 0 || remaining.dares === 0) {
+      setEndAfterThisTurn(true);
+    }
   };
 
   const hasPlayers = players.length > 0;
@@ -74,6 +86,7 @@ export function useGameSession() {
   const restartGameSession = () => {
     restartGame();
     setIsGameOver(false);
+    setEndAfterThisTurn(false);
     setAwards({ mostDaring: null, truthfulAngel: null, superstar: null });
     setCurrentPlayer(getCurrentPlayer());
     setCurrentQuestion(null);
@@ -87,7 +100,6 @@ export function useGameSession() {
     nextPlayer,
     currentQuestion,
     categoryName,
-    hasChosenThisTurn,
     isGameOver,
     awards,
     restartGameSession,

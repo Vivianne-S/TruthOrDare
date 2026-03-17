@@ -23,29 +23,41 @@ export const createInitialPlayers = (count = MIN_PLAYERS): Player[] =>
 export const updatePlayerNameById = (
   players: Player[],
   playerId: string,
-  name: string
+  name: string,
 ): Player[] =>
   players.map((player) =>
-    player.id === playerId ? { ...player, name } : player
+    player.id === playerId ? { ...player, name } : player,
   );
 
 export const updatePlayerAvatarById = (
   players: Player[],
   playerId: string,
-  avatarId: number
+  avatarId: number,
 ): Player[] =>
   players.map((player) =>
-    player.id === playerId ? { ...player, avatarId } : player
+    player.id === playerId ? { ...player, avatarId } : player,
   );
 
-export const removePlayerById = (players: Player[], playerId: string): Player[] =>
-  players.filter((player) => player.id !== playerId);
+export const removePlayerById = (
+  players: Player[],
+  playerId: string,
+): Player[] => players.filter((player) => player.id !== playerId);
 
 // Player is valid if they have a non-empty name and a selected avatar
 export const isPlayerValid = (player: Player): boolean =>
   player.name.trim().length > 0 && player.avatarId >= 0;
 
+export const hasUniqueAvatars = (players: Player[]): boolean => {
+  const avatarIds = players
+    .map((player) => player.avatarId)
+    .filter((avatarId) => avatarId >= 0);
+  return new Set(avatarIds).size === avatarIds.length;
+};
+
 export const canStartGame = (
   players: Player[],
-  minPlayers = MIN_PLAYERS
-): boolean => players.length >= minPlayers && players.every(isPlayerValid);
+  minPlayers = MIN_PLAYERS,
+): boolean =>
+  players.length >= minPlayers &&
+  players.every(isPlayerValid) &&
+  hasUniqueAvatars(players);
