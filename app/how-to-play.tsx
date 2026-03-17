@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.x8,
   },
   title: {
-    ...TYPOGRAPHY_BASE.hero1,
+    ...TYPOGRAPHY_BASE.h2,
     color: COLORS.textPrimary,
     fontWeight: '700',
     textAlign: 'center',
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   instructions: {
-    ...TYPOGRAPHY_BASE.large,
+    ...TYPOGRAPHY_BASE.body,
     color: COLORS.textSecondary,
     fontWeight: '600',
     textAlign: 'center',
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hintText: {
-    ...TYPOGRAPHY_BASE.small,
+    ...TYPOGRAPHY_BASE.xSmall,
     color: COLORS.textTertiary,
     textAlign: 'center',
     marginBottom: SPACING.x2,
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     marginRight: 9,
   },
   noteText: {
-    ...TYPOGRAPHY_BASE.body,
+    ...TYPOGRAPHY_BASE.small,
     color: COLORS.textSecondary,
     fontWeight: '500',
     flex: 1,
