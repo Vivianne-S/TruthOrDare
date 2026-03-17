@@ -82,10 +82,15 @@
     "owned": "Ägd",
     "buyPremium": "Köp Premium",
     "premiumCategories": "Premiumkategorier",
+    "premiumQuestionsSection": "Extra frågor",
+    "premiumQuestionsDesc": "10 sanningar + 10 konsekvenser per kategori. Lås upp mer innehåll för Kaos, Roligt och Kärlek & relationer.",
     "buy": "Köp",
     "resetPurchases": "Återställ köp (utvecklare)",
     "categoryPrice": "49 kr",
-    "premiumPrice": "299 kr"
+    "premiumPrice": "299 kr",
+    "premiumQuestionsPrice": "29 kr",
+    "premiumQuestionsPackage": "10 sanningar + 10 konsekvenser",
+    "purchaseCompleted": "Köp genomfört!"
   },
   "game": {
     "tapToReveal": "Tryck på SANNING eller KONSEKVENS för att visa en fråga.",

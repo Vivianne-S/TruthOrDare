@@ -17,13 +17,22 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function getQuestionsByCategory(
-  categoryId: string
+  categoryId: string,
+  options?: { includePremium?: boolean }
 ): Promise<Question[]> {
-  const { data, error } = await supabase
+  const includePremium = options?.includePremium ?? false;
+
+  let query = supabase
     .from("questions")
     .select("type, question_text, question_text_sv")
     .eq("category_id", categoryId)
     .order("created_at", { ascending: true });
+
+  if (!includePremium) {
+    query = query.or("is_premium.eq.false,is_premium.is.null");
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
   return (data ?? []) as Question[];

@@ -2,8 +2,9 @@
  * Game screen: orchestrates game session, GameView, GameOverScreen, and exit modals.
  * Uses useMultiplayerGame when roomId is present (synced via Supabase).
  */
+import { useFocusEffect } from "@react-navigation/native";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 import { GameView } from "@/components/game/GameView";
@@ -29,6 +30,7 @@ export default function GameScreen() {
     nextPlayer,
     currentQuestion,
     categoryName,
+    categoryId,
     isGameOver,
     awards,
     restartGameSession,
@@ -36,6 +38,7 @@ export default function GameScreen() {
     showDare,
     isMyTurn = true,
     loading: sessionLoading = false,
+    refreshAfterPremiumPurchase,
   } = session;
 
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
@@ -52,6 +55,24 @@ export default function GameScreen() {
   const canInteract = isMultiplayer ? (isMyTurn ?? false) : true;
   const endAfterThisTurn =
     "endAfterThisTurn" in session ? (session.endAfterThisTurn ?? false) : false;
+
+  useFocusEffect(
+    useCallback(() => {
+      if (
+        !isMultiplayer &&
+        categoryId &&
+        endAfterThisTurn &&
+        refreshAfterPremiumPurchase
+      ) {
+        refreshAfterPremiumPurchase(categoryId);
+      }
+    }, [
+      isMultiplayer,
+      categoryId,
+      endAfterThisTurn,
+      refreshAfterPremiumPurchase,
+    ])
+  );
 
   const handleNextPlayer = () => {
     if (endAfterThisTurn) {
@@ -130,7 +151,14 @@ export default function GameScreen() {
         visible={showOutOfQuestions}
         onBuyMore={() => {
           setShowOutOfQuestions(false);
-          router.push("/shop");
+          router.push({
+            pathname: "/shop",
+            params: {
+              categoryId: categoryId ?? "",
+              fromOutOfQuestions: "true",
+              ...(roomId && { roomId }),
+            },
+          });
         }}
         onFinish={() => {
           setShowOutOfQuestions(false);

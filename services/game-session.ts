@@ -84,6 +84,29 @@ export const getRemainingCount = (): { truths: number; dares: number } => ({
   dares: darePool.length,
 });
 
+/** Appends new questions to pools without resetting game state. Used when user buys premium questions. */
+export const addQuestionsToPools = (questions: Question[]): void => {
+  const existingTexts = new Set(gameQuestions.map((q) => q.question_text));
+  const newTruths = questions
+    .filter(
+      (q) =>
+        q.type.toLowerCase().trim() === "truth" &&
+        !existingTexts.has(q.question_text)
+    );
+  const newDares = questions
+    .filter(
+      (q) =>
+        q.type.toLowerCase().trim() === "dare" &&
+        !existingTexts.has(q.question_text)
+    );
+  const added = [...newTruths, ...newDares];
+  if (added.length > 0) {
+    gameQuestions.push(...added);
+    truthPool.push(...shuffleArray(newTruths));
+    darePool.push(...shuffleArray(newDares));
+  }
+};
+
 export const recordQuestionForPlayer = (
   playerId: string,
   type: "truth" | "dare"
