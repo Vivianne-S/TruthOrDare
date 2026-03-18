@@ -10,6 +10,10 @@
 | `/categories` | `app/categories.tsx` | Choose category |
 | `/shop` | `app/shop.tsx` | Demo purchases |
 | `/game` | `app/game.tsx` | Main game |
+| `/game-mode-select` | `app/game-mode-select.tsx` | Choose Local / Join / Create |
+| `/create-game` | `app/create-game.tsx` | Multiplayer: host creates a room |
+| `/join-game` | `app/join-game.tsx` | Multiplayer: join a room by code |
+| `/game-lobby` | `app/game-lobby.tsx` | Multiplayer: lobby before starting |
 
 ---
 
@@ -71,6 +75,13 @@ game ◄────────────────────────
 |-------|-------|---------|
 | `/add-players` | `addMore=true` | Pre-load current players, show "Back to game" |
 | `/add-players` | `newGame=true` | Pre-load current players (from Game Over), show "Select category" |
+| `/categories` | `roomId=<uuid>` | Multiplayer: host selects category for the room |
+| `/game` | `roomId=<uuid>` | Multiplayer: game screen uses room state |
+| `/game-lobby` | `roomId=<uuid>` | Multiplayer: subscribe to room + players |
+| `/game-lobby` | `isHost=true\|false` | Multiplayer: lobby host controls start |
+| `/shop` | `fromOutOfQuestions=true` | Opened from “Buy more” flow |
+| `/shop` | `categoryId=<id>` | Highlight the category’s extra questions package |
+| `/shop` | `roomId=<uuid>` | Multiplayer: return to the same room after purchase |
 
 Example: `router.push("/add-players?addMore=true")`  
 Example: `router.replace("/add-players?newGame=true")` (from Game Over)

@@ -2,9 +2,10 @@
  * Multiplayer game hook: syncs game state from Supabase, exposes isMyTurn.
  * Only current player can choose Truth/Dare and press Next player.
  */
-import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { getQuestionsByCategory } from "@/services/categories";
 import {
+  addQuestionsToRoomPools,
   chooseTruthOrDareInRoom,
   getRoomById,
   getRoomPlayers,
@@ -15,8 +16,9 @@ import {
 } from "@/services/game-room";
 import type { Question } from "@/types/category";
 import type { GameAwards } from "@/types/game";
-import type { Player } from "@/types/player";
 import { computeAwards } from "@/utils/game-awards";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useCallback, useEffect, useState } from "react";
 
 export type { GameAwards };
 
@@ -29,16 +31,27 @@ export function useMultiplayerGame(roomId: string | undefined) {
   const playerList = roomPlayersToPlayers(players);
   const currentPlayer =
     players.length > 0 && room
-      ? playerList[room.current_player_index % players.length] ?? null
+      ? (playerList[room.current_player_index % players.length] ?? null)
       : null;
   const currentQuestion = (room?.current_question ?? null) as Question | null;
   const categoryName = room?.category_name ?? null;
   const categoryId = room?.category_id ?? null;
   const isGameOver = room?.status === "game_over";
+  const isHost =
+    !!room?.host_user_id && !!myUserId && room.host_user_id === myUserId;
+  const truthPoolLength = Array.isArray(room?.truth_pool)
+    ? room!.truth_pool.length
+    : 0;
+  const darePoolLength = Array.isArray(room?.dare_pool)
+    ? room!.dare_pool.length
+    : 0;
+  const endAfterThisTurn =
+    !!room &&
+    room.status === "playing" &&
+    room.current_question !== null &&
+    (truthPoolLength === 0 || darePoolLength === 0);
   const isMyTurn =
-    !!myUserId &&
-    !!currentPlayer?.userId &&
-    currentPlayer.userId === myUserId;
+    !!myUserId && !!currentPlayer?.userId && currentPlayer.userId === myUserId;
 
   const playerStats = room?.player_stats ?? {};
   const awards: GameAwards = isGameOver
@@ -48,8 +61,8 @@ export function useMultiplayerGame(roomId: string | undefined) {
           playerList.map((p) => [
             p.id,
             playerStats[p.id] ?? { truthCount: 0, dareCount: 0 },
-          ])
-        )
+          ]),
+        ),
       )
     : { mostDaring: null, truthfulAngel: null, superstar: null };
 
@@ -67,6 +80,26 @@ export function useMultiplayerGame(roomId: string | undefined) {
     if (!roomId || !isMyTurn || !currentQuestion) return;
     await nextPlayerInRoom(roomId);
   }, [roomId, isMyTurn, currentQuestion]);
+
+  const refreshAfterPremiumPurchase = useCallback(
+    async (categoryId: string) => {
+      if (!roomId || !isHost) return;
+      const [proValue, pqValue] = await Promise.all([
+        AsyncStorage.getItem("demo_pro_purchased"),
+        AsyncStorage.getItem("demo_unlocked_premium_questions"),
+      ]);
+      const isPro = proValue === "true";
+      const unlockedIds: string[] = pqValue ? JSON.parse(pqValue) : [];
+      const hasPremium = isPro || unlockedIds.includes(categoryId);
+      if (!hasPremium) return;
+
+      const allQuestions = await getQuestionsByCategory(categoryId, {
+        includePremium: true,
+      });
+      await addQuestionsToRoomPools(roomId, allQuestions);
+    },
+    [roomId, isHost],
+  );
 
   useEffect(() => {
     if (!roomId) {
@@ -100,19 +133,29 @@ export function useMultiplayerGame(roomId: string | undefined) {
       .channel(`game:${roomId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "game_rooms", filter: `id=eq.${roomId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "game_rooms",
+          filter: `id=eq.${roomId}`,
+        },
         async (payload) => {
           const r = payload.new as GameRoom;
           if (mounted && r) setRoom(r);
-        }
+        },
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "game_room_players", filter: `room_id=eq.${roomId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "game_room_players",
+          filter: `room_id=eq.${roomId}`,
+        },
         async () => {
           const p = await getRoomPlayers(roomId);
           if (mounted) setPlayers(p);
-        }
+        },
       )
       .subscribe();
 
@@ -130,13 +173,15 @@ export function useMultiplayerGame(roomId: string | undefined) {
     categoryName,
     categoryId,
     isGameOver,
+    endAfterThisTurn,
     awards,
+    isHost,
     isMyTurn,
     loading,
     showTruth,
     showDare,
     nextPlayer,
     restartGameSession: () => {},
-    refreshAfterPremiumPurchase: undefined,
+    refreshAfterPremiumPurchase,
   };
 }

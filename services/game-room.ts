@@ -4,6 +4,8 @@
  */
 import { supabase } from "@/lib/supabase";
 import type { Player } from "@/types/player";
+import type { Question } from "@/types/category";
+import { shuffleArray } from "@/utils/shuffle";
 
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -281,6 +283,76 @@ export async function startGameInRoom(
 }
 
 type QuestionLike = { type: string; question_text: string; question_text_sv?: string | null };
+
+/**
+ * Append newly available questions to a playing room's pools.
+ * Used when host unlocks premium questions mid-game.
+ */
+export async function addQuestionsToRoomPools(
+  roomId: string,
+  questions: Question[]
+): Promise<void> {
+  const room = await getRoomById(roomId);
+  if (!room || room.status !== "playing") return;
+
+  const existing = new Set(
+    ((room.game_questions ?? []) as QuestionLike[]).map((q) => q.question_text)
+  );
+  const newTruths = questions.filter(
+    (q) =>
+      q.type.toLowerCase().trim() === "truth" && !existing.has(q.question_text)
+  );
+  const newDares = questions.filter(
+    (q) =>
+      q.type.toLowerCase().trim() === "dare" && !existing.has(q.question_text)
+  );
+
+  if (newTruths.length === 0 && newDares.length === 0) return;
+
+  const appendedQuestions: QuestionLike[] = [
+    ...newTruths.map((q) => ({
+      type: q.type,
+      question_text: q.question_text,
+      question_text_sv: q.question_text_sv ?? null,
+    })),
+    ...newDares.map((q) => ({
+      type: q.type,
+      question_text: q.question_text,
+      question_text_sv: q.question_text_sv ?? null,
+    })),
+  ];
+
+  const newTruthPool = [
+    ...((room.truth_pool ?? []) as QuestionLike[]),
+    ...shuffleArray(appendedQuestions.filter((q) => q.type.toLowerCase().trim() === "truth")),
+  ];
+  const newDarePool = [
+    ...((room.dare_pool ?? []) as QuestionLike[]),
+    ...shuffleArray(appendedQuestions.filter((q) => q.type.toLowerCase().trim() === "dare")),
+  ];
+
+  const { error } = await supabase
+    .from("game_rooms")
+    .update({
+      game_questions: [
+        ...((room.game_questions ?? []) as QuestionLike[]),
+        ...appendedQuestions,
+      ],
+      truth_pool: newTruthPool,
+      dare_pool: newDarePool,
+    })
+    .eq("id", roomId);
+
+  if (error) throw new Error(`Add questions failed: ${error.message}`);
+}
+
+export async function endGameInRoom(roomId: string): Promise<void> {
+  const { error } = await supabase
+    .from("game_rooms")
+    .update({ status: "game_over" })
+    .eq("id", roomId);
+  if (error) throw new Error(`End game failed: ${error.message}`);
+}
 
 /**
  * Current player chooses Truth or Dare. Pops from pool, updates room.

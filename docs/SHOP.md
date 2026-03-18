@@ -4,6 +4,8 @@
 
 The shop feature in the Truth Or Dare app lets users purchase premium categories and a Pro bundle. Since this is a school project, a **demo solution** is used – purchases are stored locally without real payments (no Apple/Google purchases or RevenueCat).
 
+In multiplayer, purchases are still stored locally (demo), but the **host** synchronizes newly unlocked questions back into the room so all players continue.
+
 ---
 
 ## What Has Been Implemented
@@ -35,6 +37,16 @@ The shop feature in the Truth Or Dare app lets users purchase premium categories
   - Category name with `flex: 1` so price and button fit.
   - Price $4.99 with `marginLeft: SPACING.x6` for clear separation from the name.
   - "Owned" badge with checkmark for already purchased categories/Pro.
+
+### 2b. Opened from “Out of Questions”
+
+When opened via the “Buy more” button (local or multiplayer-host):
+
+- **Params**: `fromOutOfQuestions=true` + `categoryId=<id>` (and `roomId=<uuid>` for multiplayer)
+- The shop scrolls to the **Extra Questions** section and highlights the category’s buy button.
+- After purchase:
+  - **Local**: the game refreshes its in-memory pools on focus.
+  - **Multiplayer**: the **host** appends questions to the room pools via `addQuestionsToRoomPools` (see `services/game-room.ts`) so everyone resumes through realtime updates.
 
 ### 3. Shop Categories (use-shop-categories)
 
