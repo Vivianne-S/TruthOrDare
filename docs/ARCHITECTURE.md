@@ -28,7 +28,11 @@ TruthOrDare/
 │   ├── add-players.tsx     # Player setup
 │   ├── categories.tsx     # Category selection
 │   ├── shop.tsx            # In-app purchases (demo)
-│   └── game.tsx            # Game orchestrator (GameView, GameOverScreen, modals)
+│   ├── game.tsx            # Game orchestrator (local + multiplayer)
+│   ├── game-mode-select.tsx # Choose Local / Join / Create
+│   ├── create-game.tsx     # Multiplayer: create room (host)
+│   ├── join-game.tsx       # Multiplayer: join room
+│   └── game-lobby.tsx      # Multiplayer: lobby + start flow
 ├── components/
 │   ├── game/               # Game-specific components
 │   │   ├── GameView.tsx    # Main game UI (avatar, TRUTH/DARE, question)
@@ -38,6 +42,8 @@ TruthOrDare/
 │       ├── CategoryBubbleButton.tsx
 │       ├── ExitConfirmModal.tsx
 │       ├── ExitMenuModal.tsx
+│       ├── OutOfQuestionsModal.tsx
+│       ├── OutOfQuestionsHostOverlay.tsx
 │       └── GameOverScreen/
 │           ├── index.tsx   # Game Over screen
 │           └── styles.ts
@@ -56,6 +62,7 @@ TruthOrDare/
 │   ├── use-categories-lock-message.ts
 │   ├── use-demo-purchases.ts
 │   ├── use-game-session.ts
+│   ├── use-multiplayer-game.ts
 │   ├── use-player-setup.ts
 │   ├── use-pulse-animation.ts
 │   ├── use-question-speech.ts
@@ -64,6 +71,7 @@ TruthOrDare/
 │   └── supabase.ts         # Supabase client
 ├── services/
 │   ├── categories.ts       # Category/question fetching
+│   ├── game-room.ts        # Multiplayer room + realtime sync (Supabase)
 │   ├── game-session.ts     # In-memory game state, shuffled pools
 │   └── player-service.ts   # Player CRUD helpers
 ├── types/
@@ -85,6 +93,38 @@ TruthOrDare/
 ### In-memory game state
 
 `services/game-session.ts` holds players, current turn, category, and shuffled truth/dare pools. Questions are drawn from pools (no repeats until exhausted). Game ends when a pool is empty. No persistence across app restarts.
+
+---
+
+## Multiplayer (Supabase-synced rooms)
+
+Multiplayer is built on **Supabase Realtime + two tables** (`game_rooms`, `game_room_players`). The app keeps the same `GameView` UI but swaps the session hook based on whether a `roomId` exists.
+
+### High-level flow
+
+- **Create room (host)**: `app/create-game.tsx` → `services/game-room.ts:createGameRoom`
+- **Join room**: `app/join-game.tsx` → `services/game-room.ts:joinGameRoom`
+- **Lobby**: `app/game-lobby.tsx` subscribes to room/player updates; host navigates to category selection
+- **Start game**: `app/categories.tsx` loads questions and calls `startGameInRoom` (writes pools into `game_rooms`)
+- **Play**: `app/game.tsx` uses `useMultiplayerGame(roomId)` which listens to realtime changes and exposes `isMyTurn`
+
+### Room state model
+
+The room stores everything needed to sync gameplay across devices:
+
+- **Turn**: `current_player_index`
+- **Current question**: `current_question` + `current_choice`
+- **Pools**: `truth_pool`, `dare_pool` (arrays of question objects)
+- **Stats**: `player_stats` for Game Over awards
+
+### Host-only actions
+
+Some actions are restricted at the UI layer:
+
+- **Starting the game** (category selection) is driven by the host from the lobby.
+- **Buying more questions when a category runs out** is host-only.
+  - Non-host players see `OutOfQuestionsHostOverlay`.
+  - When the host unlocks more questions, the room pools are appended via `addQuestionsToRoomPools`, which automatically resumes the game for everyone via realtime updates.
 
 ### File-based routing
 

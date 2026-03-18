@@ -21,11 +21,42 @@ Manages game state from `game-session` service. Uses `drawNextQuestionByType` (n
 | nextPlayer | () => void | Advance turn |
 | currentQuestion | Question \| null | Shown question |
 | categoryName | string \| null | Category name |
+| endAfterThisTurn | boolean | True when one pool is empty (Out of Questions after this turn) |
 | isGameOver | boolean | Pools exhausted |
 | awards | GameAwards | Dare Devil, Truthful Angel, Best of Both Worlds |
 | restartGameSession | () => void | Play Again (re-shuffle) |
 | showTruth | () => void | Draw next truth |
 | showDare | () => void | Draw next dare |
+
+---
+
+## useMultiplayerGame
+
+**File:** `hooks/use-multiplayer-game.ts`  
+**Used by:** `app/game.tsx`
+
+Multiplayer session hook backed by Supabase Realtime. Reads room state and players from `game_rooms` / `game_room_players`. Only the **current player** can choose Truth/Dare and advance the turn.
+
+| Return | Type | Description |
+|--------|------|-------------|
+| players | Player[] | Players in join order |
+| currentPlayer | Player \| null | Current turn (computed from `current_player_index`) |
+| hasPlayers | boolean | At least one player |
+| nextPlayer | () => Promise<void> | Advance turn (current player only) |
+| currentQuestion | Question \| null | Current room question |
+| categoryName | string \| null | Category name from room |
+| categoryId | string \| null | Category id from room |
+| isGameOver | boolean | Room status is `game_over` |
+| endAfterThisTurn | boolean | True when one pool is empty after a question is drawn |
+| isMyTurn | boolean | True when this device matches current player |
+| isHost | boolean | True when this device matches `host_user_id` |
+| loading | boolean | Initial room load in progress |
+| showTruth | () => Promise<void> | Choose truth (current player only) |
+| showDare | () => Promise<void> | Choose dare (current player only) |
+| refreshAfterPremiumPurchase | (categoryId) => Promise<void> | Host-only: append newly unlocked questions to room pools |
+
+Notes:
+- `refreshAfterPremiumPurchase` is used to **sync “buy more questions”** in multiplayer by writing to `truth_pool` / `dare_pool` in `game_rooms`.
 
 ---
 

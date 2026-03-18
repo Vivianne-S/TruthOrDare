@@ -15,6 +15,7 @@ import { OutOfQuestionsModal } from "@/components/ui/OutOfQuestionsModal";
 import { OutOfQuestionsHostOverlay } from "@/components/ui/OutOfQuestionsHostOverlay";
 import { useGameSession } from "@/hooks/use-game-session";
 import { useMultiplayerGame } from "@/hooks/use-multiplayer-game";
+import { endGameInRoom } from "@/services/game-room";
 
 export default function GameScreen() {
   const { roomId } = useLocalSearchParams<{ roomId?: string }>();
@@ -50,7 +51,6 @@ export default function GameScreen() {
   const [showExitMenu, setShowExitMenu] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [showOutOfQuestions, setShowOutOfQuestions] = useState(false);
-  const [showHostInMenu, setShowHostInMenu] = useState(false);
 
   const handleDoorPress = () => setShowExitMenu(true);
   const handleExitGame = () => {
@@ -62,29 +62,22 @@ export default function GameScreen() {
   const endAfterThisTurn =
     "endAfterThisTurn" in session ? (session.endAfterThisTurn ?? false) : false;
   const isHost = isMultiplayer ? sessionIsHost ?? false : true;
+  const showHostInMenu =
+    isMultiplayer && !isHost && !!currentQuestion && endAfterThisTurn;
 
+  // Multiplayer: host should always be able to close the modal when navigating to Shop.
   useEffect(() => {
-    if (!isMultiplayer) {
-      setShowHostInMenu(false);
-      return;
+    if (!isMultiplayer || !isHost) return;
+    if (!!currentQuestion && endAfterThisTurn) {
+      setShowOutOfQuestions(true);
+    } else if (!endAfterThisTurn) {
+      setShowOutOfQuestions(false);
     }
-    if (endAfterThisTurn) {
-      if (isHost) {
-        setShowOutOfQuestions(true);
-        setShowHostInMenu(false);
-      } else {
-        setShowHostInMenu(true);
-        setShowOutOfQuestions(false);
-      }
-    } else {
-      setShowHostInMenu(false);
-    }
-  }, [isMultiplayer, endAfterThisTurn, isHost]);
+  }, [isMultiplayer, isHost, currentQuestion, endAfterThisTurn]);
 
   useFocusEffect(
     useCallback(() => {
       if (
-        !isMultiplayer &&
         categoryId &&
         endAfterThisTurn &&
         refreshAfterPremiumPurchase
@@ -92,7 +85,6 @@ export default function GameScreen() {
         refreshAfterPremiumPurchase(categoryId);
       }
     }, [
-      isMultiplayer,
       categoryId,
       endAfterThisTurn,
       refreshAfterPremiumPurchase,
@@ -101,6 +93,9 @@ export default function GameScreen() {
 
   const handleNextPlayer = () => {
     if (endAfterThisTurn) {
+      if (isHost) {
+        setShowOutOfQuestions(true);
+      }
       return;
     }
     nextPlayer();
@@ -177,7 +172,7 @@ export default function GameScreen() {
         }}
       />
       <OutOfQuestionsModal
-        visible={showOutOfQuestions}
+        visible={isMultiplayer ? (isHost ? showOutOfQuestions : false) : showOutOfQuestions}
         onBuyMore={() => {
           setShowOutOfQuestions(false);
           router.push({
@@ -190,8 +185,14 @@ export default function GameScreen() {
           });
         }}
         onFinish={() => {
-          setShowOutOfQuestions(false);
-          nextPlayer();
+          if (!isMultiplayer) {
+            setShowOutOfQuestions(false);
+            nextPlayer();
+            return;
+          }
+          if (roomId) {
+            endGameInRoom(roomId);
+          }
         }}
       />
     </>
