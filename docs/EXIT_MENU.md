@@ -32,7 +32,7 @@ The Exit Menu Modal appears when the user taps the door icon on the game screen.
 ### 2. Add more players
 
 - **Style:** Purple glow, `person-add` icon
-- **Action:** Close modal → `router.push("/add-players?addMore=true")`
+- **Action:** Close modal → local: `router.push("/add-players?addMore=true&localGame=1")`, multiplayer: `addMore=true` only
 - **Result:** User goes to add-players with current players pre-loaded
 
 **Add-players in "add more" mode:**
