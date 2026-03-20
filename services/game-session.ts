@@ -19,6 +19,8 @@ let truthPool: Question[] = [];
 let darePool: Question[] = [];
 let playerStats: Record<string, PlayerStats> = {};
 
+let pendingLocalSessionResyncAfterPlayerEdit = false;
+
 export type { PlayerStats };
 
 export const setGamePlayers = (players: Player[]) => {
@@ -140,4 +142,17 @@ export const restartGame = (): void => {
   );
   truthPool = shuffleArray(truths);
   darePool = shuffleArray(dares);
+};
+
+/** Local game: after editing players mid-game — reshuffle pools; hook syncs UI on focus. */
+export const setGamePlayersAfterEditInGame = (players: Player[]) => {
+  setGamePlayers(players);
+  restartGame();
+  pendingLocalSessionResyncAfterPlayerEdit = true;
+};
+
+export const consumePendingLocalSessionResyncAfterPlayerEdit = (): boolean => {
+  const v = pendingLocalSessionResyncAfterPlayerEdit;
+  pendingLocalSessionResyncAfterPlayerEdit = false;
+  return v;
 };

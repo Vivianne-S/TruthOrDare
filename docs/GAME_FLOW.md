@@ -134,8 +134,8 @@ After the host unlocks extra questions, `useMultiplayerGame.refreshAfterPremiumP
 ## Adding Players Mid-Game
 
 1. Door icon → Exit menu → **Add more players**.
-2. Navigate to `/add-players?addMore=true`.
+2. Local game: `/add-players?addMore=true&localGame=1` (multiplayer: `addMore=true` only).
 3. `usePlayerSetup(getGamePlayers())` pre-loads current players.
 4. User adds players, taps **Back to game**.
-5. `setGamePlayers(players)` → `router.replace("/game")`.
-6. Turn index and stats reset; pools unchanged.
+5. **Local:** `setGamePlayersAfterEditInGame(players)` reshuffles truth/dare pools from `gameQuestions` and sets a pending flag; `router.replace("/game")`.
+6. `useGameSession` consumes the flag on **focus** and syncs React state (same `Game` instance often stays mounted under the stack).

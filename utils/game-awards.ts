@@ -4,6 +4,7 @@ import type { GameAwards, PlayerStats } from "@/types/game";
 /**
  * Computes Game Over awards: Dare Devil (most dares), Truthful Angel (most truths),
  * Best of Both Worlds (only players who did both truths AND dares; highest total among those).
+ * Dare Devil / Truthful Angel are null when no one chose any dare / any truth (avoid 0 beating -1).
  */
 export function computeAwards(
   players: Player[],
@@ -41,6 +42,13 @@ export function computeAwards(
         superstar = p;
       }
     }
+  }
+
+  if (maxDares === 0) {
+    mostDaring = null;
+  }
+  if (maxTruths === 0) {
+    truthfulAngel = null;
   }
 
   return { mostDaring, truthfulAngel, superstar };
