@@ -147,8 +147,8 @@ export function useMultiplayerGame(roomId: string | undefined) {
           table: "game_rooms",
           filter: `id=eq.${roomId}`,
         },
-        async (payload) => {
-          const r = payload.new as GameRoom;
+        async () => {
+          const r = await getRoomById(roomId);
           if (mounted && r) setRoom(r);
         },
       )

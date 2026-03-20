@@ -9,6 +9,23 @@ import { shuffleArray } from "@/utils/shuffle";
 
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
+/** True when DB has not run migration for `acknowledged_partial_deck` (column missing). */
+function isAcknowledgedColumnMissingError(error: {
+  message?: string;
+  code?: string;
+} | null): boolean {
+  if (!error) return false;
+  const msg = (error.message ?? "").toLowerCase();
+  return (
+    error.code === "42703" ||
+    msg.includes("acknowledged_partial_deck") ||
+    (msg.includes("column") &&
+      (msg.includes("does not exist") ||
+        msg.includes("unknown column") ||
+        msg.includes("schema cache")))
+  );
+}
+
 export type GameRoom = {
   id: string;
   code: string;
@@ -234,8 +251,10 @@ export function subscribeToRoom(
     .on(
       "postgres_changes",
       { event: "*", schema: "public", table: "game_rooms", filter: `id=eq.${roomId}` },
-      async (payload) => {
-        const room = payload.new as GameRoom;
+      async () => {
+        // Refetch full row: realtime UPDATE payloads may omit unchanged columns, which
+        // would drop truth_pool / dare_pool from merged UI state if used raw.
+        const room = await getRoomById(roomId);
         if (room) onRoom(room);
       }
     )
@@ -266,21 +285,30 @@ export async function startGameInRoom(
   const truths = questions.filter((q) => q.type.toLowerCase().trim() === "truth");
   const dares = questions.filter((q) => q.type.toLowerCase().trim() === "dare");
 
-  const { error } = await supabase
+  const baseUpdate = {
+    status: "playing" as const,
+    category_id: categoryId,
+    category_name: categoryName,
+    game_questions: questions,
+    truth_pool: truths,
+    dare_pool: dares,
+    current_player_index: 0,
+    current_question: null,
+    current_choice: null,
+  };
+
+  let { error } = await supabase
     .from("game_rooms")
-    .update({
-      status: "playing",
-      category_id: categoryId,
-      category_name: categoryName,
-      game_questions: questions,
-      truth_pool: truths,
-      dare_pool: dares,
-      current_player_index: 0,
-      current_question: null,
-      current_choice: null,
-      acknowledged_partial_deck: false,
-    })
+    .update({ ...baseUpdate, acknowledged_partial_deck: false })
     .eq("id", roomId);
+
+  if (error && isAcknowledgedColumnMissingError(error)) {
+    const second = await supabase
+      .from("game_rooms")
+      .update(baseUpdate)
+      .eq("id", roomId);
+    error = second.error;
+  }
 
   if (error) throw new Error(`Start game failed: ${error.message}`);
 }
@@ -334,18 +362,27 @@ export async function addQuestionsToRoomPools(
     ...shuffleArray(appendedQuestions.filter((q) => q.type.toLowerCase().trim() === "dare")),
   ];
 
-  const { error } = await supabase
+  const poolUpdate = {
+    game_questions: [
+      ...((room.game_questions ?? []) as QuestionLike[]),
+      ...appendedQuestions,
+    ],
+    truth_pool: newTruthPool,
+    dare_pool: newDarePool,
+  };
+
+  let { error } = await supabase
     .from("game_rooms")
-    .update({
-      game_questions: [
-        ...((room.game_questions ?? []) as QuestionLike[]),
-        ...appendedQuestions,
-      ],
-      truth_pool: newTruthPool,
-      dare_pool: newDarePool,
-      acknowledged_partial_deck: false,
-    })
+    .update({ ...poolUpdate, acknowledged_partial_deck: false })
     .eq("id", roomId);
+
+  if (error && isAcknowledgedColumnMissingError(error)) {
+    const second = await supabase
+      .from("game_rooms")
+      .update(poolUpdate)
+      .eq("id", roomId);
+    error = second.error;
+  }
 
   if (error) throw new Error(`Add questions failed: ${error.message}`);
 }
@@ -361,6 +398,9 @@ export async function setRoomAcknowledgedPartialDeck(
     .from("game_rooms")
     .update({ acknowledged_partial_deck: acknowledged })
     .eq("id", roomId);
+  if (error && isAcknowledgedColumnMissingError(error)) {
+    return;
+  }
   if (error) {
     throw new Error(`Update acknowledged_partial_deck failed: ${error.message}`);
   }
