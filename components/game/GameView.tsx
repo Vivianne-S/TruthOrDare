@@ -209,15 +209,6 @@ export function GameView({
                   </Text>
                 </View>
                 <Text style={styles.cardTapInstruction}>{tapInstruction}</Text>
-                {onlyDares ? (
-                  <Text style={styles.cardPoolGuide}>
-                    {t("game.noTruthsUseDares")}
-                  </Text>
-                ) : onlyTruths ? (
-                  <Text style={styles.cardPoolGuide}>
-                    {t("game.noDaresUseTruths")}
-                  </Text>
-                ) : null}
               </View>
             )}
           </View>

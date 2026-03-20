@@ -23,6 +23,8 @@ export type GameRoom = {
   current_question?: { type: string; question_text: string; question_text_sv?: string | null } | null;
   current_choice?: "truth" | "dare" | null;
   player_stats: Record<string, { truthCount: number; dareCount: number }>;
+  /** True after host chose "Continue" while one pool was still non-empty; Oops modal only returns at 0/0. */
+  acknowledged_partial_deck?: boolean;
   created_at: string;
 };
 
@@ -276,6 +278,7 @@ export async function startGameInRoom(
       current_player_index: 0,
       current_question: null,
       current_choice: null,
+      acknowledged_partial_deck: false,
     })
     .eq("id", roomId);
 
@@ -340,10 +343,27 @@ export async function addQuestionsToRoomPools(
       ],
       truth_pool: newTruthPool,
       dare_pool: newDarePool,
+      acknowledged_partial_deck: false,
     })
     .eq("id", roomId);
 
   if (error) throw new Error(`Add questions failed: ${error.message}`);
+}
+
+/**
+ * After "Continue game" when one pool was empty: skip Oops until both pools hit 0.
+ */
+export async function setRoomAcknowledgedPartialDeck(
+  roomId: string,
+  acknowledged: boolean
+): Promise<void> {
+  const { error } = await supabase
+    .from("game_rooms")
+    .update({ acknowledged_partial_deck: acknowledged })
+    .eq("id", roomId);
+  if (error) {
+    throw new Error(`Update acknowledged_partial_deck failed: ${error.message}`);
+  }
 }
 
 export async function endGameInRoom(roomId: string): Promise<void> {
@@ -390,8 +410,6 @@ export async function chooseTruthOrDareInRoom(
   else playerStats.dareCount += 1;
   const newStats = { ...stats, [currentPlayerId]: playerStats };
 
-  const gameOver = newTruthPool.length === 0 && newDarePool.length === 0;
-
   const { error } = await supabase
     .from("game_rooms")
     .update({
@@ -400,7 +418,6 @@ export async function chooseTruthOrDareInRoom(
       current_question: question,
       current_choice: type,
       player_stats: newStats,
-      status: gameOver ? "game_over" : room.status,
     })
     .eq("id", roomId);
 

@@ -148,7 +148,8 @@
   },
   "outOfQuestions": {
     "title": "Oops, the questions are running out",
-    "message": "There are no more Truths or Dares in this category. You can buy more, or finish and see the results.",
+    "message": "This pops up when either truths or dares have run out. Continue to keep playing with the other pile, or buy more. When both piles hit 0 you'll see this again for a last chance to buy before you finish the game.",
+    "continueGame": "Continue game",
     "buyMore": "Buy more",
     "finish": "Finish"
   },

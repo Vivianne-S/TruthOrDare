@@ -42,7 +42,10 @@ export function useGameSession() {
   const categoryId = getSelectedCategoryId();
   const [hasChosenThisTurn, setHasChosenThisTurn] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
+  /** Show Oops modal / block Next: one pool empty (unless user continued) or both empty */
   const [endAfterThisTurn, setEndAfterThisTurn] = useState(false);
+  /** After "Continue" while only one pool was 0 — keep playing without modal until 0/0 */
+  const [suppressPartialPoolModal, setSuppressPartialPoolModal] = useState(false);
   const [awards, setAwards] = useState<GameAwards>({
     mostDaring: null,
     truthfulAngel: null,
@@ -66,11 +69,24 @@ export function useGameSession() {
   }, []);
 
   const nextPlayer = () => {
-    if (endAfterThisTurn) {
-      setIsGameOver(true);
-      setAwards(computeAwards(getGamePlayers(), getPlayerStats()));
-      return;
-    }
+    const updated = moveToNextPlayer();
+    setCurrentPlayer(updated);
+    setCurrentQuestion(null);
+    setHasChosenThisTurn(false);
+    syncPoolCounts();
+  };
+
+  const forceEndGame = useCallback(() => {
+    setCurrentQuestion(null);
+    setHasChosenThisTurn(false);
+    setIsGameOver(true);
+    setAwards(computeAwards(getGamePlayers(), getPlayerStats()));
+  }, []);
+
+  /** After one pool ran out: skip further Oops until both pools are 0; advance turn. */
+  const continueWithRemainingPool = () => {
+    setSuppressPartialPoolModal(true);
+    setEndAfterThisTurn(false);
     const updated = moveToNextPlayer();
     setCurrentPlayer(updated);
     setCurrentQuestion(null);
@@ -94,9 +110,11 @@ export function useGameSession() {
     const remaining = getRemainingCount();
     setTruthsLeft(remaining.truths);
     setDaresLeft(remaining.dares);
-    if (remaining.truths === 0 || remaining.dares === 0) {
-      setEndAfterThisTurn(true);
-    }
+    const bothEmpty = remaining.truths === 0 && remaining.dares === 0;
+    const oneSideEmpty = remaining.truths === 0 || remaining.dares === 0;
+    setEndAfterThisTurn(
+      bothEmpty || (oneSideEmpty && !suppressPartialPoolModal),
+    );
   };
 
   const hasPlayers = players.length > 0;
@@ -106,6 +124,7 @@ export function useGameSession() {
     setPlayers(getGamePlayers());
     setIsGameOver(false);
     setEndAfterThisTurn(false);
+    setSuppressPartialPoolModal(false);
     setAwards({ mostDaring: null, truthfulAngel: null, superstar: null });
     setCurrentPlayer(getCurrentPlayer());
     setCurrentQuestion(null);
@@ -123,6 +142,7 @@ export function useGameSession() {
       setHasChosenThisTurn(false);
       setIsGameOver(false);
       setEndAfterThisTurn(false);
+      setSuppressPartialPoolModal(false);
       setAwards({ mostDaring: null, truthfulAngel: null, superstar: null });
       syncPoolCounts();
     }, []),
@@ -143,6 +163,7 @@ export function useGameSession() {
     });
     addQuestionsToPools(allQuestions);
     setEndAfterThisTurn(false);
+    setSuppressPartialPoolModal(false);
     syncPoolCounts();
   };
 
@@ -165,5 +186,7 @@ export function useGameSession() {
     refreshAfterPremiumPurchase,
     truthsLeft,
     daresLeft,
+    continueWithRemainingPool,
+    forceEndGame,
   };
 }

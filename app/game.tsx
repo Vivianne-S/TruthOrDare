@@ -15,7 +15,11 @@ import { OutOfQuestionsModal } from "@/components/ui/OutOfQuestionsModal";
 import { OutOfQuestionsHostOverlay } from "@/components/ui/OutOfQuestionsHostOverlay";
 import { useGameSession } from "@/hooks/use-game-session";
 import { useMultiplayerGame } from "@/hooks/use-multiplayer-game";
-import { endGameInRoom } from "@/services/game-room";
+import {
+  endGameInRoom,
+  nextPlayerInRoom,
+  setRoomAcknowledgedPartialDeck,
+} from "@/services/game-room";
 
 export default function GameScreen() {
   const { roomId } = useLocalSearchParams<{ roomId?: string }>();
@@ -23,6 +27,7 @@ export default function GameScreen() {
 
   const localSession = useGameSession();
   const multiplayerSession = useMultiplayerGame(roomId);
+  const { continueWithRemainingPool, forceEndGame } = localSession;
 
   const session = isMultiplayer ? multiplayerSession : localSession;
   const {
@@ -67,15 +72,15 @@ export default function GameScreen() {
   const showHostInMenu =
     isMultiplayer && !isHost && !!currentQuestion && endAfterThisTurn;
 
-  // Multiplayer: host should always be able to close the modal when navigating to Shop.
+  // Host (or solo local): show warning when a question is on screen and at least one pool is empty (again after each Continue once that happens).
   useEffect(() => {
-    if (!isMultiplayer || !isHost) return;
+    if (!isHost) return;
     if (!!currentQuestion && endAfterThisTurn) {
       setShowOutOfQuestions(true);
     } else if (!endAfterThisTurn) {
       setShowOutOfQuestions(false);
     }
-  }, [isMultiplayer, isHost, currentQuestion, endAfterThisTurn]);
+  }, [isHost, currentQuestion, endAfterThisTurn]);
 
   useFocusEffect(
     useCallback(() => {
@@ -102,6 +107,22 @@ export default function GameScreen() {
     }
     nextPlayer();
   };
+
+  const canContinueWithRemainingPool = truthsLeft > 0 || daresLeft > 0;
+
+  const handleContinueOutOfQuestions = useCallback(async () => {
+    setShowOutOfQuestions(false);
+    if (isMultiplayer && roomId) {
+      try {
+        await setRoomAcknowledgedPartialDeck(roomId, true);
+        await nextPlayerInRoom(roomId);
+      } catch {
+        // Room may have been synced by another client; modal already closed.
+      }
+      return;
+    }
+    continueWithRemainingPool();
+  }, [isMultiplayer, roomId, continueWithRemainingPool]);
 
   if (isMultiplayer && sessionLoading) {
     return (
@@ -182,6 +203,8 @@ export default function GameScreen() {
       />
       <OutOfQuestionsModal
         visible={isMultiplayer ? (isHost ? showOutOfQuestions : false) : showOutOfQuestions}
+        canContinue={canContinueWithRemainingPool}
+        onContinue={handleContinueOutOfQuestions}
         onBuyMore={() => {
           setShowOutOfQuestions(false);
           router.push({
@@ -196,7 +219,7 @@ export default function GameScreen() {
         onFinish={() => {
           if (!isMultiplayer) {
             setShowOutOfQuestions(false);
-            nextPlayer();
+            forceEndGame();
             return;
           }
           if (roomId) {

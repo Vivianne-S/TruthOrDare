@@ -130,14 +130,6 @@ export const styles = StyleSheet.create({
     lineHeight: 24,
     paddingHorizontal: SPACING.x1,
   },
-  cardPoolGuide: {
-    ...TYPOGRAPHY_BASE.small,
-    fontFamily: FONT_FAMILY.primary.regular,
-    color: "rgba(245, 225, 255, 0.72)",
-    textAlign: "center",
-    lineHeight: 20,
-    paddingHorizontal: SPACING.x2,
-  },
   cardPlaceholder: {
     marginTop: SPACING.x3,
     minHeight: 120,

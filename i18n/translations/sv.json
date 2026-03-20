@@ -148,7 +148,8 @@
   },
   "outOfQuestions": {
     "title": "Oops, frågorna börjar ta slut",
-    "message": "Det finns inga fler Sanningar eller Konsekvenser i den här kategorin. Du kan köpa fler, eller avsluta och se resultatet.",
+    "message": "Det här visas när antingen sanningar eller konsekvenser har tagit slut. Fortsätt för att spela med den hög som finns kvar, eller köp fler. När båda högarna är 0 visas rutan igen så du kan köpa en sista gång innan spelet avslutas.",
+    "continueGame": "Fortsätt spelet",
     "buyMore": "Köp fler",
     "finish": "Avsluta"
   },

@@ -45,11 +45,14 @@ export function useMultiplayerGame(roomId: string | undefined) {
   const darePoolLength = Array.isArray(room?.dare_pool)
     ? room!.dare_pool.length
     : 0;
+  const acknowledgedPartial = room?.acknowledged_partial_deck === true;
+  const onePoolEmpty = truthPoolLength === 0 || darePoolLength === 0;
+  const bothPoolsEmpty = truthPoolLength === 0 && darePoolLength === 0;
   const endAfterThisTurn =
     !!room &&
     room.status === "playing" &&
     room.current_question !== null &&
-    (truthPoolLength === 0 || darePoolLength === 0);
+    (bothPoolsEmpty || (onePoolEmpty && !acknowledgedPartial));
   const isMyTurn =
     !!myUserId && !!currentPlayer?.userId && currentPlayer.userId === myUserId;
 
