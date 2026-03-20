@@ -22,7 +22,16 @@
     "comingSoonMessage": "Online multiplayer will be available in a future update.",
     "roomNotFound": "Room not found",
     "roomNotFoundMessage": "Check the code or ask the host to share it again.",
-    "joinError": "Could not join room"
+    "joinError": "Could not join room",
+    "invalidQrMessage": "That QR code didn't contain a valid 6-character room code. Try again.",
+    "cameraPermissionTitle": "Camera access",
+    "cameraPermissionMessage": "Allow camera access to scan the host's QR code.",
+    "allowCamera": "Allow camera",
+    "cancelScan": "Cancel",
+    "scannerHint": "Point your camera at the host's QR code.",
+    "scanErrorOk": "OK",
+    "scanNotSupportedWebTitle": "Not available",
+    "scanNotSupportedWebMessage": "QR scanning isn't available in the browser. Enter the room code manually or use the app on a phone."
   },
   "createGame": {
     "title": "Create game",

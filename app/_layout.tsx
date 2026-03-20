@@ -17,6 +17,7 @@ export default function RootLayout() {
         <Stack.Screen name="how-to-play" options={{ headerShown: false }} />
         <Stack.Screen name="game-mode-select" options={{ headerShown: false }} />
         <Stack.Screen name="join-game" options={{ headerShown: false }} />
+        <Stack.Screen name="join/[code]" options={{ headerShown: false }} />
         <Stack.Screen name="create-game" options={{ headerShown: false }} />
         <Stack.Screen name="game-lobby" options={{ headerShown: false }} />
         <Stack.Screen name="add-players" options={{ headerShown: false }} />

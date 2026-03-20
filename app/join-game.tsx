@@ -2,12 +2,13 @@
  * Join game screen: enter room code, name, and avatar to join an existing game.
  */
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   ImageBackground,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -19,6 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppButton } from "@/components/ui/AppButton";
 import { AvatarPickerButton } from "@/components/ui/AvatarPickerButton";
 import { AvatarPickerModal } from "@/components/ui/AvatarPickerModal";
+import { JoinQrScannerModal } from "@/components/ui/JoinQrScannerModal";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useI18n } from "@/context/I18nContext";
 import { COLORS } from "@/constants/theme/colors";
@@ -30,13 +32,31 @@ import { joinGameRoom } from "@/services/game-room";
 
 const CODE_LENGTH = 6;
 
+function normalizeIncomingCode(raw: string | undefined): string {
+  if (!raw) return "";
+  return raw.replace(/[^a-zA-Z0-9]/g, "").slice(0, CODE_LENGTH).toUpperCase();
+}
+
 export default function JoinGameScreen() {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
-  const [code, setCode] = useState("");
+  const { code: codeFromLink } = useLocalSearchParams<{ code?: string }>();
+  const [code, setCode] = useState(() =>
+    normalizeIncomingCode(
+      typeof codeFromLink === "string" ? codeFromLink : undefined,
+    ),
+  );
+
+  useEffect(() => {
+    const next = normalizeIncomingCode(
+      typeof codeFromLink === "string" ? codeFromLink : undefined,
+    );
+    if (next) setCode(next);
+  }, [codeFromLink]);
   const [name, setName] = useState("");
   const [avatarId, setAvatarId] = useState(UNSELECTED_AVATAR);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [showQrScanner, setShowQrScanner] = useState(false);
   const [joining, setJoining] = useState(false);
 
   const handleJoin = async () => {
@@ -70,7 +90,18 @@ export default function JoinGameScreen() {
   };
 
   const handleScanQR = () => {
-    Alert.alert(t("joinGame.comingSoonTitle"), t("joinGame.comingSoonMessage"));
+    if (Platform.OS === "web") {
+      Alert.alert(
+        t("joinGame.scanNotSupportedWebTitle"),
+        t("joinGame.scanNotSupportedWebMessage"),
+      );
+      return;
+    }
+    setShowQrScanner(true);
+  };
+
+  const handleScannedCode = (scanned: string) => {
+    setCode(scanned);
   };
 
   return (
@@ -169,6 +200,12 @@ export default function JoinGameScreen() {
           onClose={() => setShowAvatarPicker(false)}
         />
       )}
+
+      <JoinQrScannerModal
+        visible={showQrScanner}
+        onClose={() => setShowQrScanner(false)}
+        onCode={handleScannedCode}
+      />
     </ImageBackground>
   );
 }

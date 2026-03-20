@@ -3,6 +3,7 @@
  */
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
+import * as Linking from "expo-linking";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import {
@@ -61,8 +62,8 @@ export default function CreateGameScreen() {
   };
 
   const joinUrl = useMemo(() => {
-    if (!roomCode) return "truthordare://join/WAITING";
-    return `truthordare://join/${roomCode}`;
+    if (!roomCode) return "";
+    return Linking.createURL(`/join/${roomCode}`);
   }, [roomCode]);
 
   const handleCopyCode = async () => {

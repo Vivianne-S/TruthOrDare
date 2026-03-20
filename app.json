@@ -47,6 +47,13 @@
             "android": ["en", "sv"]
           }
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to use the camera to scan QR codes and join a game.",
+          "recordAudioAndroid": false
+        }
       ]
     ],
     "experiments": {
