@@ -39,6 +39,7 @@ export function useMultiplayerGame(roomId: string | undefined) {
   const isGameOver = room?.status === "game_over";
   const isHost =
     !!room?.host_user_id && !!myUserId && room.host_user_id === myUserId;
+  const deckOopsPending = room?.deck_oops_pending === true;
   const truthPoolLength = Array.isArray(room?.truth_pool)
     ? room!.truth_pool.length
     : 0;
@@ -184,6 +185,7 @@ export function useMultiplayerGame(roomId: string | undefined) {
     endAfterThisTurn,
     awards,
     isHost,
+    deckOopsPending,
     isMyTurn,
     loading,
     showTruth,

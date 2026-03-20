@@ -15,7 +15,11 @@ import { OutOfQuestionsModal } from "@/components/ui/OutOfQuestionsModal";
 import { OutOfQuestionsHostOverlay } from "@/components/ui/OutOfQuestionsHostOverlay";
 import { useGameSession } from "@/hooks/use-game-session";
 import { useMultiplayerGame } from "@/hooks/use-multiplayer-game";
-import { endGameInRoom, setRoomAcknowledgedPartialDeck } from "@/services/game-room";
+import {
+  endGameInRoom,
+  setRoomAcknowledgedPartialDeck,
+  setRoomDeckOopsPending,
+} from "@/services/game-room";
 
 export default function GameScreen() {
   const { roomId } = useLocalSearchParams<{ roomId?: string }>();
@@ -46,10 +50,6 @@ export default function GameScreen() {
     daresLeft,
   } = session as ReturnType<typeof useGameSession> | ReturnType<typeof useMultiplayerGame>;
 
-  const { isHost: sessionIsHost } = (session as ReturnType<
-    typeof useMultiplayerGame
-  >) ?? { isHost: false };
-
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
   const [showExitMenu, setShowExitMenu] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
@@ -64,9 +64,9 @@ export default function GameScreen() {
   const canInteract = isMultiplayer ? (isMyTurn ?? false) : true;
   const endAfterThisTurn =
     "endAfterThisTurn" in session ? (session.endAfterThisTurn ?? false) : false;
-  const isHost = isMultiplayer ? sessionIsHost ?? false : true;
-  const showHostInMenu =
-    isMultiplayer && !isHost && endAfterThisTurn;
+  const isHost = isMultiplayer ? multiplayerSession.isHost : true;
+  const deckOopsPending = isMultiplayer && (multiplayerSession.deckOopsPending ?? false);
+  const showWaitingForHostDeck = isMultiplayer && !isHost && deckOopsPending;
 
   // Close Oops if the low-deck condition clears (e.g. sync). Modal opens only from Next player, not over the question.
   useEffect(() => {
@@ -74,6 +74,14 @@ export default function GameScreen() {
       setShowOutOfQuestions(false);
     }
   }, [endAfterThisTurn]);
+
+  // Guest pressed Next on a low deck: open host-only Oops (same moment as local).
+  useEffect(() => {
+    if (!isMultiplayer || !isHost || !deckOopsPending || !endAfterThisTurn) {
+      return;
+    }
+    setShowOutOfQuestions(true);
+  }, [isMultiplayer, isHost, deckOopsPending, endAfterThisTurn]);
 
   useFocusEffect(
     useCallback(() => {
@@ -91,9 +99,17 @@ export default function GameScreen() {
     ])
   );
 
-  const handleNextPlayer = () => {
+  const handleNextPlayer = async () => {
     if (endAfterThisTurn) {
-      if (isHost) {
+      if (isMultiplayer && roomId && !isHost) {
+        try {
+          await setRoomDeckOopsPending(roomId, true);
+        } catch {
+          // Realtime will still reflect room state; avoid blocking the player silently.
+        }
+        return;
+      }
+      if (!isMultiplayer || isHost) {
         setShowOutOfQuestions(true);
       }
       return;
@@ -108,6 +124,7 @@ export default function GameScreen() {
     if (isMultiplayer && roomId) {
       try {
         await setRoomAcknowledgedPartialDeck(roomId, true);
+        await setRoomDeckOopsPending(roomId, false);
       } catch {
         // Room sync may have failed; modal already closed.
       }
@@ -165,7 +182,8 @@ export default function GameScreen() {
       />
       {isMultiplayer && (
         <OutOfQuestionsHostOverlay
-          visible={showHostInMenu}
+          visible={showWaitingForHostDeck}
+          variant="waitingForHostDeck"
         />
       )}
       <ExitMenuModal
@@ -197,8 +215,15 @@ export default function GameScreen() {
         visible={isMultiplayer ? (isHost ? showOutOfQuestions : false) : showOutOfQuestions}
         canContinue={canContinueWithRemainingPool}
         onContinue={handleContinueOutOfQuestions}
-        onBuyMore={() => {
+        onBuyMore={async () => {
           setShowOutOfQuestions(false);
+          if (isMultiplayer && roomId) {
+            try {
+              await setRoomDeckOopsPending(roomId, false);
+            } catch {
+              /* ignore */
+            }
+          }
           router.push({
             pathname: "/shop",
             params: {

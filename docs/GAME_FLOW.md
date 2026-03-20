@@ -125,7 +125,7 @@ When one pool is empty **after a question is drawn**, `endAfterThisTurn` becomes
 - **Host** sees `OutOfQuestionsModal` and can:
   - **Buy more** → `/shop?fromOutOfQuestions=true&categoryId=...&roomId=...`
   - **Finish** → ends room (`status="game_over"`)
-- **Non-host players** see `OutOfQuestionsHostOverlay` (“Host is in the menu…”).
+- **Non-host players** who press **Next** in this state set `deck_oops_pending` and see `OutOfQuestionsHostOverlay` (“Hang tight…”); only the **host** gets `OutOfQuestionsModal` (same options as local).
 
 After the host unlocks extra questions, `useMultiplayerGame.refreshAfterPremiumPurchase` appends newly unlocked questions into the room pools via `addQuestionsToRoomPools`, and the game resumes for everyone automatically through realtime updates.
 

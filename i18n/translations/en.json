@@ -160,6 +160,8 @@
   },
   "multiplayer": {
     "hostInMenuTitle": "Host is in the menu",
-    "hostInMenuMessage": "The host has entered the menu. The game will continue when the host is back."
+    "hostInMenuMessage": "The host has entered the menu. The game will continue when the host is back.",
+    "waitingForHostDeckTitle": "Hang tight",
+    "waitingForHostDeckMessage": "Only the host can wrap up this round when the deck is almost empty. They’ll see the same options as in a local game."
   }
 }

@@ -160,6 +160,8 @@
   },
   "multiplayer": {
     "hostInMenuTitle": "Värden är i menyn",
-    "hostInMenuMessage": "Värden har gått in i menyn. Spelet fortsätter när värden är tillbaka."
+    "hostInMenuMessage": "Värden har gått in i menyn. Spelet fortsätter när värden är tillbaka.",
+    "waitingForHostDeckTitle": "Vänta lite",
+    "waitingForHostDeckMessage": "Bara värden kan avsluta rundan när leken nästan är slut. De får samma val som i lokalt spel."
   }
 }
