@@ -116,6 +116,7 @@
     "noDaresUseTruths": "Inga konsekvenser kvar — spela vidare med sanningar eller avsluta efter den här omgången.",
     "tapToRevealDaresOnly": "Bara konsekvens kvar — tryck på KONSEKVENS för att visa frågan.",
     "tapToRevealTruthsOnly": "Bara sanning kvar — tryck på SANNING för att visa frågan.",
+    "deckEmpty": "Inga kort finns kvar. Tryck på Nästa spelare för att öppna valen (avsluta eller köp fler).",
     "nextPlayer": "Nästa spelare",
     "exitMenuA11y": "Meny för att avsluta eller gå tillbaka"
   },

@@ -116,6 +116,7 @@
     "noDaresUseTruths": "No more dares left — keep playing truths, or end the game after this round.",
     "tapToRevealDaresOnly": "Only dares left — tap DARE to reveal the question.",
     "tapToRevealTruthsOnly": "Only truths left — tap TRUTH to reveal the question.",
+    "deckEmpty": "No cards are left. Tap Next player to open the menu (finish or buy more).",
     "nextPlayer": "Next player",
     "exitMenuA11y": "Menu to exit or go back"
   },

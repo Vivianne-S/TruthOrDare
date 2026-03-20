@@ -4,7 +4,7 @@
  * Tracks game over and computes awards for the Game Over screen.
  */
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
@@ -42,8 +42,6 @@ export function useGameSession() {
   const categoryId = getSelectedCategoryId();
   const [hasChosenThisTurn, setHasChosenThisTurn] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
-  /** Show Oops modal / block Next: one pool empty (unless user continued) or both empty */
-  const [endAfterThisTurn, setEndAfterThisTurn] = useState(false);
   /** After "Continue" while only one pool was 0 — keep playing without modal until 0/0 */
   const [suppressPartialPoolModal, setSuppressPartialPoolModal] = useState(false);
   const [awards, setAwards] = useState<GameAwards>({
@@ -53,6 +51,27 @@ export function useGameSession() {
   });
   const [truthsLeft, setTruthsLeft] = useState(() => getRemainingCount().truths);
   const [daresLeft, setDaresLeft] = useState(() => getRemainingCount().dares);
+
+  /** Derived so pool UI + shop flow can’t desync from “needs Oops / end” (fixes local 0/0 stuck). */
+  const endAfterThisTurn = useMemo(() => {
+    if (isGameOver) return false;
+    const t = truthsLeft;
+    const d = daresLeft;
+    const bothEmpty = t === 0 && d === 0;
+    const oneEmpty = t === 0 || d === 0;
+    if (!oneEmpty) return false;
+    if (bothEmpty) return true;
+    if (currentQuestion) {
+      return !suppressPartialPoolModal;
+    }
+    return false;
+  }, [
+    isGameOver,
+    truthsLeft,
+    daresLeft,
+    currentQuestion,
+    suppressPartialPoolModal,
+  ]);
 
   const syncPoolCounts = () => {
     const { truths, dares } = getRemainingCount();
@@ -83,14 +102,12 @@ export function useGameSession() {
     setAwards(computeAwards(getGamePlayers(), getPlayerStats()));
   }, []);
 
-  /** After one pool ran out: skip further Oops until both pools are 0; advance turn. */
+  /**
+   * Host chose Continue on Oops: remember partial deck, hide warning for this stretch.
+   * Same question and turn stay until the user presses Next player.
+   */
   const continueWithRemainingPool = () => {
     setSuppressPartialPoolModal(true);
-    setEndAfterThisTurn(false);
-    const updated = moveToNextPlayer();
-    setCurrentPlayer(updated);
-    setCurrentQuestion(null);
-    setHasChosenThisTurn(false);
     syncPoolCounts();
   };
 
@@ -110,11 +127,6 @@ export function useGameSession() {
     const remaining = getRemainingCount();
     setTruthsLeft(remaining.truths);
     setDaresLeft(remaining.dares);
-    const bothEmpty = remaining.truths === 0 && remaining.dares === 0;
-    const oneSideEmpty = remaining.truths === 0 || remaining.dares === 0;
-    setEndAfterThisTurn(
-      bothEmpty || (oneSideEmpty && !suppressPartialPoolModal),
-    );
   };
 
   const hasPlayers = players.length > 0;
@@ -123,7 +135,6 @@ export function useGameSession() {
     restartGame();
     setPlayers(getGamePlayers());
     setIsGameOver(false);
-    setEndAfterThisTurn(false);
     setSuppressPartialPoolModal(false);
     setAwards({ mostDaring: null, truthfulAngel: null, superstar: null });
     setCurrentPlayer(getCurrentPlayer());
@@ -141,7 +152,6 @@ export function useGameSession() {
       setCurrentQuestion(null);
       setHasChosenThisTurn(false);
       setIsGameOver(false);
-      setEndAfterThisTurn(false);
       setSuppressPartialPoolModal(false);
       setAwards({ mostDaring: null, truthfulAngel: null, superstar: null });
       syncPoolCounts();
@@ -162,7 +172,6 @@ export function useGameSession() {
       includePremium: true,
     });
     addQuestionsToPools(allQuestions);
-    setEndAfterThisTurn(false);
     setSuppressPartialPoolModal(false);
     syncPoolCounts();
   };

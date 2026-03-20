@@ -68,15 +68,18 @@ export function GameView({
       : AVATARS[0];
 
   const hasQuestion = !!displayedQuestionText;
+  const deckExhausted = truthsLeft === 0 && daresLeft === 0;
   const choosing =
     hasPlayers && !currentQuestion && (truthsLeft > 0 || daresLeft > 0);
   const onlyDares = choosing && truthsLeft === 0 && daresLeft > 0;
   const onlyTruths = choosing && daresLeft === 0 && truthsLeft > 0;
-  const tapInstruction = onlyDares
-    ? t("game.tapToRevealDaresOnly")
-    : onlyTruths
-      ? t("game.tapToRevealTruthsOnly")
-      : t("game.tapToReveal");
+  const tapInstruction = deckExhausted
+    ? t("game.deckEmpty")
+    : onlyDares
+      ? t("game.tapToRevealDaresOnly")
+      : onlyTruths
+        ? t("game.tapToRevealTruthsOnly")
+        : t("game.tapToReveal");
 
   const nextPlayerGlowStyle = usePulseAnimation(!!currentQuestion, {
     opacityRange: [0.7, 1],
@@ -225,7 +228,11 @@ export function GameView({
                 size="small"
                 style={styles.footerButton}
                 onPress={onNextPlayer}
-                disabled={!canInteract || !hasPlayers || !currentQuestion}
+                disabled={
+                  !canInteract ||
+                  !hasPlayers ||
+                  (!currentQuestion && !deckExhausted)
+                }
               >
                 {t("game.nextPlayer")}
               </AppButton>

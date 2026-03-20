@@ -15,11 +15,7 @@ import { OutOfQuestionsModal } from "@/components/ui/OutOfQuestionsModal";
 import { OutOfQuestionsHostOverlay } from "@/components/ui/OutOfQuestionsHostOverlay";
 import { useGameSession } from "@/hooks/use-game-session";
 import { useMultiplayerGame } from "@/hooks/use-multiplayer-game";
-import {
-  endGameInRoom,
-  nextPlayerInRoom,
-  setRoomAcknowledgedPartialDeck,
-} from "@/services/game-room";
+import { endGameInRoom, setRoomAcknowledgedPartialDeck } from "@/services/game-room";
 
 export default function GameScreen() {
   const { roomId } = useLocalSearchParams<{ roomId?: string }>();
@@ -70,17 +66,14 @@ export default function GameScreen() {
     "endAfterThisTurn" in session ? (session.endAfterThisTurn ?? false) : false;
   const isHost = isMultiplayer ? sessionIsHost ?? false : true;
   const showHostInMenu =
-    isMultiplayer && !isHost && !!currentQuestion && endAfterThisTurn;
+    isMultiplayer && !isHost && endAfterThisTurn;
 
-  // Host (or solo local): show warning when a question is on screen and at least one pool is empty (again after each Continue once that happens).
+  // Close Oops if the low-deck condition clears (e.g. sync). Modal opens only from Next player, not over the question.
   useEffect(() => {
-    if (!isHost) return;
-    if (!!currentQuestion && endAfterThisTurn) {
-      setShowOutOfQuestions(true);
-    } else if (!endAfterThisTurn) {
+    if (!endAfterThisTurn) {
       setShowOutOfQuestions(false);
     }
-  }, [isHost, currentQuestion, endAfterThisTurn]);
+  }, [endAfterThisTurn]);
 
   useFocusEffect(
     useCallback(() => {
@@ -115,9 +108,8 @@ export default function GameScreen() {
     if (isMultiplayer && roomId) {
       try {
         await setRoomAcknowledgedPartialDeck(roomId, true);
-        await nextPlayerInRoom(roomId);
       } catch {
-        // Room may have been synced by another client; modal already closed.
+        // Room sync may have failed; modal already closed.
       }
       return;
     }

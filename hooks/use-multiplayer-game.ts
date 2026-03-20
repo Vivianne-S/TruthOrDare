@@ -48,11 +48,16 @@ export function useMultiplayerGame(roomId: string | undefined) {
   const acknowledgedPartial = room?.acknowledged_partial_deck === true;
   const onePoolEmpty = truthPoolLength === 0 || darePoolLength === 0;
   const bothPoolsEmpty = truthPoolLength === 0 && darePoolLength === 0;
+  /**
+   * Low-deck / end flow. Must stay true when 0/0 and no card on screen (after Next),
+   * otherwise nothing opens Oops and the UI dead-locks.
+   */
   const endAfterThisTurn =
     !!room &&
     room.status === "playing" &&
-    room.current_question !== null &&
-    (bothPoolsEmpty || (onePoolEmpty && !acknowledgedPartial));
+    ((bothPoolsEmpty && !currentQuestion) ||
+      (!!room.current_question &&
+        (bothPoolsEmpty || (onePoolEmpty && !acknowledgedPartial))));
   const isMyTurn =
     !!myUserId && !!currentPlayer?.userId && currentPlayer.userId === myUserId;
 
