@@ -88,9 +88,16 @@ Manages player list and avatar picker.
 ## useCategories
 
 **File:** `hooks/use-categories.ts`  
-**Used by:** `app/categories.tsx`
+**Used by:** `app/categories.tsx`, `hooks/use-shop-categories.ts` (shop omits purchase args)
 
 Fetches categories and caches questions per category.
+
+| Param | Type | Description |
+|-------|------|-------------|
+| isCategoryUnlocked | (id) => boolean | Optional; default always false |
+| isPremiumQuestionsUnlocked | (id) => boolean | Optional; default always false |
+
+Pass the callbacks from the same `useDemoPurchases()` instance as the categories screen so dev reset and `refreshProStatus` stay aligned with `questionsByCategory`.
 
 | Return | Type | Description |
 |--------|------|-------------|
