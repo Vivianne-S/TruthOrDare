@@ -52,13 +52,17 @@ export default function CategoriesScreen() {
   const { roomId } = useLocalSearchParams<{ roomId?: string }>();
   const isMultiplayer = Boolean(roomId);
   const {
+    isCategoryUnlocked,
+    isPremiumQuestionsUnlocked,
+    refreshProStatus,
+  } = useDemoPurchases();
+  const {
     categories,
     loading,
     questionsByCategory,
     handlePressCategory,
     getIncludePremium,
-  } = useCategories();
-  const { isCategoryUnlocked, refreshProStatus } = useDemoPurchases();
+  } = useCategories(isCategoryUnlocked, isPremiumQuestionsUnlocked);
   const insets = useSafeAreaInsets();
 
   useFocusEffect(

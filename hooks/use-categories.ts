@@ -3,13 +3,20 @@
  * When user selects a category, questions are pre-loaded for faster game start.
  * Used by categories screen.
  * Filters premium questions in free categories unless user has purchased them.
+ *
+ * Pass the same `isCategoryUnlocked` / `isPremiumQuestionsUnlocked` as the screen that
+ * calls `useDemoPurchases()` so reset/focus-refresh stays in sync with the cache.
+ * Callers that only need the category list (e.g. shop) can omit args; defaults treat
+ * everything as locked.
  */
 import { getCategories, getQuestionsByCategory } from "@/services/categories";
 import type { Category, Question } from "@/types/category";
 import { useCallback, useEffect, useState } from "react";
-import { useDemoPurchases } from "@/hooks/use-demo-purchases";
 
-export function useCategories() {
+export function useCategories(
+  isCategoryUnlocked: (categoryId: string) => boolean = () => false,
+  isPremiumQuestionsUnlocked: (categoryId: string) => boolean = () => false
+) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [questionsByCategory, setQuestionsByCategory] = useState<
@@ -19,7 +26,6 @@ export function useCategories() {
     Record<string, boolean>
   >({});
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
-  const { isCategoryUnlocked, isPremiumQuestionsUnlocked } = useDemoPurchases();
 
   useEffect(() => {
     let alive = true;
