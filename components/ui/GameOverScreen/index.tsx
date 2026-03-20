@@ -30,6 +30,8 @@ type GameOverScreenProps = {
   awards: GameAwards;
   onPlayAgain: () => void;
   onExitPress: () => void;
+  /** When false, hides Play Again and New Game (e.g. multiplayer guests). */
+  showRestartActions?: boolean;
 };
 
 export function GameOverScreen({
@@ -37,6 +39,7 @@ export function GameOverScreen({
   awards,
   onPlayAgain,
   onExitPress,
+  showRestartActions = true,
 }: GameOverScreenProps) {
   const { t } = useI18n();
   const handleNewGame = () => router.replace("/add-players?newGame=true");
@@ -148,32 +151,36 @@ export function GameOverScreen({
           </View>
 
           <View style={styles.buttonsSection}>
-            <View style={styles.playAgainWrapper}>
-              <AppButton
-                variant="cta"
-                onPress={onPlayAgain}
-                style={styles.playAgainButton}
-              >
-                {t("gameOver.playAgain")}
-              </AppButton>
-            </View>
+            {showRestartActions && (
+              <View style={styles.playAgainWrapper}>
+                <AppButton
+                  variant="cta"
+                  onPress={onPlayAgain}
+                  style={styles.playAgainButton}
+                >
+                  {t("gameOver.playAgain")}
+                </AppButton>
+              </View>
+            )}
             <View style={styles.secondaryRow}>
-              <Pressable
-                onPress={handleNewGame}
-                style={({ pressed }) => [
-                  styles.secondaryButton,
-                  styles.newGameButton,
-                  pressed && styles.buttonPressed,
-                ]}
-              >
-                <Ionicons
-                  name="add-circle"
-                  size={24}
-                  color={COLORS.success}
-                  style={styles.secondaryIcon}
-                />
-                <Text style={styles.secondaryButtonText}>{t("gameOver.newGame")}</Text>
-              </Pressable>
+              {showRestartActions && (
+                <Pressable
+                  onPress={handleNewGame}
+                  style={({ pressed }) => [
+                    styles.secondaryButton,
+                    styles.newGameButton,
+                    pressed && styles.buttonPressed,
+                  ]}
+                >
+                  <Ionicons
+                    name="add-circle"
+                    size={24}
+                    color={COLORS.success}
+                    style={styles.secondaryIcon}
+                  />
+                  <Text style={styles.secondaryButtonText}>{t("gameOver.newGame")}</Text>
+                </Pressable>
+              )}
               <Pressable
                 onPress={onExitPress}
                 style={({ pressed }) => [

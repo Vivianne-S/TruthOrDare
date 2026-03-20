@@ -117,6 +117,7 @@ export default function GameScreen() {
           awards={awards}
           onPlayAgain={restartGameSession}
           onExitPress={() => setShowExitConfirm(true)}
+          showRestartActions={!isMultiplayer || isHost}
         />
         <ExitConfirmModal
           visible={showExitConfirm}
