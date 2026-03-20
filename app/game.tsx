@@ -160,7 +160,11 @@ export default function GameScreen() {
         }}
         onAddMorePlayers={() => {
           setShowExitMenu(false);
-          router.push("/add-players?addMore=true");
+          router.push(
+            isMultiplayer
+              ? "/add-players?addMore=true"
+              : "/add-players?addMore=true&localGame=1",
+          );
         }}
         onExitGame={handleExitGame}
       />

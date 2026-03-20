@@ -28,7 +28,11 @@ import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useI18n } from "@/context/I18nContext";
 import { useResetWhen } from "@/hooks/use-avatar-page-reset";
 import { usePlayerSetup } from "@/hooks/use-player-setup";
-import { getGamePlayers, setGamePlayers } from "@/services/game-session";
+import {
+  getGamePlayers,
+  setGamePlayers,
+  setGamePlayersAfterEditInGame,
+} from "@/services/game-session";
 import { MIN_PLAYERS } from "@/types/player";
 
 const AVATARS_PER_ROW = 3;
@@ -232,12 +236,14 @@ function PlayerInputRow({
 
 export default function AddPlayersScreen() {
   const { t } = useI18n();
-  const { addMore, newGame } = useLocalSearchParams<{
+  const { addMore, newGame, localGame } = useLocalSearchParams<{
     addMore?: string;
     newGame?: string;
+    localGame?: string;
   }>();
   const isAddMoreMode = addMore === "true";
   const isNewGameMode = newGame === "true";
+  const isLocalAddMore = isAddMoreMode && localGame === "1";
   const hasExistingPlayers = isAddMoreMode || isNewGameMode;
 
   const {
@@ -256,10 +262,14 @@ export default function AddPlayersScreen() {
 
   const handleStartGame = () => {
     if (canStart) {
-      setGamePlayers(players);
-      if (isAddMoreMode) {
+      if (isLocalAddMore) {
+        setGamePlayersAfterEditInGame(players);
+        router.replace("/game");
+      } else if (isAddMoreMode) {
+        setGamePlayers(players);
         router.replace("/game");
       } else {
+        setGamePlayers(players);
         router.replace("/categories");
       }
     }

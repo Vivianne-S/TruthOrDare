@@ -3,11 +3,13 @@
  * currentPlayer, currentQuestion, categoryName, nextPlayer, showTruth, showDare.
  * Tracks game over and computes awards for the Game Over screen.
  */
-import { useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useEffect, useState } from "react";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   addQuestionsToPools,
+  consumePendingLocalSessionResyncAfterPlayerEdit,
   drawNextQuestionByType,
   getCurrentPlayer,
   getGamePlayers,
@@ -88,15 +90,30 @@ export function useGameSession() {
 
   const hasPlayers = players.length > 0;
 
-  const restartGameSession = () => {
+  const restartGameSession = useCallback(() => {
     restartGame();
+    setPlayers(getGamePlayers());
     setIsGameOver(false);
     setEndAfterThisTurn(false);
     setAwards({ mostDaring: null, truthfulAngel: null, superstar: null });
     setCurrentPlayer(getCurrentPlayer());
     setCurrentQuestion(null);
     setHasChosenThisTurn(false);
-  };
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!consumePendingLocalSessionResyncAfterPlayerEdit()) return;
+      setPlayers(getGamePlayers());
+      setCurrentPlayer(getCurrentPlayer());
+      setCategoryName(getSelectedCategoryName());
+      setCurrentQuestion(null);
+      setHasChosenThisTurn(false);
+      setIsGameOver(false);
+      setEndAfterThisTurn(false);
+      setAwards({ mostDaring: null, truthfulAngel: null, superstar: null });
+    }, []),
+  );
 
   const refreshAfterPremiumPurchase = async (categoryId: string) => {
     const [proValue, pqValue] = await Promise.all([

@@ -35,7 +35,7 @@ categories ◄──────────────────┐
     ▼                         │
 game ◄────────────────────────┤ "Play Again" (Game Over)
     │                         │ "Back to categories"
-    ├─ "Add more players" ───► add-players?addMore=true
+    ├─ "Add more players" ───► add-players?addMore=true&localGame=1 (local)
     │       │                         │ "Back to game"
     │       └────────────────────────┘
     │
@@ -74,6 +74,7 @@ game ◄────────────────────────
 | Route | Param | Purpose |
 |-------|-------|---------|
 | `/add-players` | `addMore=true` | Pre-load current players, show "Back to game" |
+| `/add-players` | `localGame=1` | With `addMore`: local only — reshuffle pools + UI sync on return to `/game` |
 | `/add-players` | `newGame=true` | Pre-load current players (from Game Over), show "Select category" |
 | `/categories` | `roomId=<uuid>` | Multiplayer: host selects category for the room |
 | `/game` | `roomId=<uuid>` | Multiplayer: game screen uses room state |
