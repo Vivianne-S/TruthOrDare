@@ -41,6 +41,8 @@ export default function GameScreen() {
     isMyTurn = true,
     loading: sessionLoading = false,
     refreshAfterPremiumPurchase,
+    truthsLeft,
+    daresLeft,
   } = session as ReturnType<typeof useGameSession> | ReturnType<typeof useMultiplayerGame>;
 
   const { isHost: sessionIsHost } = (session as ReturnType<
@@ -138,6 +140,8 @@ export default function GameScreen() {
         categoryName={categoryName}
         currentQuestion={currentQuestion}
         hasPlayers={hasPlayers}
+        truthsLeft={truthsLeft}
+        daresLeft={daresLeft}
         isSpeechEnabled={isSpeechEnabled}
         onToggleSpeech={() => setIsSpeechEnabled((prev) => !prev)}
         onDoorPress={handleDoorPress}

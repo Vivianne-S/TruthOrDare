@@ -28,6 +28,8 @@ type GameViewProps = {
   categoryName: string | null;
   currentQuestion: Question | null;
   hasPlayers: boolean;
+  truthsLeft: number;
+  daresLeft: number;
   isSpeechEnabled: boolean;
   onToggleSpeech: () => void;
   onDoorPress: () => void;
@@ -43,6 +45,8 @@ export function GameView({
   categoryName,
   currentQuestion,
   hasPlayers,
+  truthsLeft,
+  daresLeft,
   isSpeechEnabled,
   onToggleSpeech,
   onDoorPress,
@@ -64,9 +68,15 @@ export function GameView({
       : AVATARS[0];
 
   const hasQuestion = !!displayedQuestionText;
-  const questionText = hasQuestion
-    ? displayedQuestionText
-    : t("game.tapToReveal");
+  const choosing =
+    hasPlayers && !currentQuestion && (truthsLeft > 0 || daresLeft > 0);
+  const onlyDares = choosing && truthsLeft === 0 && daresLeft > 0;
+  const onlyTruths = choosing && daresLeft === 0 && truthsLeft > 0;
+  const tapInstruction = onlyDares
+    ? t("game.tapToRevealDaresOnly")
+    : onlyTruths
+      ? t("game.tapToRevealTruthsOnly")
+      : t("game.tapToReveal");
 
   const nextPlayerGlowStyle = usePulseAnimation(!!currentQuestion, {
     opacityRange: [0.7, 1],
@@ -142,43 +152,74 @@ export function GameView({
             <AppButton
               variant="truth"
               onPress={onShowTruth}
-              disabled={!canInteract || !hasPlayers || !!currentQuestion}
+              disabled={
+                !canInteract ||
+                !hasPlayers ||
+                !!currentQuestion ||
+                truthsLeft === 0
+              }
             >
               {t("game.truth")}
             </AppButton>
             <AppButton
               variant="dare"
               onPress={onShowDare}
-              disabled={!canInteract || !hasPlayers || !!currentQuestion}
+              disabled={
+                !canInteract ||
+                !hasPlayers ||
+                !!currentQuestion ||
+                daresLeft === 0
+              }
             >
               {t("game.dare")}
             </AppButton>
           </View>
 
           <View style={styles.cardPlaceholder}>
-            <View style={styles.questionRow}>
-              <Text
-                style={[
-                  styles.cardPlaceholderText,
-                  !hasQuestion && styles.cardPlaceholderHintText,
-                ]}
-              >
-                {questionText}
-              </Text>
-              {displayedQuestionText && isSpeechEnabled ? (
-                <TouchableOpacity
-                  onPress={speak}
-                  style={styles.speakerButton}
-                  accessibilityLabel={t("game.readAgain")}
-                >
-                  <Ionicons
-                    name="volume-high"
-                    size={18}
-                    color={COLORS.textSecondary}
-                  />
-                </TouchableOpacity>
-              ) : null}
-            </View>
+            {hasQuestion ? (
+              <View style={styles.cardQuestionCentered}>
+                <View style={styles.questionRow}>
+                  <Text style={styles.cardPlaceholderText}>
+                    {displayedQuestionText}
+                  </Text>
+                  {displayedQuestionText && isSpeechEnabled ? (
+                    <TouchableOpacity
+                      onPress={speak}
+                      style={styles.speakerButton}
+                      accessibilityLabel={t("game.readAgain")}
+                    >
+                      <Ionicons
+                        name="volume-high"
+                        size={18}
+                        color={COLORS.textSecondary}
+                      />
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
+              </View>
+            ) : (
+              <View style={styles.cardHintColumn}>
+                <View style={styles.cardCountsRow}>
+                  <Text style={styles.cardPoolCountSide} numberOfLines={1}>
+                    {t("game.freeTruthsLeft", { count: truthsLeft })}
+                  </Text>
+                  <Text style={styles.cardPoolCountDivider}>·</Text>
+                  <Text style={styles.cardPoolCountSide} numberOfLines={1}>
+                    {t("game.freeDaresLeft", { count: daresLeft })}
+                  </Text>
+                </View>
+                <Text style={styles.cardTapInstruction}>{tapInstruction}</Text>
+                {onlyDares ? (
+                  <Text style={styles.cardPoolGuide}>
+                    {t("game.noTruthsUseDares")}
+                  </Text>
+                ) : onlyTruths ? (
+                  <Text style={styles.cardPoolGuide}>
+                    {t("game.noDaresUseTruths")}
+                  </Text>
+                ) : null}
+              </View>
+            )}
           </View>
 
           <View style={styles.footerRow}>

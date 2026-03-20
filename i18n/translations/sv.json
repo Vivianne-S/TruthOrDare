@@ -102,7 +102,7 @@
     "purchaseCompleted": "Köp genomfört!"
   },
   "game": {
-    "tapToReveal": "Tryck på SANNING eller KONSEKVENS för att visa en fråga.",
+    "tapToReveal": "Tryck på SANNING eller KONSEKVENS för att visa frågan.",
     "playersTurn": "Det är {{name}}s tur!",
     "yourTurn": "Din tur!",
     "turnOffSpeech": "Stäng av tal",
@@ -110,6 +110,12 @@
     "readAgain": "Läs frågan igen",
     "truth": "SANNING",
     "dare": "KONSEKVENS",
+    "freeTruthsLeft": "Sanningar kvar: {{count}}",
+    "freeDaresLeft": "Konsekvenser kvar: {{count}}",
+    "noTruthsUseDares": "Inga sanningar kvar — spela vidare med konsekvenser eller avsluta efter den här omgången.",
+    "noDaresUseTruths": "Inga konsekvenser kvar — spela vidare med sanningar eller avsluta efter den här omgången.",
+    "tapToRevealDaresOnly": "Bara konsekvens kvar — tryck på KONSEKVENS för att visa frågan.",
+    "tapToRevealTruthsOnly": "Bara sanning kvar — tryck på SANNING för att visa frågan.",
     "nextPlayer": "Nästa spelare",
     "exitMenuA11y": "Meny för att avsluta eller gå tillbaka"
   },

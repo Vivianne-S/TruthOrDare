@@ -183,5 +183,7 @@ export function useMultiplayerGame(roomId: string | undefined) {
     nextPlayer,
     restartGameSession: () => {},
     refreshAfterPremiumPurchase,
+    truthsLeft: truthPoolLength,
+    daresLeft: darePoolLength,
   };
 }

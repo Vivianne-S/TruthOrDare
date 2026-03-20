@@ -102,7 +102,7 @@
     "purchaseCompleted": "Purchase completed!"
   },
   "game": {
-    "tapToReveal": "Tap TRUTH or DARE to reveal a question.",
+    "tapToReveal": "Tap TRUTH or DARE to reveal the question.",
     "playersTurn": "It's {{name}}'s turn!",
     "yourTurn": "Your turn!",
     "turnOffSpeech": "Turn off speech",
@@ -110,6 +110,12 @@
     "readAgain": "Read the question again",
     "truth": "TRUTH",
     "dare": "DARE",
+    "freeTruthsLeft": "Free truths left: {{count}}",
+    "freeDaresLeft": "Free dares left: {{count}}",
+    "noTruthsUseDares": "No more truths left — keep playing dares, or end the game after this round.",
+    "noDaresUseTruths": "No more dares left — keep playing truths, or end the game after this round.",
+    "tapToRevealDaresOnly": "Only dares left — tap DARE to reveal the question.",
+    "tapToRevealTruthsOnly": "Only truths left — tap TRUTH to reveal the question.",
     "nextPlayer": "Next player",
     "exitMenuA11y": "Menu to exit or go back"
   },

@@ -375,11 +375,7 @@ export async function chooseTruthOrDareInRoom(
   const pool = type === "truth" ? truthPool : darePool;
 
   if (pool.length === 0) {
-    const { error } = await supabase
-      .from("game_rooms")
-      .update({ status: "game_over" })
-      .eq("id", roomId);
-    if (error) throw new Error(`Game over update failed: ${error.message}`);
+    // Other pool may still have cards; UI disables empty choice. Avoid ending the game here.
     return;
   }
 

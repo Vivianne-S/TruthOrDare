@@ -48,12 +48,21 @@ export function useGameSession() {
     truthfulAngel: null,
     superstar: null,
   });
+  const [truthsLeft, setTruthsLeft] = useState(() => getRemainingCount().truths);
+  const [daresLeft, setDaresLeft] = useState(() => getRemainingCount().dares);
+
+  const syncPoolCounts = () => {
+    const { truths, dares } = getRemainingCount();
+    setTruthsLeft(truths);
+    setDaresLeft(dares);
+  };
 
   useEffect(() => {
     setPlayers(getGamePlayers());
     setCurrentPlayer(getCurrentPlayer());
     setCategoryName(getSelectedCategoryName());
     getGameQuestions();
+    syncPoolCounts();
   }, []);
 
   const nextPlayer = () => {
@@ -66,14 +75,14 @@ export function useGameSession() {
     setCurrentPlayer(updated);
     setCurrentQuestion(null);
     setHasChosenThisTurn(false);
+    syncPoolCounts();
   };
 
   const showQuestion = (type: "truth" | "dare") => {
     if (hasChosenThisTurn) return;
     const question = drawNextQuestionByType(type);
     if (question === null) {
-      setIsGameOver(true);
-      setAwards(computeAwards(getGamePlayers(), getPlayerStats()));
+      syncPoolCounts();
       return;
     }
     if (currentPlayer) {
@@ -83,6 +92,8 @@ export function useGameSession() {
     setHasChosenThisTurn(true);
 
     const remaining = getRemainingCount();
+    setTruthsLeft(remaining.truths);
+    setDaresLeft(remaining.dares);
     if (remaining.truths === 0 || remaining.dares === 0) {
       setEndAfterThisTurn(true);
     }
@@ -99,6 +110,7 @@ export function useGameSession() {
     setCurrentPlayer(getCurrentPlayer());
     setCurrentQuestion(null);
     setHasChosenThisTurn(false);
+    syncPoolCounts();
   }, []);
 
   useFocusEffect(
@@ -112,6 +124,7 @@ export function useGameSession() {
       setIsGameOver(false);
       setEndAfterThisTurn(false);
       setAwards({ mostDaring: null, truthfulAngel: null, superstar: null });
+      syncPoolCounts();
     }, []),
   );
 
@@ -130,6 +143,7 @@ export function useGameSession() {
     });
     addQuestionsToPools(allQuestions);
     setEndAfterThisTurn(false);
+    syncPoolCounts();
   };
 
   return {
@@ -149,5 +163,7 @@ export function useGameSession() {
     isMyTurn: true,
     loading: false,
     refreshAfterPremiumPurchase,
+    truthsLeft,
+    daresLeft,
   };
 }
