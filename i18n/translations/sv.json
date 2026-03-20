@@ -22,7 +22,16 @@
     "comingSoonMessage": "Online multiplayer kommer i en framtida uppdatering.",
     "roomNotFound": "Rummet hittades inte",
     "roomNotFoundMessage": "Kontrollera koden eller be värden dela den igen.",
-    "joinError": "Kunde inte gå med i rummet"
+    "joinError": "Kunde inte gå med i rummet",
+    "invalidQrMessage": "QR-koden innehöll ingen giltig 6-teckens rumskod. Försök igen.",
+    "cameraPermissionTitle": "Kamera behövs",
+    "cameraPermissionMessage": "Ge åtkomst till kameran för att scanna värdens QR-kod.",
+    "allowCamera": "Tillåt kamera",
+    "cancelScan": "Avbryt",
+    "scannerHint": "Rikta kameran mot värdens QR-kod.",
+    "scanErrorOk": "OK",
+    "scanNotSupportedWebTitle": "Inte tillgängligt",
+    "scanNotSupportedWebMessage": "QR-skanning fungerar inte i webbläsaren. Ange rumskoden manuellt eller öppna appen på mobil."
   },
   "createGame": {
     "title": "Skapa spel",
