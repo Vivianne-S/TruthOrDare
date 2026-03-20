@@ -19,6 +19,15 @@ export const styles = StyleSheet.create({
     paddingBottom: SPACING.x10,
     alignItems: "center",
   },
+  /** When only Exit is shown: fill height and pin actions to the bottom. */
+  scrollContentExitPinned: {
+    justifyContent: "space-between",
+  },
+  /** Full-width column so nested `width: "100%"` (e.g. awards) matches pre-wrap layout. */
+  topContent: {
+    width: "100%",
+    alignItems: "center",
+  },
   titleWrapper: {
     position: "relative",
     alignItems: "center",

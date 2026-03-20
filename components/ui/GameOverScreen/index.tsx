@@ -61,91 +61,96 @@ export function GameOverScreen({
         style={styles.overlay}
       >
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            !showRestartActions && styles.scrollContentExitPinned,
+          ]}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>{t("gameOver.title")}</Text>
-            <View style={styles.titleGlow} />
-          </View>
+          <View style={styles.topContent}>
+            <View style={styles.titleWrapper}>
+              <Text style={styles.title}>{t("gameOver.title")}</Text>
+              <View style={styles.titleGlow} />
+            </View>
 
-          <View style={styles.avatarRow}>
-            {displayPlayers.map((player, index) => (
-              <View key={player.id} style={styles.avatarWrapper}>
-                <View
-                  style={[
-                    styles.avatarGlow,
-                    {
-                      borderColor: AVATAR_GLOW_COLORS[index % 3] + "99",
-                      shadowColor: AVATAR_GLOW_COLORS[index % 3],
-                    },
-                  ]}
-                >
-                  <Image
-                    source={
-                      player.avatarId >= 0
-                        ? AVATARS[player.avatarId % AVATARS.length]
-                        : AVATARS[0]
-                    }
-                    style={styles.avatar}
-                  />
+            <View style={styles.avatarRow}>
+              {displayPlayers.map((player, index) => (
+                <View key={player.id} style={styles.avatarWrapper}>
+                  <View
+                    style={[
+                      styles.avatarGlow,
+                      {
+                        borderColor: AVATAR_GLOW_COLORS[index % 3] + "99",
+                        shadowColor: AVATAR_GLOW_COLORS[index % 3],
+                      },
+                    ]}
+                  >
+                    <Image
+                      source={
+                        player.avatarId >= 0
+                          ? AVATARS[player.avatarId % AVATARS.length]
+                          : AVATARS[0]
+                      }
+                      style={styles.avatar}
+                    />
+                  </View>
+                </View>
+              ))}
+            </View>
+
+            <View style={styles.awardsSection}>
+              <View style={styles.awardCard}>
+                <View style={[styles.awardIconBg, styles.awardIconFlame]}>
+                  <Ionicons name="flame" size={20} color="#FFF" />
+                </View>
+                <View style={styles.awardContent}>
+                  <Text style={styles.awardLabel}>{t("gameOver.dareDevil")}</Text>
+                  <Text style={styles.awardSubtitle}>{t("gameOver.dareDevilSubtitle")}</Text>
+                  <Text
+                    style={[
+                      styles.awardName,
+                      !awards.mostDaring && styles.awardNameEmpty,
+                    ]}
+                  >
+                    {awards.mostDaring?.name ?? t("gameOver.noWinner")}
+                  </Text>
                 </View>
               </View>
-            ))}
-          </View>
-
-          <View style={styles.awardsSection}>
-            <View style={styles.awardCard}>
-              <View style={[styles.awardIconBg, styles.awardIconFlame]}>
-                <Ionicons name="flame" size={20} color="#FFF" />
+              <View style={styles.awardCard}>
+                <View style={[styles.awardIconBg, styles.awardIconHappy]}>
+                  <Ionicons name="happy" size={20} color="#FFF" />
+                </View>
+                <View style={styles.awardContent}>
+                  <Text style={styles.awardLabel}>{t("gameOver.truthfulAngel")}</Text>
+                  <Text style={styles.awardSubtitle}>{t("gameOver.truthfulAngelSubtitle")}</Text>
+                  <Text
+                    style={[
+                      styles.awardName,
+                      !awards.truthfulAngel && styles.awardNameEmpty,
+                    ]}
+                  >
+                    {awards.truthfulAngel?.name ?? t("gameOver.noWinner")}
+                  </Text>
+                </View>
               </View>
-              <View style={styles.awardContent}>
-                <Text style={styles.awardLabel}>{t("gameOver.dareDevil")}</Text>
-                <Text style={styles.awardSubtitle}>{t("gameOver.dareDevilSubtitle")}</Text>
-                <Text
-                  style={[
-                    styles.awardName,
-                    !awards.mostDaring && styles.awardNameEmpty,
-                  ]}
-                >
-                  {awards.mostDaring?.name ?? t("gameOver.noWinner")}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.awardCard}>
-              <View style={[styles.awardIconBg, styles.awardIconHappy]}>
-                <Ionicons name="happy" size={20} color="#FFF" />
-              </View>
-              <View style={styles.awardContent}>
-                <Text style={styles.awardLabel}>{t("gameOver.truthfulAngel")}</Text>
-                <Text style={styles.awardSubtitle}>{t("gameOver.truthfulAngelSubtitle")}</Text>
-                <Text
-                  style={[
-                    styles.awardName,
-                    !awards.truthfulAngel && styles.awardNameEmpty,
-                  ]}
-                >
-                  {awards.truthfulAngel?.name ?? t("gameOver.noWinner")}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.awardCard}>
-              <View style={[styles.awardIconBg, styles.awardIconTrophy]}>
-                <Ionicons name="trophy" size={20} color="#FFF" />
-              </View>
-              <View style={styles.awardContent}>
-                <Text style={styles.awardLabel}>{t("gameOver.bestOfBoth")}</Text>
-                <Text style={styles.awardSubtitle}>
-                  {t("gameOver.bestOfBothSubtitle")}
-                </Text>
-                <Text
-                  style={[
-                    styles.awardName,
-                    !awards.superstar && styles.awardNameEmpty,
-                  ]}
-                >
-                  {awards.superstar?.name ?? t("gameOver.noWinner")}
-                </Text>
+              <View style={styles.awardCard}>
+                <View style={[styles.awardIconBg, styles.awardIconTrophy]}>
+                  <Ionicons name="trophy" size={20} color="#FFF" />
+                </View>
+                <View style={styles.awardContent}>
+                  <Text style={styles.awardLabel}>{t("gameOver.bestOfBoth")}</Text>
+                  <Text style={styles.awardSubtitle}>
+                    {t("gameOver.bestOfBothSubtitle")}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.awardName,
+                      !awards.superstar && styles.awardNameEmpty,
+                    ]}
+                  >
+                    {awards.superstar?.name ?? t("gameOver.noWinner")}
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
