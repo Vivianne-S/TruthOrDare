@@ -32,7 +32,7 @@ import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
 import { SPACING } from "@/constants/theme/spacing";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
-import { useDemoPurchases } from "@/hooks/use-demo-purchases";
+import { useRevenueCatPurchases } from "@/hooks/use-revenuecat-purchases";
 import { useShopCategories } from "@/hooks/use-shop-categories";
 
 function BlinkingBuyButton({
@@ -137,7 +137,7 @@ export default function ShopScreen() {
     unlockPremiumQuestionsForCategory,
     resetPurchases,
     loading: purchasesLoading,
-  } = useDemoPurchases();
+  } = useRevenueCatPurchases();
   const {
     premiumCategories,
     freeCategoriesWithPremiumQuestions,
@@ -147,18 +147,22 @@ export default function ShopScreen() {
 
   const handleBuyCategory = async (categoryId: string) => {
     setPurchasingId(categoryId);
-    await unlockCategory(categoryId);
+    const ok = await unlockCategory(categoryId);
     setPurchasingId(null);
-    setPurchaseCompleted({ returnToGame: false });
+    if (ok) {
+      setPurchaseCompleted({ returnToGame: false });
+    }
   };
 
   const handleBuyPremiumQuestions = async (categoryId: string) => {
     setPurchasingId(`premium-questions-${categoryId}`);
-    await unlockPremiumQuestionsForCategory(categoryId);
+    const ok = await unlockPremiumQuestionsForCategory(categoryId);
     setPurchasingId(null);
-    setPurchaseCompleted({
-      returnToGame: shouldReturnToGame && categoryId === paramCategoryId,
-    });
+    if (ok) {
+      setPurchaseCompleted({
+        returnToGame: shouldReturnToGame && categoryId === paramCategoryId,
+      });
+    }
   };
 
   useEffect(() => {
@@ -192,9 +196,11 @@ export default function ShopScreen() {
 
   const handleBuyPremium = async () => {
     setPurchasingId("premium");
-    await unlockPremium();
+    const ok = await unlockPremium();
     setPurchasingId(null);
-    setPurchaseCompleted({ returnToGame: false });
+    if (ok) {
+      setPurchaseCompleted({ returnToGame: false });
+    }
   };
 
   const loading = purchasesLoading || categoriesLoading;

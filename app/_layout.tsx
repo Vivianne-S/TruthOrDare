@@ -3,12 +3,18 @@
  * Configures the main Stack navigator. Uses fixed dark theme.
  */
 import { I18nProvider } from "@/context/I18nContext";
+import { initializeRevenueCat } from "@/lib/revenuecat";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
 import "react-native-reanimated";
 
 export default function RootLayout() {
+  useEffect(() => {
+    initializeRevenueCat();
+  }, []);
+
   return (
     <I18nProvider>
       <ThemeProvider value={DarkTheme}>
