@@ -99,7 +99,8 @@
     "premiumPrice": "$29.99",
     "premiumQuestionsPrice": "$2.99",
     "premiumQuestionsPackage": "10 truths + 10 dares",
-    "purchaseCompleted": "Purchase completed!"
+    "purchaseCompleted": "Purchase completed!",
+    "purchaseFailed": "Purchase failed. Please try again."
   },
   "game": {
     "tapToReveal": "Tap TRUTH or DARE to reveal a question.",

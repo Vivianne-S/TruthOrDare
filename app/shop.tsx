@@ -126,6 +126,7 @@ export default function ShopScreen() {
   const [purchaseCompleted, setPurchaseCompleted] = useState<{
     returnToGame: boolean;
   } | null>(null);
+  const [purchaseFailed, setPurchaseFailed] = useState(false);
   const shouldReturnToGame = fromOutOfQuestions === "true" && !!paramCategoryId;
 
   const {
@@ -151,6 +152,8 @@ export default function ShopScreen() {
     setPurchasingId(null);
     if (ok) {
       setPurchaseCompleted({ returnToGame: false });
+    } else {
+      setPurchaseFailed(true);
     }
   };
 
@@ -162,6 +165,8 @@ export default function ShopScreen() {
       setPurchaseCompleted({
         returnToGame: shouldReturnToGame && categoryId === paramCategoryId,
       });
+    } else {
+      setPurchaseFailed(true);
     }
   };
 
@@ -194,12 +199,23 @@ export default function ShopScreen() {
     }
   }, [purchaseCompleted]);
 
+  useEffect(() => {
+    if (purchaseFailed) {
+      const timer = setTimeout(() => {
+        setPurchaseFailed(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [purchaseFailed]);
+
   const handleBuyPremium = async () => {
     setPurchasingId("premium");
     const ok = await unlockPremium();
     setPurchasingId(null);
     if (ok) {
       setPurchaseCompleted({ returnToGame: false });
+    } else {
+      setPurchaseFailed(true);
     }
   };
 
@@ -368,6 +384,25 @@ export default function ShopScreen() {
                 />
                 <Text style={styles.purchaseCompletedText}>
                   {t("shop.purchaseCompleted")}
+                </Text>
+              </View>
+            </View>
+          </Modal>
+
+          <Modal
+            visible={purchaseFailed}
+            transparent
+            animationType="fade"
+          >
+            <View style={styles.purchaseCompletedOverlay}>
+              <View style={styles.purchaseCompletedContent}>
+                <Ionicons
+                  name="close-circle"
+                  size={48}
+                  color={COLORS.error}
+                />
+                <Text style={styles.purchaseCompletedText}>
+                  {t("shop.purchaseFailed")}
                 </Text>
               </View>
             </View>
