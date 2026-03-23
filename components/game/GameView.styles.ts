@@ -20,11 +20,19 @@ export const styles = StyleSheet.create({
     paddingBottom: SPACING.x8,
     justifyContent: "space-between",
   },
-  headerRow: {
+  header: {
+    marginBottom: SPACING.x6,
+  },
+  headerTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingBottom: SPACING.x2,
+  },
+  headerBottomRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: SPACING.x6,
   },
   headerCenter: {
     flex: 1,
@@ -152,10 +160,18 @@ export const styles = StyleSheet.create({
   questionRow: {
     width: "100%",
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "stretch",
     gap: SPACING.x3,
   },
+  questionScroll: {
+    flex: 1,
+  },
+  questionScrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+  },
   speakerButton: {
+    alignSelf: "center",
     paddingHorizontal: SPACING.x1,
     paddingVertical: 4,
     borderRadius: 999,
