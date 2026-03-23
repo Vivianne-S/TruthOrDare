@@ -160,8 +160,8 @@
     "fallbackEmoji": "✨"
   },
   "multiplayer": {
-    "hostInMenuTitle": "Värden är i menyn",
-    "hostInMenuMessage": "Värden har gått in i menyn. Spelet fortsätter när värden är tillbaka.",
+    "hostInMenuTitle": "Värden har lämnat spelet",
+    "hostInMenuMessage": "Värden har öppnat menyn, gått till shop eller lämnat spelskärmen. Vänta — spelet fortsätter när värden är tillbaka.",
     "waitingForHostDeckTitle": "Vänta lite",
     "waitingForHostDeckMessage": "Bara värden kan avsluta rundan när leken nästan är slut. De får samma val som i lokalt spel."
   }

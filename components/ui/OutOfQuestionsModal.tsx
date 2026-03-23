@@ -18,6 +18,10 @@ type OutOfQuestionsModalProps = {
   onContinue?: () => void;
   onBuyMore: () => void;
   onFinish: () => void;
+  /**
+   * Full IAP premium categories: no extra packs in shop — hide "buy more" (e.g. only Continue + exit).
+   */
+  showShopButton?: boolean;
 };
 
 export function OutOfQuestionsModal({
@@ -26,6 +30,7 @@ export function OutOfQuestionsModal({
   onContinue,
   onBuyMore,
   onFinish,
+  showShopButton = true,
 }: OutOfQuestionsModalProps) {
   const { t } = useI18n();
   return (
@@ -65,25 +70,32 @@ export function OutOfQuestionsModal({
                 </Text>
               </Pressable>
             ) : null}
-            <View style={styles.buttons}>
-              <Pressable
-                onPress={onBuyMore}
-                style={({ pressed }) => [
-                  styles.buttonBase,
-                  styles.buttonRow,
-                  styles.buttonBuy,
-                  pressed && styles.buttonPressed,
-                ]}
-              >
-                <Text style={styles.buttonText}>
-                  {t("outOfQuestions.buyMore")}
-                </Text>
-              </Pressable>
+            <View
+              style={[
+                styles.buttons,
+                !showShopButton && styles.buttonsSingle,
+              ]}
+            >
+              {showShopButton ? (
+                <Pressable
+                  onPress={onBuyMore}
+                  style={({ pressed }) => [
+                    styles.buttonBase,
+                    styles.buttonRow,
+                    styles.buttonBuy,
+                    pressed && styles.buttonPressed,
+                  ]}
+                >
+                  <Text style={styles.buttonText}>
+                    {t("outOfQuestions.buyMore")}
+                  </Text>
+                </Pressable>
+              ) : null}
               <Pressable
                 onPress={onFinish}
                 style={({ pressed }) => [
                   styles.buttonBase,
-                  styles.buttonRow,
+                  showShopButton ? styles.buttonRow : styles.buttonExitFullWidth,
                   styles.buttonFinish,
                   pressed && styles.buttonPressed,
                 ]}
@@ -151,6 +163,9 @@ const styles = StyleSheet.create({
     gap: SPACING.x3,
     justifyContent: "center",
   },
+  buttonsSingle: {
+    flexDirection: "column",
+  },
   buttonBase: {
     paddingVertical: SPACING.x3,
     paddingHorizontal: SPACING.x4,
@@ -161,6 +176,10 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flex: 1,
+  },
+  buttonExitFullWidth: {
+    alignSelf: "stretch",
+    width: "100%",
   },
   buttonContinue: {
     alignSelf: "stretch",

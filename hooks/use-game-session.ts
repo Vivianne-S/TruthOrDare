@@ -6,7 +6,6 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   addQuestionsToPools,
   consumePendingLocalSessionResyncAfterPlayerEdit,
@@ -23,6 +22,7 @@ import {
   restartGame,
 } from "@/services/game-session";
 import { getQuestionsByCategory } from "@/services/categories";
+import { hasPremiumQuestionsAccess } from "@/services/premium-questions-access";
 import type { Question } from "@/types/category";
 import type { GameAwards } from "@/types/game";
 import type { Player } from "@/types/player";
@@ -159,14 +159,7 @@ export function useGameSession() {
   );
 
   const refreshAfterPremiumPurchase = async (categoryId: string) => {
-    const [proValue, pqValue] = await Promise.all([
-      AsyncStorage.getItem("demo_pro_purchased"),
-      AsyncStorage.getItem("demo_unlocked_premium_questions"),
-    ]);
-    const isPro = proValue === "true";
-    const unlockedIds: string[] = pqValue ? JSON.parse(pqValue) : [];
-    const hasPremium =
-      isPro || unlockedIds.includes(categoryId);
+    const hasPremium = await hasPremiumQuestionsAccess(categoryId);
     if (!hasPremium) return;
     const allQuestions = await getQuestionsByCategory(categoryId, {
       includePremium: true,

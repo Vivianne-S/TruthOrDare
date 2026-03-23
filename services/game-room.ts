@@ -43,6 +43,23 @@ function isDeckOopsColumnMissingError(error: {
   );
 }
 
+/** True when DB has not run migration for `host_in_exit_menu` (column missing). */
+function isHostExitMenuColumnMissingError(error: {
+  message?: string;
+  code?: string;
+} | null): boolean {
+  if (!error) return false;
+  const msg = (error.message ?? "").toLowerCase();
+  return (
+    error.code === "42703" ||
+    msg.includes("host_in_exit_menu") ||
+    (msg.includes("column") &&
+      (msg.includes("does not exist") ||
+        msg.includes("unknown column") ||
+        msg.includes("schema cache")))
+  );
+}
+
 export type GameRoom = {
   id: string;
   code: string;
@@ -61,6 +78,8 @@ export type GameRoom = {
   acknowledged_partial_deck?: boolean;
   /** Non-host pressed Next when the deck needs host-only Oops; host client opens the modal. */
   deck_oops_pending?: boolean;
+  /** Host has exit menu open or left the game screen — non-hosts show waiting overlay. */
+  host_in_exit_menu?: boolean;
   created_at: string;
 };
 
@@ -320,13 +339,21 @@ export async function startGameInRoom(
     ...baseUpdate,
     acknowledged_partial_deck: false,
     deck_oops_pending: false,
+    host_in_exit_menu: false,
   };
 
-  let { error } = await supabase.from("game_rooms").update(withOptionals).eq("id", roomId);
+  const payload = { ...withOptionals } as Record<string, unknown>;
+  let { error } = await supabase.from("game_rooms").update(payload).eq("id", roomId);
+
+  if (error && isHostExitMenuColumnMissingError(error)) {
+    delete payload.host_in_exit_menu;
+    const second = await supabase.from("game_rooms").update(payload).eq("id", roomId);
+    error = second.error;
+  }
 
   if (error && isDeckOopsColumnMissingError(error)) {
-    const { deck_oops_pending: _d, ...noDeck } = withOptionals;
-    const second = await supabase.from("game_rooms").update(noDeck).eq("id", roomId);
+    delete payload.deck_oops_pending;
+    const second = await supabase.from("game_rooms").update(payload).eq("id", roomId);
     error = second.error;
   }
 
@@ -457,11 +484,42 @@ export async function setRoomDeckOopsPending(
   }
 }
 
+/**
+ * Host opened/closed exit menu, or focus sync — non-hosts show "Host is in the menu" when true.
+ */
+export async function setRoomHostInExitMenu(
+  roomId: string,
+  inMenu: boolean
+): Promise<void> {
+  const { error } = await supabase
+    .from("game_rooms")
+    .update({ host_in_exit_menu: inMenu })
+    .eq("id", roomId);
+  if (error && isHostExitMenuColumnMissingError(error)) {
+    return;
+  }
+  if (error) {
+    throw new Error(`Update host_in_exit_menu failed: ${error.message}`);
+  }
+}
+
 export async function endGameInRoom(roomId: string): Promise<void> {
   let { error } = await supabase
     .from("game_rooms")
-    .update({ status: "game_over", deck_oops_pending: false })
+    .update({
+      status: "game_over",
+      deck_oops_pending: false,
+      host_in_exit_menu: false,
+    })
     .eq("id", roomId);
+
+  if (error && isHostExitMenuColumnMissingError(error)) {
+    const second = await supabase
+      .from("game_rooms")
+      .update({ status: "game_over", deck_oops_pending: false })
+      .eq("id", roomId);
+    error = second.error;
+  }
 
   if (error && isDeckOopsColumnMissingError(error)) {
     const second = await supabase

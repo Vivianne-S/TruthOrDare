@@ -4,6 +4,7 @@
  */
 import { supabase } from "@/lib/supabase";
 import { getQuestionsByCategory } from "@/services/categories";
+import { hasPremiumQuestionsAccess } from "@/services/premium-questions-access";
 import {
   addQuestionsToRoomPools,
   chooseTruthOrDareInRoom,
@@ -11,14 +12,15 @@ import {
   getRoomPlayers,
   nextPlayerInRoom,
   roomPlayersToPlayers,
+  setRoomHostInExitMenu,
   type GameRoom,
   type GameRoomPlayer,
 } from "@/services/game-room";
 import type { Question } from "@/types/category";
 import type { GameAwards } from "@/types/game";
 import { computeAwards } from "@/utils/game-awards";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback, useEffect, useState } from "react";
+import type { RealtimeChannel } from "@supabase/supabase-js";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export type { GameAwards };
 
@@ -27,6 +29,9 @@ export function useMultiplayerGame(roomId: string | undefined) {
   const [players, setPlayers] = useState<GameRoomPlayer[]>([]);
   const [myUserId, setMyUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  /** Fallback when DB column/realtime is missing or slow — host sends broadcast on same channel. */
+  const [hostAwayBroadcast, setHostAwayBroadcast] = useState(false);
+  const gameChannelRef = useRef<RealtimeChannel | null>(null);
 
   const playerList = roomPlayersToPlayers(players);
   const currentPlayer =
@@ -38,8 +43,20 @@ export function useMultiplayerGame(roomId: string | undefined) {
   const categoryId = room?.category_id ?? null;
   const isGameOver = room?.status === "game_over";
   const isHost =
-    !!room?.host_user_id && !!myUserId && room.host_user_id === myUserId;
+    !!room?.host_user_id &&
+    !!myUserId &&
+    String(room.host_user_id) === String(myUserId);
+  /** Must not use `!isHost` before `myUserId` exists — that made real guests never qualify. */
+  const isDefinitelyGuest =
+    !!room?.host_user_id &&
+    !!myUserId &&
+    String(room.host_user_id) !== String(myUserId);
   const deckOopsPending = room?.deck_oops_pending === true;
+  const hostInExitMenuDb = room?.host_in_exit_menu === true;
+  const guestHostOverlayVisible =
+    !!room &&
+    isDefinitelyGuest &&
+    (deckOopsPending || hostInExitMenuDb || hostAwayBroadcast);
   const truthPoolLength = Array.isArray(room?.truth_pool)
     ? room!.truth_pool.length
     : 0;
@@ -93,13 +110,7 @@ export function useMultiplayerGame(roomId: string | undefined) {
   const refreshAfterPremiumPurchase = useCallback(
     async (categoryId: string) => {
       if (!roomId || !isHost) return;
-      const [proValue, pqValue] = await Promise.all([
-        AsyncStorage.getItem("demo_pro_purchased"),
-        AsyncStorage.getItem("demo_unlocked_premium_questions"),
-      ]);
-      const isPro = proValue === "true";
-      const unlockedIds: string[] = pqValue ? JSON.parse(pqValue) : [];
-      const hasPremium = isPro || unlockedIds.includes(categoryId);
+      const hasPremium = await hasPremiumQuestionsAccess(categoryId);
       if (!hasPremium) return;
 
       const allQuestions = await getQuestionsByCategory(categoryId, {
@@ -109,6 +120,34 @@ export function useMultiplayerGame(roomId: string | undefined) {
     },
     [roomId, isHost],
   );
+
+  /**
+   * Persists host-away flag when possible and broadcasts to all clients on the game channel
+   * (works even if `host_in_exit_menu` column is missing in Postgres).
+   */
+  const notifyHostAway = useCallback(async (away: boolean) => {
+    if (!roomId) return;
+    try {
+      await setRoomHostInExitMenu(roomId, away);
+    } catch {
+      /* ignore */
+    }
+    const trySend = async () => {
+      const ch = gameChannelRef.current;
+      if (!ch) return false;
+      await ch.send({
+        type: "broadcast",
+        event: "host_away",
+        payload: { away },
+      });
+      return true;
+    };
+    if (await trySend()) return;
+    for (let i = 0; i < 25; i++) {
+      await new Promise((r) => setTimeout(r, 60));
+      if (await trySend()) return;
+    }
+  }, [roomId]);
 
   useEffect(() => {
     if (!roomId) {
@@ -129,7 +168,12 @@ export function useMultiplayerGame(roomId: string | undefined) {
         getRoomPlayers(roomId),
       ]);
       if (mounted) {
-        if (roomData) setRoom(roomData);
+        if (roomData) {
+          setRoom(roomData);
+          if (typeof roomData.host_in_exit_menu === "boolean") {
+            setHostAwayBroadcast(roomData.host_in_exit_menu);
+          }
+        }
         setPlayers(roomPlayers);
       }
     };
@@ -139,7 +183,9 @@ export function useMultiplayerGame(roomId: string | undefined) {
     });
 
     const channel = supabase
-      .channel(`game:${roomId}`)
+      .channel(`game:${roomId}`, {
+        config: { broadcast: { self: true } },
+      })
       .on(
         "postgres_changes",
         {
@@ -150,7 +196,12 @@ export function useMultiplayerGame(roomId: string | undefined) {
         },
         async () => {
           const r = await getRoomById(roomId);
-          if (mounted && r) setRoom(r);
+          if (mounted && r) {
+            setRoom(r);
+            if (typeof r.host_in_exit_menu === "boolean") {
+              setHostAwayBroadcast(r.host_in_exit_menu);
+            }
+          }
         },
       )
       .on(
@@ -166,13 +217,55 @@ export function useMultiplayerGame(roomId: string | undefined) {
           if (mounted) setPlayers(p);
         },
       )
-      .subscribe();
+      .on("broadcast", { event: "host_away" }, (msg: unknown) => {
+        if (!mounted) return;
+        const m = msg as Record<string, unknown>;
+        const p = m.payload;
+        const nestedAway =
+          typeof p === "object" &&
+          p !== null &&
+          "away" in p &&
+          (p as { away?: boolean }).away === true;
+        const away = nestedAway || m.away === true;
+        setHostAwayBroadcast(away);
+      })
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          gameChannelRef.current = channel;
+        }
+      });
 
     return () => {
       mounted = false;
+      gameChannelRef.current = null;
       supabase.removeChannel(channel);
     };
   }, [roomId]);
+
+  /**
+   * Guests only: poll room row so `host_in_exit_menu` updates if Realtime misses updates.
+   * Host skips this (early return) — avoids wasted requests and double state churn.
+   */
+  useEffect(() => {
+    if (!roomId || !myUserId || !room?.host_user_id) return;
+    if (String(room.host_user_id) === String(myUserId)) return;
+    if (room.status !== "playing") return;
+
+    const poll = async () => {
+      const r = await getRoomById(roomId);
+      if (!r) return;
+      setRoom(r);
+      if (typeof r.host_in_exit_menu === "boolean") {
+        setHostAwayBroadcast(r.host_in_exit_menu);
+      }
+    };
+
+    const id = setInterval(() => {
+      void poll();
+    }, 1_200);
+    void poll();
+    return () => clearInterval(id);
+  }, [roomId, myUserId, room?.host_user_id, room?.status]);
 
   return {
     players: playerList,
@@ -186,6 +279,9 @@ export function useMultiplayerGame(roomId: string | undefined) {
     awards,
     isHost,
     deckOopsPending,
+    hostInExitMenu: hostInExitMenuDb,
+    guestHostOverlayVisible,
+    notifyHostAway,
     isMyTurn,
     loading,
     showTruth,
