@@ -167,7 +167,8 @@ export default function CategoriesScreen() {
           roomId,
           openCategory.id,
           openCategory.name,
-          questions
+          questions,
+          { deckIncludesPremiumQuestions: includePremium }
         );
       }
 

@@ -15,6 +15,8 @@ import { OutOfQuestionsModal } from "@/components/ui/OutOfQuestionsModal";
 import { OutOfQuestionsHostOverlay } from "@/components/ui/OutOfQuestionsHostOverlay";
 import { useGameSession } from "@/hooks/use-game-session";
 import { useMultiplayerGame } from "@/hooks/use-multiplayer-game";
+import { isFreeStarterCategoryName } from "@/constants/category-bubbles";
+import { reloadApp } from "@/lib/reload-app";
 import { getCategoryById } from "@/services/categories";
 import { hasPremiumQuestionsAccess } from "@/services/premium-questions-access";
 import {
@@ -103,22 +105,40 @@ export default function GameScreen() {
   const isHost = isMultiplayer ? multiplayerSession.isHost : true;
   const deckOopsPending = isMultiplayer && (multiplayerSession.deckOopsPending ?? false);
 
+  /**
+   * Multiplayer host: end room for everyone + full JS reload (same as guests after sync).
+   * Local: navigate home without reloading the bundle.
+   */
+  const handleConfirmExitToHome = useCallback(async () => {
+    setShowExitConfirm(false);
+    if (isMultiplayer && roomId && isHost) {
+      try {
+        await endGameInRoom(roomId, { hostExitRestart: true });
+      } catch {
+        /* Room may already be game_over; still reload */
+      }
+      await reloadApp();
+      return;
+    }
+    router.replace("/");
+  }, [isMultiplayer, roomId, isHost]);
+
   const showExitMenuRef = useRef(showExitMenu);
   showExitMenuRef.current = showExitMenu;
 
   useEffect(() => {
-    if (!isMultiplayer || !roomId || !isHost) return;
+    if (!isMultiplayer || !roomId) return;
     void notifyHostAway(showExitMenu);
-  }, [isMultiplayer, roomId, isHost, showExitMenu, notifyHostAway]);
+  }, [isMultiplayer, roomId, showExitMenu, notifyHostAway]);
 
   useFocusEffect(
     useCallback(() => {
-      if (!isMultiplayer || !roomId || !isHost) return;
+      if (!isMultiplayer || !roomId) return;
       void notifyHostAway(showExitMenuRef.current);
       return () => {
         void notifyHostAway(true);
       };
-    }, [isMultiplayer, roomId, isHost, notifyHostAway])
+    }, [isMultiplayer, roomId, notifyHostAway])
   );
 
   // Close Oops if the low-deck condition clears (e.g. sync). Modal opens only from Next player, not over the question.
@@ -128,13 +148,21 @@ export default function GameScreen() {
     }
   }, [endAfterThisTurn]);
 
-  // Guest pressed Next on a low deck: open host-only Oops (same moment as local).
-  // Full deck out (0/0) never uses Oops in multiplayer — game ends instead.
+  // Guest pressed Next on a low deck: host opens Oops. For 0/0 on free starter
+  // categories without premium, host also opens final Oops (buy or end round).
   useEffect(() => {
     if (!isMultiplayer || !isHost || !deckOopsPending || !endAfterThisTurn) {
       return;
     }
-    if (truthsLeft === 0 && daresLeft === 0) {
+    if (ownsPremiumQuestions === true) {
+      return;
+    }
+    const bothEmpty = truthsLeft === 0 && daresLeft === 0;
+    const eligibleFinalOops =
+      bothEmpty &&
+      isFreeStarterCategoryName(categoryName) &&
+      lockedPremiumCategory !== true;
+    if (bothEmpty && !eligibleFinalOops) {
       return;
     }
     setShowOutOfQuestions(true);
@@ -145,6 +173,9 @@ export default function GameScreen() {
     endAfterThisTurn,
     truthsLeft,
     daresLeft,
+    ownsPremiumQuestions,
+    categoryName,
+    lockedPremiumCategory,
   ]);
 
   useFocusEffect(
@@ -166,6 +197,31 @@ export default function GameScreen() {
   const handleNextPlayer = async () => {
     if (endAfterThisTurn) {
       const bothPoolsEmpty = truthsLeft === 0 && daresLeft === 0;
+      /** Love / Chaos / Funny: last Oops when free pools are 0/0 and host has not bought premium questions. */
+      const eligibleFinalFreePoolsOops =
+        bothPoolsEmpty &&
+        isFreeStarterCategoryName(categoryName) &&
+        lockedPremiumCategory !== true &&
+        ownsPremiumQuestions !== true;
+
+      if (isMultiplayer && roomId && bothPoolsEmpty && eligibleFinalFreePoolsOops && !isHost) {
+        try {
+          await setRoomDeckOopsPending(roomId, true);
+        } catch {
+          /* Realtime will still reflect room state */
+        }
+        return;
+      }
+
+      if (
+        bothPoolsEmpty &&
+        eligibleFinalFreePoolsOops &&
+        (!isMultiplayer || isHost)
+      ) {
+        setShowOutOfQuestions(true);
+        return;
+      }
+
       if (isMultiplayer && roomId && bothPoolsEmpty) {
         try {
           await endGameInRoom(roomId);
@@ -176,6 +232,22 @@ export default function GameScreen() {
       }
       if (!isMultiplayer && bothPoolsEmpty) {
         forceEndGame();
+        return;
+      }
+      /** Host/local only: already own premium questions — no Oops; play until 0/0 then game over. */
+      const skipPartialDeckOops =
+        ownsPremiumQuestions === true && (!isMultiplayer || isHost);
+      if (skipPartialDeckOops) {
+        if (isMultiplayer && roomId) {
+          try {
+            await setRoomAcknowledgedPartialDeck(roomId, true);
+            await setRoomDeckOopsPending(roomId, false);
+          } catch {
+            /* Realtime will still reflect room state */
+          }
+        } else {
+          continueWithRemainingPool();
+        }
         return;
       }
       if (isMultiplayer && roomId && !isHost) {
@@ -226,14 +298,15 @@ export default function GameScreen() {
           awards={awards}
           onPlayAgain={restartGameSession}
           onExitPress={() => setShowExitConfirm(true)}
-          showRestartActions={!isMultiplayer || isHost}
+          showPlayAgain={!isMultiplayer}
+          showNewGame={!isMultiplayer}
+          showExit={!isMultiplayer || isHost}
         />
         <ExitConfirmModal
           visible={showExitConfirm}
           onNo={() => setShowExitConfirm(false)}
           onYes={() => {
-            setShowExitConfirm(false);
-            router.replace("/");
+            void handleConfirmExitToHome();
           }}
         />
       </>
@@ -251,11 +324,16 @@ export default function GameScreen() {
         daresLeft={daresLeft}
         isSpeechEnabled={isSpeechEnabled}
         onToggleSpeech={() => setIsSpeechEnabled((prev) => !prev)}
-        onDoorPress={handleDoorPress}
+        onDoorPress={
+          isMultiplayer && !isHost ? undefined : handleDoorPress
+        }
         onShowTruth={showTruth}
         onShowDare={showDare}
         onNextPlayer={handleNextPlayer}
         canInteract={canInteract}
+        showFreePoolLabels={
+          lockedPremiumCategory === false && ownsPremiumQuestions !== true
+        }
       />
       {multiplayerSession.guestHostOverlayVisible ? (
         <OutOfQuestionsHostOverlay
@@ -266,16 +344,18 @@ export default function GameScreen() {
       <ExitMenuModal
         visible={showExitMenu}
         onDismiss={() => setShowExitMenu(false)}
+        showBackToCategories={!isMultiplayer}
+        showAddMorePlayers={!isMultiplayer}
         onBackToCategories={() => {
           setShowExitMenu(false);
-          if (isMultiplayer && roomId && isHost) {
+          if (isMultiplayer && roomId) {
             void notifyHostAway(true);
           }
           router.replace("/categories");
         }}
         onAddMorePlayers={() => {
           setShowExitMenu(false);
-          if (isMultiplayer && roomId && isHost) {
+          if (isMultiplayer && roomId) {
             void notifyHostAway(true);
           }
           router.push(
@@ -290,8 +370,7 @@ export default function GameScreen() {
         visible={showExitConfirm}
         onNo={() => setShowExitConfirm(false)}
         onYes={() => {
-          setShowExitConfirm(false);
-          router.replace("/");
+          void handleConfirmExitToHome();
         }}
       />
       <OutOfQuestionsModal
@@ -306,7 +385,7 @@ export default function GameScreen() {
           if (isMultiplayer && roomId) {
             try {
               await setRoomDeckOopsPending(roomId, false);
-              if (isHost) await notifyHostAway(true);
+              await notifyHostAway(true);
             } catch {
               /* ignore */
             }

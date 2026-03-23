@@ -32,12 +32,19 @@ type GameViewProps = {
   daresLeft: number;
   isSpeechEnabled: boolean;
   onToggleSpeech: () => void;
-  onDoorPress: () => void;
+  /** Omitted in multiplayer as guest — only host may open exit menu. */
+  onDoorPress?: () => void;
   onShowTruth: () => void;
   onShowDare: () => void;
   onNextPlayer: () => void;
   /** When false (multiplayer, not my turn), Truth/Dare/Next buttons are disabled */
   canInteract?: boolean;
+  /**
+   * When true (default), pool labels use "Free truths/dares left" for free categories
+   * that can still buy extra questions. Premium IAP categories always use "Truths/Dares left"
+   * (pass false). Unknown category state should pass false until loaded.
+   */
+  showFreePoolLabels?: boolean;
 };
 
 export function GameView({
@@ -54,6 +61,7 @@ export function GameView({
   onShowDare,
   onNextPlayer,
   canInteract = true,
+  showFreePoolLabels = true,
 }: GameViewProps) {
   const { t, locale } = useI18n();
   const displayedQuestionText = currentQuestion
@@ -102,17 +110,21 @@ export function GameView({
       <View style={styles.overlay}>
         <View style={styles.screen}>
           <View style={styles.headerRow}>
-            <TouchableOpacity
-              style={styles.iconCircle}
-              onPress={onDoorPress}
-              accessibilityLabel={t("game.exitMenuA11y")}
-            >
-              <Ionicons
-                name="exit-outline"
-                size={20}
-                color={COLORS.textInverse}
-              />
-            </TouchableOpacity>
+            {onDoorPress ? (
+              <TouchableOpacity
+                style={styles.iconCircle}
+                onPress={onDoorPress}
+                accessibilityLabel={t("game.exitMenuA11y")}
+              >
+                <Ionicons
+                  name="exit-outline"
+                  size={20}
+                  color={COLORS.textInverse}
+                />
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.headerSideSpacer} accessibilityElementsHidden />
+            )}
             <View style={styles.headerCenter}>
               {categoryName ? (
                 <Text style={styles.categoryLabel}>
@@ -204,11 +216,21 @@ export function GameView({
               <View style={styles.cardHintColumn}>
                 <View style={styles.cardCountsRow}>
                   <Text style={styles.cardPoolCountSide} numberOfLines={1}>
-                    {t("game.freeTruthsLeft", { count: truthsLeft })}
+                    {t(
+                      showFreePoolLabels
+                        ? "game.freeTruthsLeft"
+                        : "game.truthsLeft",
+                      { count: truthsLeft },
+                    )}
                   </Text>
                   <Text style={styles.cardPoolCountDivider}>·</Text>
                   <Text style={styles.cardPoolCountSide} numberOfLines={1}>
-                    {t("game.freeDaresLeft", { count: daresLeft })}
+                    {t(
+                      showFreePoolLabels
+                        ? "game.freeDaresLeft"
+                        : "game.daresLeft",
+                      { count: daresLeft },
+                    )}
                   </Text>
                 </View>
                 <Text style={styles.cardTapInstruction}>{tapInstruction}</Text>

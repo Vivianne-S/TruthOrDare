@@ -113,6 +113,8 @@
     "dare": "DARE",
     "freeTruthsLeft": "Free truths left: {{count}}",
     "freeDaresLeft": "Free dares left: {{count}}",
+    "truthsLeft": "Truths left: {{count}}",
+    "daresLeft": "Dares left: {{count}}",
     "noTruthsUseDares": "No more truths left — keep playing dares, or end the game after this round.",
     "noDaresUseTruths": "No more dares left — keep playing truths, or end the game after this round.",
     "tapToRevealDaresOnly": "Only dares left — tap DARE to reveal the question.",

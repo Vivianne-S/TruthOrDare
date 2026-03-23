@@ -1,4 +1,4 @@
-import { Modal, StyleSheet, Text, View } from "react-native";
+import { Modal, Platform, StyleSheet, Text, View } from "react-native";
 
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
@@ -31,6 +31,8 @@ export function OutOfQuestionsHostOverlay({
       visible={visible}
       transparent
       animationType="fade"
+      presentationStyle={Platform.OS === "ios" ? "overFullScreen" : undefined}
+      statusBarTranslucent={Platform.OS === "android"}
       onRequestClose={() => {
         // Block closing via Android back button.
       }}

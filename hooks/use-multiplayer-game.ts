@@ -2,6 +2,7 @@
  * Multiplayer game hook: syncs game state from Supabase, exposes isMyTurn.
  * Only current player can choose Truth/Dare and press Next player.
  */
+import { reloadApp } from "@/lib/reload-app";
 import { supabase } from "@/lib/supabase";
 import { getQuestionsByCategory } from "@/services/categories";
 import { hasPremiumQuestionsAccess } from "@/services/premium-questions-access";
@@ -23,6 +24,12 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export type { GameAwards };
+
+function isTruthyHostAway(v: unknown): boolean {
+  if (v === true || v === 1) return true;
+  if (typeof v === "string") return v.toLowerCase() === "true";
+  return false;
+}
 
 export function useMultiplayerGame(roomId: string | undefined) {
   const [room, setRoom] = useState<GameRoom | null>(null);
@@ -52,7 +59,7 @@ export function useMultiplayerGame(roomId: string | undefined) {
     !!myUserId &&
     String(room.host_user_id) !== String(myUserId);
   const deckOopsPending = room?.deck_oops_pending === true;
-  const hostInExitMenuDb = room?.host_in_exit_menu === true;
+  const hostInExitMenuDb = isTruthyHostAway(room?.host_in_exit_menu);
   const guestHostOverlayVisible =
     !!room &&
     isDefinitelyGuest &&
@@ -122,11 +129,22 @@ export function useMultiplayerGame(roomId: string | undefined) {
   );
 
   /**
-   * Persists host-away flag when possible and broadcasts to all clients on the game channel
-   * (works even if `host_in_exit_menu` column is missing in Postgres).
+   * Only the room host may update DB / broadcast. Verifies via auth + room row — not hook `isHost`
+   * (that is false until `myUserId` loads, which blocked host updates before).
    */
   const notifyHostAway = useCallback(async (away: boolean) => {
     if (!roomId) return;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user?.id) return;
+    const roomRow = await getRoomById(roomId);
+    if (
+      !roomRow?.host_user_id ||
+      String(roomRow.host_user_id) !== String(user.id)
+    ) {
+      return;
+    }
     try {
       await setRoomHostInExitMenu(roomId, away);
     } catch {
@@ -170,9 +188,7 @@ export function useMultiplayerGame(roomId: string | undefined) {
       if (mounted) {
         if (roomData) {
           setRoom(roomData);
-          if (typeof roomData.host_in_exit_menu === "boolean") {
-            setHostAwayBroadcast(roomData.host_in_exit_menu);
-          }
+          setHostAwayBroadcast(isTruthyHostAway(roomData.host_in_exit_menu));
         }
         setPlayers(roomPlayers);
       }
@@ -198,9 +214,7 @@ export function useMultiplayerGame(roomId: string | undefined) {
           const r = await getRoomById(roomId);
           if (mounted && r) {
             setRoom(r);
-            if (typeof r.host_in_exit_menu === "boolean") {
-              setHostAwayBroadcast(r.host_in_exit_menu);
-            }
+            setHostAwayBroadcast(isTruthyHostAway(r.host_in_exit_menu));
           }
         },
       )
@@ -255,9 +269,7 @@ export function useMultiplayerGame(roomId: string | undefined) {
       const r = await getRoomById(roomId);
       if (!r) return;
       setRoom(r);
-      if (typeof r.host_in_exit_menu === "boolean") {
-        setHostAwayBroadcast(r.host_in_exit_menu);
-      }
+      setHostAwayBroadcast(isTruthyHostAway(r.host_in_exit_menu));
     };
 
     const id = setInterval(() => {
@@ -266,6 +278,15 @@ export function useMultiplayerGame(roomId: string | undefined) {
     void poll();
     return () => clearInterval(id);
   }, [roomId, myUserId, room?.host_user_id, room?.status]);
+
+  /** Host ended via Exit game — reload JS bundle so guest gets a clean app like the host. */
+  useEffect(() => {
+    if (!roomId || loading) return;
+    if (!isDefinitelyGuest) return;
+    if (room?.status !== "game_over") return;
+    if (room?.host_exit_restart !== true) return;
+    void reloadApp();
+  }, [roomId, loading, isDefinitelyGuest, room?.status, room?.host_exit_restart]);
 
   return {
     players: playerList,

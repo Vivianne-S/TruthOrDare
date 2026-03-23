@@ -87,6 +87,19 @@ export function useGameSession() {
     syncPoolCounts();
   }, []);
 
+  /** Premium questions already owned — no "running out" Oops for partial deck; only game over at 0/0. */
+  useEffect(() => {
+    const id = getSelectedCategoryId();
+    if (!id) return;
+    let cancelled = false;
+    void hasPremiumQuestionsAccess(id).then((has) => {
+      if (!cancelled && has) setSuppressPartialPoolModal(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const nextPlayer = () => {
     const updated = moveToNextPlayer();
     setCurrentPlayer(updated);
@@ -165,7 +178,7 @@ export function useGameSession() {
       includePremium: true,
     });
     addQuestionsToPools(allQuestions);
-    setSuppressPartialPoolModal(false);
+    setSuppressPartialPoolModal(true);
     syncPoolCounts();
   };
 

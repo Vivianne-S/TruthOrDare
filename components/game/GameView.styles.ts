@@ -40,6 +40,11 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(245, 215, 255, 0.9)",
   },
+  /** Keeps header title centered when door control is hidden (multiplayer guest). */
+  headerSideSpacer: {
+    width: 36,
+    height: 36,
+  },
   categoryLabel: {
     ...TYPOGRAPHY_BASE.small,
     color: COLORS.textSecondary,

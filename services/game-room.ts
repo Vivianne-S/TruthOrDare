@@ -43,6 +43,23 @@ function isDeckOopsColumnMissingError(error: {
   );
 }
 
+/** True when DB has not run migration for `host_exit_restart`. */
+function isHostExitRestartColumnMissingError(error: {
+  message?: string;
+  code?: string;
+} | null): boolean {
+  if (!error) return false;
+  const msg = (error.message ?? "").toLowerCase();
+  return (
+    error.code === "42703" ||
+    msg.includes("host_exit_restart") ||
+    (msg.includes("column") &&
+      (msg.includes("does not exist") ||
+        msg.includes("unknown column") ||
+        msg.includes("schema cache")))
+  );
+}
+
 /** True when DB has not run migration for `host_in_exit_menu` (column missing). */
 function isHostExitMenuColumnMissingError(error: {
   message?: string;
@@ -80,6 +97,8 @@ export type GameRoom = {
   deck_oops_pending?: boolean;
   /** Host has exit menu open or left the game screen — non-hosts show waiting overlay. */
   host_in_exit_menu?: boolean;
+  /** Host chose Exit game — guests reload the app for a clean session. */
+  host_exit_restart?: boolean;
   created_at: string;
 };
 
@@ -313,15 +332,19 @@ export function subscribeToRoom(
 
 /**
  * Update room with category and start game (status=playing).
+ * @param deckIncludesPremiumQuestions — When true, pools already include premium rows; partial-deck Oops is skipped (same as after "Continue" / purchase).
  */
 export async function startGameInRoom(
   roomId: string,
   categoryId: string,
   categoryName: string,
-  questions: { type: string; question_text: string; question_text_sv?: string | null }[]
+  questions: { type: string; question_text: string; question_text_sv?: string | null }[],
+  options?: { deckIncludesPremiumQuestions?: boolean }
 ): Promise<void> {
   const truths = questions.filter((q) => q.type.toLowerCase().trim() === "truth");
   const dares = questions.filter((q) => q.type.toLowerCase().trim() === "dare");
+
+  const deckIncludesPremium = options?.deckIncludesPremiumQuestions === true;
 
   const baseUpdate = {
     status: "playing" as const,
@@ -337,13 +360,20 @@ export async function startGameInRoom(
 
   const withOptionals = {
     ...baseUpdate,
-    acknowledged_partial_deck: false,
+    acknowledged_partial_deck: deckIncludesPremium,
     deck_oops_pending: false,
     host_in_exit_menu: false,
+    host_exit_restart: false,
   };
 
   const payload = { ...withOptionals } as Record<string, unknown>;
   let { error } = await supabase.from("game_rooms").update(payload).eq("id", roomId);
+
+  if (error && isHostExitRestartColumnMissingError(error)) {
+    delete payload.host_exit_restart;
+    const second = await supabase.from("game_rooms").update(payload).eq("id", roomId);
+    error = second.error;
+  }
 
   if (error && isHostExitMenuColumnMissingError(error)) {
     delete payload.host_in_exit_menu;
@@ -425,7 +455,8 @@ export async function addQuestionsToRoomPools(
 
   const poolWithFlags = {
     ...poolUpdate,
-    acknowledged_partial_deck: false,
+    /** User bought more questions — no further "running out" Oops this session; end only at 0/0. */
+    acknowledged_partial_deck: true,
     deck_oops_pending: false,
   };
 
@@ -503,21 +534,32 @@ export async function setRoomHostInExitMenu(
   }
 }
 
-export async function endGameInRoom(roomId: string): Promise<void> {
-  let { error } = await supabase
-    .from("game_rooms")
-    .update({
-      status: "game_over",
-      deck_oops_pending: false,
-      host_in_exit_menu: false,
-    })
-    .eq("id", roomId);
+export async function endGameInRoom(
+  roomId: string,
+  options?: { hostExitRestart?: boolean }
+): Promise<void> {
+  const hostExitRestart = options?.hostExitRestart === true;
+
+  let payload: Record<string, unknown> = {
+    status: "game_over",
+    deck_oops_pending: false,
+    host_in_exit_menu: false,
+    host_exit_restart: hostExitRestart,
+  };
+
+  let { error } = await supabase.from("game_rooms").update(payload).eq("id", roomId);
+
+  if (error && isHostExitRestartColumnMissingError(error)) {
+    const { host_exit_restart: _r, ...rest } = payload;
+    payload = rest;
+    const second = await supabase.from("game_rooms").update(payload).eq("id", roomId);
+    error = second.error;
+  }
 
   if (error && isHostExitMenuColumnMissingError(error)) {
-    const second = await supabase
-      .from("game_rooms")
-      .update({ status: "game_over", deck_oops_pending: false })
-      .eq("id", roomId);
+    const { host_in_exit_menu: _m, ...rest } = payload;
+    payload = rest;
+    const second = await supabase.from("game_rooms").update(payload).eq("id", roomId);
     error = second.error;
   }
 
