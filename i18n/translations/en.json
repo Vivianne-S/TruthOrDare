@@ -103,7 +103,7 @@
     "purchaseFailed": "Purchase failed. Please try again."
   },
   "game": {
-    "tapToReveal": "Tap TRUTH or DARE to reveal a question.",
+    "tapToReveal": "Tap TRUTH or DARE to reveal the question.",
     "playersTurn": "It's {{name}}'s turn!",
     "yourTurn": "Your turn!",
     "turnOffSpeech": "Turn off speech",
@@ -111,6 +111,15 @@
     "readAgain": "Read the question again",
     "truth": "TRUTH",
     "dare": "DARE",
+    "freeTruthsLeft": "Free truths left: {{count}}",
+    "freeDaresLeft": "Free dares left: {{count}}",
+    "truthsLeft": "Truths left: {{count}}",
+    "daresLeft": "Dares left: {{count}}",
+    "noTruthsUseDares": "No more truths left — keep playing dares, or end the game after this round.",
+    "noDaresUseTruths": "No more dares left — keep playing truths, or end the game after this round.",
+    "tapToRevealDaresOnly": "Only dares left — tap DARE to reveal the question.",
+    "tapToRevealTruthsOnly": "Only truths left — tap TRUTH to reveal the question.",
+    "deckEmpty": "No cards are left. Tap Next player to open the menu (finish or buy more).",
     "nextPlayer": "Next player",
     "exitMenuA11y": "Menu to exit or go back"
   },
@@ -143,7 +152,8 @@
   },
   "outOfQuestions": {
     "title": "Oops, the questions are running out",
-    "message": "There are no more Truths or Dares in this category. You can buy more, or finish and see the results.",
+    "message": "This pops up when either truths or dares have run out. Continue to keep playing with the other pile, or buy more. When both piles hit 0 you'll see this again for a last chance to buy before you finish the game.",
+    "continueGame": "Continue game",
     "buyMore": "Buy more",
     "finish": "Finish"
   },
@@ -152,7 +162,9 @@
     "fallbackEmoji": "✨"
   },
   "multiplayer": {
-    "hostInMenuTitle": "Host is in the menu",
-    "hostInMenuMessage": "The host has entered the menu. The game will continue when the host is back."
+    "hostInMenuTitle": "The host has left the game",
+    "hostInMenuMessage": "The host opened the menu, went to the shop, or left this screen. Please wait — the game continues when the host is back.",
+    "waitingForHostDeckTitle": "Hang tight",
+    "waitingForHostDeckMessage": "Only the host can wrap up this round when the deck is almost empty. They’ll see the same options as in a local game."
   }
 }

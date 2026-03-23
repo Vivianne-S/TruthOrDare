@@ -16,6 +16,19 @@ export async function getCategories(): Promise<Category[]> {
   return (data ?? []) as Category[];
 }
 
+export async function getCategoryById(
+  categoryId: string
+): Promise<Category | null> {
+  const { data, error } = await supabase
+    .from("categories")
+    .select("*")
+    .eq("id", categoryId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return (data as Category) ?? null;
+}
+
 export async function getQuestionsByCategory(
   categoryId: string,
   options?: { includePremium?: boolean }

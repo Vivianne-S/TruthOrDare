@@ -19,9 +19,13 @@ export const styles = StyleSheet.create({
     paddingBottom: SPACING.x10,
     alignItems: "center",
   },
-  /** When only Exit is shown: fill height and pin actions to the bottom. */
+  /** Multiplayer (no Play again): fill height and pin footer row(s) to the bottom — guest (Exit only) or host (New game + Exit). */
   scrollContentExitPinned: {
     justifyContent: "space-between",
+  },
+  /** Multiplayer guest with no footer actions — center awards block vertically. */
+  scrollContentGuestNoActions: {
+    justifyContent: "center",
   },
   /** Full-width column so nested `width: "100%"` (e.g. awards) matches pre-wrap layout. */
   topContent: {

@@ -1,6 +1,6 @@
 /**
- * Menu modal shown when tapping the door icon. Offers "Back to categories",
- * "Add more players", and "Exit Game".
+ * Menu modal shown when tapping the door icon. Local: optional "Back to categories",
+ * "Add more players", and "Exit Game". Multiplayer: only "Exit Game" (and cancel).
  */
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -17,6 +17,10 @@ type ExitMenuModalProps = {
   visible: boolean;
   onDismiss: () => void;
   onBackToCategories: () => void;
+  /** Local games only; hidden in multiplayer. */
+  showBackToCategories?: boolean;
+  /** Local games only; hidden in multiplayer. */
+  showAddMorePlayers?: boolean;
   onAddMorePlayers: () => void;
   onExitGame: () => void;
 };
@@ -25,6 +29,8 @@ export function ExitMenuModal({
   visible,
   onDismiss,
   onBackToCategories,
+  showBackToCategories = true,
+  showAddMorePlayers = true,
   onAddMorePlayers,
   onExitGame,
 }: ExitMenuModalProps) {
@@ -52,39 +58,43 @@ export function ExitMenuModal({
             </View>
 
             <View style={styles.buttons}>
-              <Pressable
-                onPress={onBackToCategories}
-                style={({ pressed }) => [
-                  styles.optionButton,
-                  styles.optionBack,
-                  pressed && styles.optionPressed,
-                ]}
-              >
-                <Ionicons
-                  name="arrow-back-circle"
-                  size={22}
-                  color={COLORS.success}
-                  style={styles.optionIcon}
-                />
-                <Text style={styles.optionText}>{t("exitMenu.backToCategories")}</Text>
-              </Pressable>
+              {showBackToCategories ? (
+                <Pressable
+                  onPress={onBackToCategories}
+                  style={({ pressed }) => [
+                    styles.optionButton,
+                    styles.optionBack,
+                    pressed && styles.optionPressed,
+                  ]}
+                >
+                  <Ionicons
+                    name="arrow-back-circle"
+                    size={22}
+                    color={COLORS.success}
+                    style={styles.optionIcon}
+                  />
+                  <Text style={styles.optionText}>{t("exitMenu.backToCategories")}</Text>
+                </Pressable>
+              ) : null}
 
-              <Pressable
-                onPress={onAddMorePlayers}
-                style={({ pressed }) => [
-                  styles.optionButton,
-                  styles.optionAdd,
-                  pressed && styles.optionPressed,
-                ]}
-              >
-                <Ionicons
-                  name="person-add"
-                  size={22}
-                  color={COLORS.primary}
-                  style={styles.optionIcon}
-                />
-                <Text style={styles.optionText}>{t("exitMenu.addMorePlayers")}</Text>
-              </Pressable>
+              {showAddMorePlayers ? (
+                <Pressable
+                  onPress={onAddMorePlayers}
+                  style={({ pressed }) => [
+                    styles.optionButton,
+                    styles.optionAdd,
+                    pressed && styles.optionPressed,
+                  ]}
+                >
+                  <Ionicons
+                    name="person-add"
+                    size={22}
+                    color={COLORS.primary}
+                    style={styles.optionIcon}
+                  />
+                  <Text style={styles.optionText}>{t("exitMenu.addMorePlayers")}</Text>
+                </Pressable>
+              ) : null}
 
               <Pressable
                 onPress={onExitGame}

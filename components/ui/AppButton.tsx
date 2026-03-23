@@ -17,6 +17,7 @@ import { LinearGradient as ExpoLinearGradient } from "expo-linear-gradient";
 import { ReactNode, useState } from "react";
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   StyleProp,
   StyleSheet,
@@ -24,6 +25,7 @@ import {
   TextStyle,
   View,
   ViewStyle,
+  type LayoutChangeEvent,
 } from "react-native";
 
 export type AppButtonVariant =
@@ -229,10 +231,22 @@ export const AppButton = ({
     </>
   );
 
+  const onButtonSurfaceLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    if (width !== buttonSize.width || height !== buttonSize.height) {
+      setButtonSize({ width, height });
+    }
+  };
+
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
+      android_ripple={
+        Platform.OS === "android"
+          ? { color: "rgba(255, 255, 255, 0.2)" }
+          : undefined
+      }
       style={({ pressed }) => [
         styles.containerBase,
         styles[`size_${resolvedSize}`],
@@ -243,81 +257,95 @@ export const AppButton = ({
         style,
       ]}
     >
-      {({ pressed }) => (
-        <BlurView
-          tint={tint}
-          intensity={intensity}
-          experimentalBlurMethod="dimezisBlurView"
-          onLayout={(event) => {
-            const { width, height } = event.nativeEvent.layout;
-            if (width !== buttonSize.width || height !== buttonSize.height) {
-              setButtonSize({ width, height });
-            }
-          }}
-          style={[
-            styles.blurBase,
-            styles[`size_${resolvedSize}`],
-            preset.sizeStyle,
-            preset.blurStyle,
-            pressed && !disabled && !loading ? styles.pressedBlur : null,
-          ]}
-        >
-          {preset.gradientColors ? (
-            <ExpoLinearGradient
-              colors={preset.gradientColors}
-              start={{ x: 0, y: 1 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.gradientLayer}
-            />
-          ) : null}
-          {isChoiceCardVariant &&
-          buttonSize.width > 0 &&
-          buttonSize.height > 0 ? (
-            <Canvas pointerEvents="none" style={styles.choiceCardNeon}>
-              <RoundedRect
-                x={4}
-                y={4}
-                width={buttonSize.width - 8}
-                height={buttonSize.height - 8}
-                r={BORDER_RADIUS.x3 - 2}
-                color={neonPalette.glow}
-              >
-                <BlurMask blur={28} style="solid" />
-              </RoundedRect>
-              <RoundedRect
-                x={2.2}
-                y={2.2}
-                width={buttonSize.width - 4.4}
-                height={buttonSize.height - 4.4}
-                r={BORDER_RADIUS.x3 - 1}
-                style="stroke"
-                strokeWidth={2.5}
-              >
-                <SkiaLinearGradient
-                  start={vec(0, buttonSize.height)}
-                  end={vec(buttonSize.width, 0)}
-                  colors={neonPalette.edge}
-                />
-              </RoundedRect>
-            </Canvas>
-          ) : null}
-          {isChoiceCardVariant ? (
-            <ExpoLinearGradient
-              pointerEvents="none"
-              colors={[
-                "rgba(255,255,255,0.24)",
-                "rgba(255,255,255,0.07)",
-                "rgba(255,255,255,0)",
-              ]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.choiceCardSheen}
-            />
-          ) : null}
-          <View style={styles.overlay} />
-          {buttonContent}
-        </BlurView>
-      )}
+      {({ pressed }) => {
+        const surfaceStyle = [
+          styles.blurBase,
+          styles[`size_${resolvedSize}`],
+          preset.sizeStyle,
+          preset.blurStyle,
+          pressed && !disabled && !loading ? styles.pressedBlur : null,
+        ];
+
+        const surfaceInner = (
+          <>
+            {preset.gradientColors ? (
+              <ExpoLinearGradient
+                colors={preset.gradientColors}
+                start={{ x: 0, y: 1 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.gradientLayer}
+              />
+            ) : null}
+            {isChoiceCardVariant &&
+            buttonSize.width > 0 &&
+            buttonSize.height > 0 ? (
+              <Canvas pointerEvents="none" style={styles.choiceCardNeon}>
+                <RoundedRect
+                  x={4}
+                  y={4}
+                  width={buttonSize.width - 8}
+                  height={buttonSize.height - 8}
+                  r={BORDER_RADIUS.x3 - 2}
+                  color={neonPalette.glow}
+                >
+                  <BlurMask blur={28} style="solid" />
+                </RoundedRect>
+                <RoundedRect
+                  x={2.2}
+                  y={2.2}
+                  width={buttonSize.width - 4.4}
+                  height={buttonSize.height - 4.4}
+                  r={BORDER_RADIUS.x3 - 1}
+                  style="stroke"
+                  strokeWidth={2.5}
+                >
+                  <SkiaLinearGradient
+                    start={vec(0, buttonSize.height)}
+                    end={vec(buttonSize.width, 0)}
+                    colors={neonPalette.edge}
+                  />
+                </RoundedRect>
+              </Canvas>
+            ) : null}
+            {isChoiceCardVariant ? (
+              <ExpoLinearGradient
+                pointerEvents="none"
+                colors={[
+                  "rgba(255,255,255,0.24)",
+                  "rgba(255,255,255,0.07)",
+                  "rgba(255,255,255,0)",
+                ]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.choiceCardSheen}
+              />
+            ) : null}
+            <View style={styles.overlay} />
+            {buttonContent}
+          </>
+        );
+
+        /** Android: BlurView uses a light fallback that reads as white; keep iOS blur. */
+        if (Platform.OS === "android") {
+          return (
+            <View style={surfaceStyle} onLayout={onButtonSurfaceLayout}>
+              {surfaceInner}
+            </View>
+          );
+        }
+
+        return (
+          <BlurView
+            tint={tint}
+            intensity={intensity}
+            experimentalBlurMethod="dimezisBlurView"
+            onLayout={onButtonSurfaceLayout}
+            style={surfaceStyle}
+          >
+            {surfaceInner}
+          </BlurView>
+        );
+      }}
     </Pressable>
   );
 };

@@ -4,9 +4,8 @@
  * Tracks game over and computes awards for the Game Over screen.
  */
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   addQuestionsToPools,
   consumePendingLocalSessionResyncAfterPlayerEdit,
@@ -23,6 +22,7 @@ import {
   restartGame,
 } from "@/services/game-session";
 import { getQuestionsByCategory } from "@/services/categories";
+import { hasPremiumQuestionsAccess } from "@/services/premium-questions-access";
 import type { Question } from "@/types/category";
 import type { GameAwards } from "@/types/game";
 import type { Player } from "@/types/player";
@@ -42,38 +42,93 @@ export function useGameSession() {
   const categoryId = getSelectedCategoryId();
   const [hasChosenThisTurn, setHasChosenThisTurn] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
-  const [endAfterThisTurn, setEndAfterThisTurn] = useState(false);
+  /** After "Continue" while only one pool was 0 — keep playing without modal until 0/0 */
+  const [suppressPartialPoolModal, setSuppressPartialPoolModal] = useState(false);
   const [awards, setAwards] = useState<GameAwards>({
     mostDaring: null,
     truthfulAngel: null,
     superstar: null,
   });
+  const [truthsLeft, setTruthsLeft] = useState(() => getRemainingCount().truths);
+  const [daresLeft, setDaresLeft] = useState(() => getRemainingCount().dares);
+
+  /** Derived so pool UI + shop flow can’t desync from “needs Oops / end” (fixes local 0/0 stuck). */
+  const endAfterThisTurn = useMemo(() => {
+    if (isGameOver) return false;
+    const t = truthsLeft;
+    const d = daresLeft;
+    const bothEmpty = t === 0 && d === 0;
+    const oneEmpty = t === 0 || d === 0;
+    if (!oneEmpty) return false;
+    if (bothEmpty) return true;
+    if (currentQuestion) {
+      return !suppressPartialPoolModal;
+    }
+    return false;
+  }, [
+    isGameOver,
+    truthsLeft,
+    daresLeft,
+    currentQuestion,
+    suppressPartialPoolModal,
+  ]);
+
+  const syncPoolCounts = () => {
+    const { truths, dares } = getRemainingCount();
+    setTruthsLeft(truths);
+    setDaresLeft(dares);
+  };
 
   useEffect(() => {
     setPlayers(getGamePlayers());
     setCurrentPlayer(getCurrentPlayer());
     setCategoryName(getSelectedCategoryName());
     getGameQuestions();
+    syncPoolCounts();
+  }, []);
+
+  /** Premium questions already owned — no "running out" Oops for partial deck; only game over at 0/0. */
+  useEffect(() => {
+    const id = getSelectedCategoryId();
+    if (!id) return;
+    let cancelled = false;
+    void hasPremiumQuestionsAccess(id).then((has) => {
+      if (!cancelled && has) setSuppressPartialPoolModal(true);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const nextPlayer = () => {
-    if (endAfterThisTurn) {
-      setIsGameOver(true);
-      setAwards(computeAwards(getGamePlayers(), getPlayerStats()));
-      return;
-    }
     const updated = moveToNextPlayer();
     setCurrentPlayer(updated);
     setCurrentQuestion(null);
     setHasChosenThisTurn(false);
+    syncPoolCounts();
+  };
+
+  const forceEndGame = useCallback(() => {
+    setCurrentQuestion(null);
+    setHasChosenThisTurn(false);
+    setIsGameOver(true);
+    setAwards(computeAwards(getGamePlayers(), getPlayerStats()));
+  }, []);
+
+  /**
+   * Host chose Continue on Oops: remember partial deck, hide warning for this stretch.
+   * Same question and turn stay until the user presses Next player.
+   */
+  const continueWithRemainingPool = () => {
+    setSuppressPartialPoolModal(true);
+    syncPoolCounts();
   };
 
   const showQuestion = (type: "truth" | "dare") => {
     if (hasChosenThisTurn) return;
     const question = drawNextQuestionByType(type);
     if (question === null) {
-      setIsGameOver(true);
-      setAwards(computeAwards(getGamePlayers(), getPlayerStats()));
+      syncPoolCounts();
       return;
     }
     if (currentPlayer) {
@@ -83,9 +138,8 @@ export function useGameSession() {
     setHasChosenThisTurn(true);
 
     const remaining = getRemainingCount();
-    if (remaining.truths === 0 || remaining.dares === 0) {
-      setEndAfterThisTurn(true);
-    }
+    setTruthsLeft(remaining.truths);
+    setDaresLeft(remaining.dares);
   };
 
   const hasPlayers = players.length > 0;
@@ -94,11 +148,12 @@ export function useGameSession() {
     restartGame();
     setPlayers(getGamePlayers());
     setIsGameOver(false);
-    setEndAfterThisTurn(false);
+    setSuppressPartialPoolModal(false);
     setAwards({ mostDaring: null, truthfulAngel: null, superstar: null });
     setCurrentPlayer(getCurrentPlayer());
     setCurrentQuestion(null);
     setHasChosenThisTurn(false);
+    syncPoolCounts();
   }, []);
 
   useFocusEffect(
@@ -110,26 +165,21 @@ export function useGameSession() {
       setCurrentQuestion(null);
       setHasChosenThisTurn(false);
       setIsGameOver(false);
-      setEndAfterThisTurn(false);
+      setSuppressPartialPoolModal(false);
       setAwards({ mostDaring: null, truthfulAngel: null, superstar: null });
+      syncPoolCounts();
     }, []),
   );
 
   const refreshAfterPremiumPurchase = async (categoryId: string) => {
-    const [proValue, pqValue] = await Promise.all([
-      AsyncStorage.getItem("demo_pro_purchased"),
-      AsyncStorage.getItem("demo_unlocked_premium_questions"),
-    ]);
-    const isPro = proValue === "true";
-    const unlockedIds: string[] = pqValue ? JSON.parse(pqValue) : [];
-    const hasPremium =
-      isPro || unlockedIds.includes(categoryId);
+    const hasPremium = await hasPremiumQuestionsAccess(categoryId);
     if (!hasPremium) return;
     const allQuestions = await getQuestionsByCategory(categoryId, {
       includePremium: true,
     });
     addQuestionsToPools(allQuestions);
-    setEndAfterThisTurn(false);
+    setSuppressPartialPoolModal(true);
+    syncPoolCounts();
   };
 
   return {
@@ -149,5 +199,9 @@ export function useGameSession() {
     isMyTurn: true,
     loading: false,
     refreshAfterPremiumPurchase,
+    truthsLeft,
+    daresLeft,
+    continueWithRemainingPool,
+    forceEndGame,
   };
 }

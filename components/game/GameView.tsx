@@ -28,14 +28,23 @@ type GameViewProps = {
   categoryName: string | null;
   currentQuestion: Question | null;
   hasPlayers: boolean;
+  truthsLeft: number;
+  daresLeft: number;
   isSpeechEnabled: boolean;
   onToggleSpeech: () => void;
-  onDoorPress: () => void;
+  /** Omitted in multiplayer as guest — only host may open exit menu. */
+  onDoorPress?: () => void;
   onShowTruth: () => void;
   onShowDare: () => void;
   onNextPlayer: () => void;
   /** When false (multiplayer, not my turn), Truth/Dare/Next buttons are disabled */
   canInteract?: boolean;
+  /**
+   * When true (default), pool labels use "Free truths/dares left" for free categories
+   * that can still buy extra questions. Premium IAP categories always use "Truths/Dares left"
+   * (pass false). Unknown category state should pass false until loaded.
+   */
+  showFreePoolLabels?: boolean;
 };
 
 export function GameView({
@@ -43,6 +52,8 @@ export function GameView({
   categoryName,
   currentQuestion,
   hasPlayers,
+  truthsLeft,
+  daresLeft,
   isSpeechEnabled,
   onToggleSpeech,
   onDoorPress,
@@ -50,6 +61,7 @@ export function GameView({
   onShowDare,
   onNextPlayer,
   canInteract = true,
+  showFreePoolLabels = true,
 }: GameViewProps) {
   const { t, locale } = useI18n();
   const displayedQuestionText = currentQuestion
@@ -64,9 +76,18 @@ export function GameView({
       : AVATARS[0];
 
   const hasQuestion = !!displayedQuestionText;
-  const questionText = hasQuestion
-    ? displayedQuestionText
-    : t("game.tapToReveal");
+  const deckExhausted = truthsLeft === 0 && daresLeft === 0;
+  const choosing =
+    hasPlayers && !currentQuestion && (truthsLeft > 0 || daresLeft > 0);
+  const onlyDares = choosing && truthsLeft === 0 && daresLeft > 0;
+  const onlyTruths = choosing && daresLeft === 0 && truthsLeft > 0;
+  const tapInstruction = deckExhausted
+    ? t("game.deckEmpty")
+    : onlyDares
+      ? t("game.tapToRevealDaresOnly")
+      : onlyTruths
+        ? t("game.tapToRevealTruthsOnly")
+        : t("game.tapToReveal");
 
   const nextPlayerGlowStyle = usePulseAnimation(!!currentQuestion, {
     opacityRange: [0.7, 1],
@@ -89,17 +110,21 @@ export function GameView({
       <View style={styles.overlay}>
         <View style={styles.screen}>
           <View style={styles.headerRow}>
-            <TouchableOpacity
-              style={styles.iconCircle}
-              onPress={onDoorPress}
-              accessibilityLabel={t("game.exitMenuA11y")}
-            >
-              <Ionicons
-                name="exit-outline"
-                size={20}
-                color={COLORS.textInverse}
-              />
-            </TouchableOpacity>
+            {onDoorPress ? (
+              <TouchableOpacity
+                style={styles.iconCircle}
+                onPress={onDoorPress}
+                accessibilityLabel={t("game.exitMenuA11y")}
+              >
+                <Ionicons
+                  name="exit-outline"
+                  size={20}
+                  color={COLORS.textInverse}
+                />
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.headerSideSpacer} accessibilityElementsHidden />
+            )}
             <View style={styles.headerCenter}>
               {categoryName ? (
                 <Text style={styles.categoryLabel}>
@@ -142,43 +167,75 @@ export function GameView({
             <AppButton
               variant="truth"
               onPress={onShowTruth}
-              disabled={!canInteract || !hasPlayers || !!currentQuestion}
+              disabled={
+                !canInteract ||
+                !hasPlayers ||
+                !!currentQuestion ||
+                truthsLeft === 0
+              }
             >
               {t("game.truth")}
             </AppButton>
             <AppButton
               variant="dare"
               onPress={onShowDare}
-              disabled={!canInteract || !hasPlayers || !!currentQuestion}
+              disabled={
+                !canInteract ||
+                !hasPlayers ||
+                !!currentQuestion ||
+                daresLeft === 0
+              }
             >
               {t("game.dare")}
             </AppButton>
           </View>
 
           <View style={styles.cardPlaceholder}>
-            <View style={styles.questionRow}>
-              <Text
-                style={[
-                  styles.cardPlaceholderText,
-                  !hasQuestion && styles.cardPlaceholderHintText,
-                ]}
-              >
-                {questionText}
-              </Text>
-              {displayedQuestionText && isSpeechEnabled ? (
-                <TouchableOpacity
-                  onPress={speak}
-                  style={styles.speakerButton}
-                  accessibilityLabel={t("game.readAgain")}
-                >
-                  <Ionicons
-                    name="volume-high"
-                    size={18}
-                    color={COLORS.textSecondary}
-                  />
-                </TouchableOpacity>
-              ) : null}
-            </View>
+            {hasQuestion ? (
+              <View style={styles.cardQuestionCentered}>
+                <View style={styles.questionRow}>
+                  <Text style={styles.cardPlaceholderText}>
+                    {displayedQuestionText}
+                  </Text>
+                  {displayedQuestionText && isSpeechEnabled ? (
+                    <TouchableOpacity
+                      onPress={speak}
+                      style={styles.speakerButton}
+                      accessibilityLabel={t("game.readAgain")}
+                    >
+                      <Ionicons
+                        name="volume-high"
+                        size={18}
+                        color={COLORS.textSecondary}
+                      />
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
+              </View>
+            ) : (
+              <View style={styles.cardHintColumn}>
+                <View style={styles.cardCountsRow}>
+                  <Text style={styles.cardPoolCountSide} numberOfLines={1}>
+                    {t(
+                      showFreePoolLabels
+                        ? "game.freeTruthsLeft"
+                        : "game.truthsLeft",
+                      { count: truthsLeft },
+                    )}
+                  </Text>
+                  <Text style={styles.cardPoolCountDivider}>·</Text>
+                  <Text style={styles.cardPoolCountSide} numberOfLines={1}>
+                    {t(
+                      showFreePoolLabels
+                        ? "game.freeDaresLeft"
+                        : "game.daresLeft",
+                      { count: daresLeft },
+                    )}
+                  </Text>
+                </View>
+                <Text style={styles.cardTapInstruction}>{tapInstruction}</Text>
+              </View>
+            )}
           </View>
 
           <View style={styles.footerRow}>
@@ -193,7 +250,11 @@ export function GameView({
                 size="small"
                 style={styles.footerButton}
                 onPress={onNextPlayer}
-                disabled={!canInteract || !hasPlayers || !currentQuestion}
+                disabled={
+                  !canInteract ||
+                  !hasPlayers ||
+                  (!currentQuestion && !deckExhausted)
+                }
               >
                 {t("game.nextPlayer")}
               </AppButton>

@@ -123,7 +123,7 @@ Some actions are restricted at the UI layer:
 
 - **Starting the game** (category selection) is driven by the host from the lobby.
 - **Buying more questions when a category runs out** is host-only.
-  - Non-host players see `OutOfQuestionsHostOverlay`.
+  - After a non-host presses **Next** on a low deck, non-hosts see `OutOfQuestionsHostOverlay` (waiting for the host); only the host sees `OutOfQuestionsModal`.
   - When the host unlocks more questions, the room pools are appended via `addQuestionsToRoomPools`, which automatically resumes the game for everyone via realtime updates.
 
 ### File-based routing

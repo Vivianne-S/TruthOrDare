@@ -12,6 +12,19 @@ export const FREE_START_CATEGORY_NAMES = new Set([
   "chaos",
 ]);
 
+/** Matches DB names like "Love & Relationships" to the set above. */
+export function isFreeStarterCategoryName(
+  name: string | null | undefined
+): boolean {
+  if (!name?.trim()) return false;
+  const key = name
+    .toLowerCase()
+    .trim()
+    .replace(/\s*&\s*/g, " and ")
+    .replace(/\s+/g, " ");
+  return FREE_START_CATEGORY_NAMES.has(key);
+}
+
 // Predefined positions for category bubbles on the field (x, y as 0–1, size in px)
 export const ORGANIC_CATEGORY_SLOTS: BubbleSlot[] = [
   { x: 0.06, y: 0.22, size: 124 },

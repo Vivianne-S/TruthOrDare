@@ -13,14 +13,24 @@ import { useI18n } from "@/context/I18nContext";
 
 type OutOfQuestionsModalProps = {
   visible: boolean;
+  /** At least one card still in truth or dare pool — user can keep playing that side only */
+  canContinue?: boolean;
+  onContinue?: () => void;
   onBuyMore: () => void;
   onFinish: () => void;
+  /**
+   * Full IAP premium categories: no extra packs in shop — hide "buy more" (e.g. only Continue + exit).
+   */
+  showShopButton?: boolean;
 };
 
 export function OutOfQuestionsModal({
   visible,
+  canContinue = false,
+  onContinue,
   onBuyMore,
   onFinish,
+  showShopButton = true,
 }: OutOfQuestionsModalProps) {
   const { t } = useI18n();
   return (
@@ -35,34 +45,66 @@ export function OutOfQuestionsModal({
       <View style={styles.overlay}>
         <View style={styles.content} onStartShouldSetResponder={() => true}>
           <View style={styles.header}>
-            <Ionicons name="alert-circle" size={22} color={COLORS.warning} />
+            <Ionicons
+              name="alert-circle"
+              size={28}
+              color={COLORS.warning}
+              style={styles.headerIcon}
+            />
             <Text style={styles.title}>{t("outOfQuestions.title")}</Text>
           </View>
           <Text style={styles.message}>{t("outOfQuestions.message")}</Text>
 
-          <View style={styles.buttons}>
-            <Pressable
-              onPress={onBuyMore}
-              style={({ pressed }) => [
-                styles.button,
-                styles.buttonBuy,
-                pressed && styles.buttonPressed,
+          <View style={styles.buttonColumn}>
+            {canContinue && onContinue ? (
+              <Pressable
+                onPress={onContinue}
+                style={({ pressed }) => [
+                  styles.buttonBase,
+                  styles.buttonContinue,
+                  pressed && styles.buttonPressed,
+                ]}
+              >
+                <Text style={styles.buttonTextContinue}>
+                  {t("outOfQuestions.continueGame")}
+                </Text>
+              </Pressable>
+            ) : null}
+            <View
+              style={[
+                styles.buttons,
+                !showShopButton && styles.buttonsSingle,
               ]}
             >
-              <Text style={styles.buttonText}>{t("outOfQuestions.buyMore")}</Text>
-            </Pressable>
-            <Pressable
-              onPress={onFinish}
-              style={({ pressed }) => [
-                styles.button,
-                styles.buttonFinish,
-                pressed && styles.buttonPressed,
-              ]}
-            >
-              <Text style={styles.buttonText}>
-                {t("outOfQuestions.finish")}
-              </Text>
-            </Pressable>
+              {showShopButton ? (
+                <Pressable
+                  onPress={onBuyMore}
+                  style={({ pressed }) => [
+                    styles.buttonBase,
+                    styles.buttonRow,
+                    styles.buttonBuy,
+                    pressed && styles.buttonPressed,
+                  ]}
+                >
+                  <Text style={styles.buttonText}>
+                    {t("outOfQuestions.buyMore")}
+                  </Text>
+                </Pressable>
+              ) : null}
+              <Pressable
+                onPress={onFinish}
+                style={({ pressed }) => [
+                  styles.buttonBase,
+                  showShopButton ? styles.buttonRow : styles.buttonExitFullWidth,
+                  styles.buttonFinish,
+                  pressed && styles.buttonPressed,
+                ]}
+              >
+                <Text style={styles.buttonText}>
+                  {t("outOfQuestions.finish")}
+                </Text>
+              </Pressable>
+            </View>
           </View>
         </View>
       </View>
@@ -93,10 +135,11 @@ const styles = StyleSheet.create({
     elevation: 12,
   },
   header: {
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center",
-    gap: SPACING.x2,
+    marginBottom: SPACING.x3,
+  },
+  headerIcon: {
     marginBottom: SPACING.x3,
   },
   title: {
@@ -111,19 +154,44 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: SPACING.x6,
   },
+  buttonColumn: {
+    width: "100%",
+    gap: SPACING.x3,
+  },
   buttons: {
     flexDirection: "row",
     gap: SPACING.x3,
     justifyContent: "center",
   },
-  button: {
-    flex: 1,
+  buttonsSingle: {
+    flexDirection: "column",
+  },
+  buttonBase: {
     paddingVertical: SPACING.x3,
     paddingHorizontal: SPACING.x4,
     borderRadius: BORDER_RADIUS.x4,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
+  },
+  buttonRow: {
+    flex: 1,
+  },
+  buttonExitFullWidth: {
+    alignSelf: "stretch",
+    width: "100%",
+  },
+  buttonContinue: {
+    alignSelf: "stretch",
+    width: "100%",
+    minHeight: 50,
+    backgroundColor: "rgba(56, 189, 248, 0.28)",
+    borderColor: "rgba(125, 211, 252, 0.95)",
+    shadowColor: "#38BDF8",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.45,
+    shadowRadius: 12,
+    elevation: 8,
   },
   buttonBuy: {
     backgroundColor: "rgba(165, 107, 255, 0.22)",
@@ -149,6 +217,12 @@ const styles = StyleSheet.create({
   buttonText: {
     ...TYPOGRAPHY_BASE.body,
     color: COLORS.textInverse,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+  buttonTextContinue: {
+    ...TYPOGRAPHY_BASE.body,
+    color: COLORS.infoText,
     fontWeight: "800",
     textAlign: "center",
   },

@@ -1,4 +1,4 @@
-import { Modal, StyleSheet, Text, View } from "react-native";
+import { Modal, Platform, StyleSheet, Text, View } from "react-native";
 
 import { COLORS } from "@/constants/theme/colors";
 import { BORDER_RADIUS } from "@/constants/theme/primitives";
@@ -8,28 +8,39 @@ import { useI18n } from "@/context/I18nContext";
 
 type OutOfQuestionsHostOverlayProps = {
   visible: boolean;
+  /** Waiting for host to resolve deck / Oops (non-host pressed Next). */
+  variant?: "hostInMenu" | "waitingForHostDeck";
 };
 
 export function OutOfQuestionsHostOverlay({
   visible,
+  variant = "hostInMenu",
 }: OutOfQuestionsHostOverlayProps) {
   const { t } = useI18n();
+  const titleKey =
+    variant === "waitingForHostDeck"
+      ? "multiplayer.waitingForHostDeckTitle"
+      : "multiplayer.hostInMenuTitle";
+  const messageKey =
+    variant === "waitingForHostDeck"
+      ? "multiplayer.waitingForHostDeckMessage"
+      : "multiplayer.hostInMenuMessage";
 
   return (
     <Modal
       visible={visible}
       transparent
       animationType="fade"
+      presentationStyle={Platform.OS === "ios" ? "overFullScreen" : undefined}
+      statusBarTranslucent={Platform.OS === "android"}
       onRequestClose={() => {
         // Block closing via Android back button.
       }}
     >
       <View style={styles.overlay}>
         <View style={styles.content} onStartShouldSetResponder={() => true}>
-          <Text style={styles.title}>{t("multiplayer.hostInMenuTitle")}</Text>
-          <Text style={styles.message}>
-            {t("multiplayer.hostInMenuMessage")}
-          </Text>
+          <Text style={styles.title}>{t(titleKey)}</Text>
+          <Text style={styles.message}>{t(messageKey)}</Text>
         </View>
       </View>
     </Modal>

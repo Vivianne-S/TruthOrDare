@@ -103,7 +103,7 @@
     "purchaseFailed": "Köpet misslyckades. Försök igen."
   },
   "game": {
-    "tapToReveal": "Tryck på SANNING eller KONSEKVENS för att visa en fråga.",
+    "tapToReveal": "Tryck på SANNING eller KONSEKVENS för att visa frågan.",
     "playersTurn": "Det är {{name}}s tur!",
     "yourTurn": "Din tur!",
     "turnOffSpeech": "Stäng av tal",
@@ -111,6 +111,15 @@
     "readAgain": "Läs frågan igen",
     "truth": "SANNING",
     "dare": "KONSEKVENS",
+    "freeTruthsLeft": "Gratis sanningar kvar: {{count}}",
+    "freeDaresLeft": "Gratis konsekvenser kvar: {{count}}",
+    "truthsLeft": "Sanningar kvar: {{count}}",
+    "daresLeft": "Konsekvenser kvar: {{count}}",
+    "noTruthsUseDares": "Inga sanningar kvar — spela vidare med konsekvenser eller avsluta efter den här omgången.",
+    "noDaresUseTruths": "Inga konsekvenser kvar — spela vidare med sanningar eller avsluta efter den här omgången.",
+    "tapToRevealDaresOnly": "Bara konsekvens kvar — tryck på KONSEKVENS för att visa frågan.",
+    "tapToRevealTruthsOnly": "Bara sanning kvar — tryck på SANNING för att visa frågan.",
+    "deckEmpty": "Inga kort finns kvar. Tryck på Nästa spelare för att öppna valen (avsluta eller köp fler).",
     "nextPlayer": "Nästa spelare",
     "exitMenuA11y": "Meny för att avsluta eller gå tillbaka"
   },
@@ -143,7 +152,8 @@
   },
   "outOfQuestions": {
     "title": "Oops, frågorna börjar ta slut",
-    "message": "Det finns inga fler Sanningar eller Konsekvenser i den här kategorin. Du kan köpa fler, eller avsluta och se resultatet.",
+    "message": "Det här visas när antingen sanningar eller konsekvenser har tagit slut. Fortsätt för att spela med den hög som finns kvar, eller köp fler. När båda högarna är 0 visas rutan igen så du kan köpa en sista gång innan spelet avslutas.",
+    "continueGame": "Fortsätt spelet",
     "buyMore": "Köp fler",
     "finish": "Avsluta"
   },
@@ -152,7 +162,9 @@
     "fallbackEmoji": "✨"
   },
   "multiplayer": {
-    "hostInMenuTitle": "Värden är i menyn",
-    "hostInMenuMessage": "Värden har gått in i menyn. Spelet fortsätter när värden är tillbaka."
+    "hostInMenuTitle": "Värden har lämnat spelet",
+    "hostInMenuMessage": "Värden har öppnat menyn, gått till shop eller lämnat spelskärmen. Vänta — spelet fortsätter när värden är tillbaka.",
+    "waitingForHostDeckTitle": "Vänta lite",
+    "waitingForHostDeckMessage": "Bara värden kan avsluta rundan när leken nästan är slut. De får samma val som i lokalt spel."
   }
 }
