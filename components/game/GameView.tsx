@@ -6,12 +6,14 @@ import {
   Animated,
   Image,
   ImageBackground,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { AVATARS } from "@/constants/avatars";
 import { COLORS } from "@/constants/theme/colors";
 import { useI18n } from "@/context/I18nContext";
@@ -109,49 +111,59 @@ export function GameView({
     >
       <View style={styles.overlay}>
         <View style={styles.screen}>
-          <View style={styles.headerRow}>
-            {onDoorPress ? (
-              <TouchableOpacity
-                style={styles.iconCircle}
-                onPress={onDoorPress}
-                accessibilityLabel={t("game.exitMenuA11y")}
-              >
-                <Ionicons
-                  name="exit-outline"
-                  size={20}
-                  color={COLORS.textInverse}
-                />
-              </TouchableOpacity>
-            ) : (
-              <View style={styles.headerSideSpacer} accessibilityElementsHidden />
-            )}
-            <View style={styles.headerCenter}>
-              {categoryName ? (
-                <Text style={styles.categoryLabel}>
-                  {translateCategoryName(categoryName, t)}
-                </Text>
-              ) : null}
-              <Text style={styles.headerText}>
-                {hasPlayers
-                  ? t("game.playersTurn", { name: playerName ?? "" })
-                  : t("game.yourTurn")}
-              </Text>
+          <View style={styles.header}>
+            <View style={styles.headerTopRow}>
+              <LanguageSwitcher />
             </View>
-            <TouchableOpacity
-              style={styles.iconCircle}
-              onPress={onToggleSpeech}
-              accessibilityLabel={
-                isSpeechEnabled
-                  ? t("game.turnOffSpeech")
-                  : t("game.turnOnSpeech")
-              }
-            >
-              <Ionicons
-                name={isSpeechEnabled ? "volume-high" : "volume-mute"}
-                size={20}
-                color={COLORS.textInverse}
-              />
-            </TouchableOpacity>
+            <View style={styles.headerBottomRow}>
+              {onDoorPress ? (
+                <TouchableOpacity
+                  style={styles.iconCircle}
+                  onPress={onDoorPress}
+                  accessibilityLabel={t("game.exitMenuA11y")}
+                >
+                  <Ionicons
+                    name="exit-outline"
+                    size={20}
+                    color={COLORS.textInverse}
+                  />
+                </TouchableOpacity>
+              ) : (
+                <View
+                  style={styles.headerSideSpacer}
+                  accessibilityElementsHidden
+                />
+              )}
+              <View style={styles.headerCenter}>
+                {categoryName ? (
+                  <Text style={styles.categoryLabel}>
+                    {translateCategoryName(categoryName, t)}
+                  </Text>
+                ) : null}
+                <Text style={styles.headerText}>
+                  {hasPlayers
+                    ? t("game.playersTurn", { name: playerName ?? "" })
+                    : t("game.yourTurn")}
+                </Text>
+              </View>
+              <View style={styles.headerSideSpacer}>
+                <TouchableOpacity
+                  style={styles.iconCircle}
+                  onPress={onToggleSpeech}
+                  accessibilityLabel={
+                    isSpeechEnabled
+                      ? t("game.turnOffSpeech")
+                      : t("game.turnOnSpeech")
+                  }
+                >
+                  <Ionicons
+                    name={isSpeechEnabled ? "volume-high" : "volume-mute"}
+                    size={20}
+                    color={COLORS.textInverse}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
 
           <View style={styles.avatarContainer}>
@@ -194,9 +206,15 @@ export function GameView({
             {hasQuestion ? (
               <View style={styles.cardQuestionCentered}>
                 <View style={styles.questionRow}>
-                  <Text style={styles.cardPlaceholderText}>
-                    {displayedQuestionText}
-                  </Text>
+                  <ScrollView
+                    style={styles.questionScroll}
+                    contentContainerStyle={styles.questionScrollContent}
+                    showsVerticalScrollIndicator={false}
+                  >
+                    <Text style={styles.cardPlaceholderText}>
+                      {displayedQuestionText}
+                    </Text>
+                  </ScrollView>
                   {displayedQuestionText && isSpeechEnabled ? (
                     <TouchableOpacity
                       onPress={speak}
