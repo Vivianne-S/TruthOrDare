@@ -5,7 +5,13 @@
   "scripts": {
     "start": "expo start",
     "start:localhost": "expo start --localhost",
-    "update-questions-table": "node ./scripts/update-questions-table.js"
+    "update-questions-table": "node ./scripts/update-questions-table.js",
+    "build:ios:local": "npx expo run:ios",
+    "build:dev:ios:device": "eas build --profile development-device --platform ios",
+    "build:dev:ios:sim": "eas build --profile development-simulator --platform ios",
+    "build:dev:android": "eas build --profile development-device --platform android",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -21,6 +27,7 @@
     "expo-camera": "~17.0.10",
     "expo-clipboard": "~8.0.8",
     "expo-constants": "~18.0.13",
+    "expo-dev-client": "~6.0.20",
     "expo-font": "~14.0.11",
     "expo-haptics": "~15.0.8",
     "expo-image": "~3.0.11",
@@ -39,6 +46,7 @@
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "~2.28.0",
+    "react-native-purchases": "^9.14.0",
     "react-native-qrcode-svg": "^6.3.21",
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",

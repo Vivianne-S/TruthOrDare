@@ -36,7 +36,7 @@ import { translateCategoryName } from "@/i18n";
 import { useI18n } from "@/context/I18nContext";
 import { useAutoDeselectAfterDelay } from "@/hooks/use-categories-lock-message";
 import { useCategories } from "@/hooks/use-categories";
-import { useDemoPurchases } from "@/hooks/use-demo-purchases";
+import { useRevenueCatPurchases } from "@/hooks/use-revenuecat-purchases";
 import { getQuestionsByCategory } from "@/services/categories";
 import {
   getRoomById,
@@ -55,7 +55,7 @@ export default function CategoriesScreen() {
     isCategoryUnlocked,
     isPremiumQuestionsUnlocked,
     refreshProStatus,
-  } = useDemoPurchases();
+  } = useRevenueCatPurchases();
   const {
     categories,
     loading,

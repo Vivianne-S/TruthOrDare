@@ -99,7 +99,8 @@
     "premiumPrice": "299 kr",
     "premiumQuestionsPrice": "29 kr",
     "premiumQuestionsPackage": "10 sanningar + 10 konsekvenser",
-    "purchaseCompleted": "Köp genomfört!"
+    "purchaseCompleted": "Köp genomfört!",
+    "purchaseFailed": "Köpet misslyckades. Försök igen."
   },
   "game": {
     "tapToReveal": "Tryck på SANNING eller KONSEKVENS för att visa frågan.",
