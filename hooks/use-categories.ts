@@ -5,7 +5,7 @@
  * Filters premium questions in free categories unless user has purchased them.
  *
  * Pass the same `isCategoryUnlocked` / `isPremiumQuestionsUnlocked` as the screen that
- * calls `useDemoPurchases()` so reset/focus-refresh stays in sync with the cache.
+ * calls purchase status hooks so reset/focus-refresh stays in sync with the cache.
  * Callers that only need the category list (e.g. shop) can omit args; defaults treat
  * everything as locked.
  */
