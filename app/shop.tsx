@@ -1,6 +1,5 @@
 /**
- * Shop screen: purchasable categories ($4.99) and premium all-in-one ($19.99).
- * Demo mode – purchases unlock without real payment.
+ * Shop screen: premium category and package purchases via RevenueCat.
  * When opened from "Buy more" (out of questions), scrolls to Extra Questions
  * and highlights the current category's Buy button.
  */

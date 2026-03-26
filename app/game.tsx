@@ -35,6 +35,7 @@ export default function GameScreen() {
   const { notifyHostAway } = multiplayerSession;
 
   const session = isMultiplayer ? multiplayerSession : localSession;
+  // One screen supports two session providers; this union keeps shared UI wiring in one place.
   const {
     players,
     currentPlayer,

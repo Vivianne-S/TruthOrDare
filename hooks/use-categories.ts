@@ -54,7 +54,6 @@ export function useCategories(
     [categories, isCategoryUnlocked, isPremiumQuestionsUnlocked]
   );
 
-  // Pre-load questions when user selects a category (for tracking and faster game start)
   const handlePressCategory = useCallback(
     async (categoryId: string) => {
       if (openCategoryId === categoryId) {

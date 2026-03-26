@@ -235,6 +235,8 @@ export function useMultiplayerGame(roomId: string | undefined) {
         if (!mounted) return;
         const m = msg as Record<string, unknown>;
         const p = m.payload;
+        // Broadcast payload shape differs across SDK paths:
+        // either payload.away or top-level away.
         const nestedAway =
           typeof p === "object" &&
           p !== null &&
@@ -308,6 +310,7 @@ export function useMultiplayerGame(roomId: string | undefined) {
     showTruth,
     showDare,
     nextPlayer,
+    // Multiplayer rematch is not supported here; kept for shared GameOverScreen props.
     restartGameSession: () => {},
     refreshAfterPremiumPurchase,
     truthsLeft: truthPoolLength,
