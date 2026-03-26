@@ -1,3 +1,7 @@
+
+<img width="1536" height="1024" alt="497e9250f44a1af03c2891897f14fbfa456e363855a5224fd0a5418b9a0f95e1" src="https://github.com/user-attachments/assets/24a9d768-6634-486d-83fe-36971f392428" />
+
+
 # Truth Or Dare
 
 Truth Or Dare is a mobile party game built with Expo + React Native.
