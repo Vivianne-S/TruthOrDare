@@ -24,11 +24,9 @@ import { SPACING } from "@/constants/theme/spacing";
 import { TYPOGRAPHY_BASE } from "@/constants/theme/typography";
 import { useI18n } from "@/context/I18nContext";
 import {
-  getRoomById,
   getRoomPlayers,
   roomPlayersToPlayers,
   subscribeToRoom,
-  type GameRoom,
   type GameRoomPlayer,
 } from "@/services/game-room";
 import { setGameCategory, setGamePlayers } from "@/services/game-session";
@@ -41,7 +39,6 @@ export default function GameLobbyScreen() {
     isHost: string;
   }>();
 
-  const [room, setRoom] = useState<GameRoom | null>(null);
   const [players, setPlayers] = useState<GameRoomPlayer[]>([]);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
@@ -58,11 +55,7 @@ export default function GameLobbyScreen() {
 
     const init = async () => {
       try {
-        const [roomData, roomPlayers] = await Promise.all([
-          getRoomById(roomId),
-          getRoomPlayers(roomId),
-        ]);
-        if (roomData) setRoom(roomData);
+        const roomPlayers = await getRoomPlayers(roomId);
         setPlayers(roomPlayers);
       } catch (e) {
         console.error("Lobby init error:", e);
@@ -76,7 +69,6 @@ export default function GameLobbyScreen() {
     unsub = subscribeToRoom(
       roomId,
       async (r) => {
-        setRoom(r);
         if (r.status === "playing" && r.category_id && r.category_name) {
           const roomPlayers = await getRoomPlayers(roomId);
           setGamePlayers(roomPlayersToPlayers(roomPlayers, r.host_user_id));

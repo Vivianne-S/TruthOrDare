@@ -19,7 +19,6 @@ import {
 import QRCode from "react-native-qrcode-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AVATARS } from "@/constants/avatars";
 import { AppButton } from "@/components/ui/AppButton";
 import { AvatarPickerButton } from "@/components/ui/AvatarPickerButton";
 import { AvatarPickerModal } from "@/components/ui/AvatarPickerModal";

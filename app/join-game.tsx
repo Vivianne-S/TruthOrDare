@@ -79,7 +79,7 @@ export default function JoinGameScreen() {
         pathname: "/game-lobby",
         params: { roomId: room.id, isHost: "false" },
       });
-    } catch (e) {
+    } catch {
       Alert.alert(
         t("joinGame.roomNotFound"),
         t("joinGame.roomNotFoundMessage")
