@@ -1,42 +1,100 @@
 # Truth Or Dare
 
-A React Native (Expo) party game app. Add players, choose categories, and play Truth or Dare with questions from Supabase.
+Truth Or Dare is a mobile party game built with Expo + React Native.
+Players can set up avatars, choose categories, and play Truth/Dare rounds in local mode or multiplayer rooms.
 
-**Documentation:** See the [docs/](./docs/) folder for architecture, navigation, game flow, and more.
+## Highlights
 
-## Get started
+- Local and multiplayer game sessions
+- Supabase-backed categories and question decks
+- Premium content and entitlement checks via RevenueCat
+- Session-safe no-repeat question handling
+- Optional text-to-speech for question prompts
+- Game-over awards (Dare Devil, Truthful Angel, Best of Both Worlds)
+- English/Swedish language support
 
-1. Install dependencies
+## Tech Stack
 
-   ```bash
-   npm install
-   ```
+- `Expo` + `React Native` + `TypeScript`
+- `expo-router` (file-based navigation)
+- `Supabase` (data + realtime multiplayer)
+- `react-native-purchases` / RevenueCat (in-app purchases)
 
-2. Start the app
+## Project Structure
 
-   ```bash
-   npx expo start
-   ```
+```txt
+TruthOrDare/
+├── app/             # Screens and routes (expo-router)
+├── components/      # Shared UI/game components
+├── hooks/           # Custom hooks
+├── services/        # Data/business logic integrations
+├── constants/       # Theme tokens and static config
+├── context/         # App-level context providers (e.g. i18n)
+├── docs/            # Technical documentation
+└── scripts/         # Utility scripts (e.g. question import/update)
+```
 
-In the output, you'll find options to open the app in a
+## Getting Started
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+### 1) Install dependencies
+
+```bash
+npm install
+```
+
+### 2) Configure environment variables
+
+Create a `.env` file with:
+
+```bash
+EXPO_PUBLIC_SUPABASE_URL=...
+EXPO_PUBLIC_SUPABASE_ANON_KEY=...
+```
+
+RevenueCat (at least one option):
+
+```bash
+EXPO_PUBLIC_RC_TEST_API_KEY=...
+# or
+EXPO_PUBLIC_RC_IOS_API_KEY=...
+EXPO_PUBLIC_RC_ANDROID_API_KEY=...
+```
+
+### 3) Start the app
+
+```bash
+npx expo start
+```
+
+Then open it in:
+
+- [Development build](https://docs.expo.dev/develop/development-builds/introduction/)
 - [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- [Expo Go](https://expo.dev/go)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Useful Scripts
 
-## Learn more
+```bash
+npm run start
+npm run start:dev
+npm run start:localhost
+npm run lint
+npm run lint:fix
+npm run typecheck
+npm run update-questions-sv
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Documentation
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Full technical docs are in [`docs/`](./docs/):
 
-## Join the community
+- [`docs/README.md`](./docs/README.md) - Documentation index
+- [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) - Tech stack and structure
+- [`docs/NAVIGATION.md`](./docs/NAVIGATION.md) - Screen and route map
+- [`docs/GAME_FLOW.md`](./docs/GAME_FLOW.md) - Local/multiplayer flows
+- [`docs/SHOP.md`](./docs/SHOP.md) - RevenueCat and shop behavior
 
-Join our community of developers creating universal apps.
+## Companion Web Landing
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This mobile app has a separate companion web landing page project used for presentation and app promotion.
