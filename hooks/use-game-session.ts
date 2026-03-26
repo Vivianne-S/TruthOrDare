@@ -12,7 +12,6 @@ import {
   drawNextQuestionByType,
   getCurrentPlayer,
   getGamePlayers,
-  getGameQuestions,
   getRemainingCount,
   getPlayerStats,
   getSelectedCategoryId,
@@ -83,7 +82,6 @@ export function useGameSession() {
     setPlayers(getGamePlayers());
     setCurrentPlayer(getCurrentPlayer());
     setCategoryName(getSelectedCategoryName());
-    getGameQuestions();
     syncPoolCounts();
   }, []);
 

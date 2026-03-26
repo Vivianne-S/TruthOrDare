@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /**
- * Uppdaterar question_text_sv i Supabase från questions_sv_import.csv
- * Kräver: EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY i .env
+ * Updates question_text_sv in Supabase from questions_sv_import.csv.
+ * Requires: EXPO_PUBLIC_SUPABASE_URL and either SUPABASE_SERVICE_ROLE_KEY
+ * or EXPO_PUBLIC_SUPABASE_ANON_KEY in .env.
  *
- * Kör: node scripts/update-questions-sv.js
+ * Run: node scripts/update-questions-sv.js
  */
 const path = require('path');
 try {
@@ -15,13 +16,13 @@ const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
-// Service role key bypassar RLS – behövs för att uppdatera. Hitta under Supabase → Project Settings → API
+// Service role key bypasses RLS and is preferred for bulk updates.
 const key =
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!url || !key) {
   console.error(
-    'Saknar EXPO_PUBLIC_SUPABASE_URL och antingen SUPABASE_SERVICE_ROLE_KEY eller EXPO_PUBLIC_SUPABASE_ANON_KEY i .env'
+    "Missing EXPO_PUBLIC_SUPABASE_URL and either SUPABASE_SERVICE_ROLE_KEY or EXPO_PUBLIC_SUPABASE_ANON_KEY in .env"
   );
   process.exit(1);
 }
@@ -80,16 +81,16 @@ async function main() {
       .select('id');
 
     if (error) {
-      console.error(`Fel för ${row.question_text?.slice(0, 40)}...:`, error.message);
+      console.error(`Failed for ${row.question_text?.slice(0, 40)}...:`, error.message);
       errors++;
     } else if (data && data.length > 0) {
       updated++;
     } else {
-      console.warn(`Ingen match: ${row.question_text?.slice(0, 50)}...`);
+      console.warn(`No match: ${row.question_text?.slice(0, 50)}...`);
     }
   }
 
-  console.log(`Klart: ${updated} uppdaterade, ${errors} fel.`);
+  console.log(`Done: ${updated} updated, ${errors} errors.`);
 }
 
 main().catch(console.error);

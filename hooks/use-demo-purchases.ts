@@ -7,10 +7,11 @@
  */
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback, useEffect, useState } from "react";
-
-const DEMO_PRO_KEY = "demo_pro_purchased";
-const DEMO_UNLOCKED_CATEGORIES_KEY = "demo_unlocked_categories";
-const DEMO_UNLOCKED_PREMIUM_QUESTIONS_KEY = "demo_unlocked_premium_questions";
+import {
+  DEMO_PRO_KEY,
+  DEMO_UNLOCKED_CATEGORIES_KEY,
+  DEMO_UNLOCKED_PREMIUM_QUESTIONS_KEY,
+} from "@/constants/demo-purchases";
 
 export function useDemoPurchases() {
   const [isPro, setIsPro] = useState(false);

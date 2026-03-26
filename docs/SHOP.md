@@ -1,111 +1,81 @@
-# Shop – Documentation
+# Shop Documentation
 
 ## Overview
 
-The shop feature in the Truth Or Dare app lets users purchase premium categories and a Pro bundle. Since this is a school project, a **demo solution** is used – purchases are stored locally without real payments (no Apple/Google purchases or RevenueCat).
+The shop is implemented with RevenueCat (`react-native-purchases`). Users can buy:
 
-In multiplayer, purchases are still stored locally (demo), but the **host** synchronizes newly unlocked questions back into the room so all players continue.
+- Pro entitlement (global unlock)
+- Premium categories
+- Premium question packs for free starter categories
+
+The shop also supports the Out-of-Questions flow, where users jump directly to the relevant premium-question purchase.
 
 ---
 
-## What Has Been Implemented
+## Core Implementation
 
-### 1. Demo Purchases (use-demo-purchases)
+### 1) Purchase hook (`use-revenuecat-purchases`)
 
-- **File:** `hooks/use-demo-purchases.ts`
-- **Purpose:** Simulates purchases without real payments.
-- **Storage:** AsyncStorage – purchases persist across app restarts.
-- **Supports:**
-  - **Pro ($29.99):** Unlocks all premium categories.
-  - **Individual categories ($4.99):** Unlocks a specific category.
-- **Functions:**
-  - `isPro` – whether Pro has been purchased
-  - `isCategoryUnlocked(categoryId)` – whether a category is unlocked (Pro or individual purchase)
-  - `unlockPremium()` – purchases Pro
-  - `unlockCategory(id)` – purchases a category
-  - `resetPurchases()` – resets all purchases (for development/testing)
+- **File:** `hooks/use-revenuecat-purchases.ts`
+- **Responsibilities:**
+  - initialize RevenueCat (through `lib/revenuecat.ts`)
+  - fetch customer info and offerings
+  - expose entitlement checks (`isPro`, `isCategoryUnlocked`, `isPremiumQuestionsUnlocked`)
+  - perform purchases by package id
+  - expose `refreshProStatus()` and `resetPurchases()` for testing
 
-### 2. Shop Screen
+### 2) Shop screen
 
 - **File:** `app/shop.tsx`
-- **Content:**
-  - **Pro card:** Truth Or Dare Pro – "Unlock all premium categories. Best value!" with price $29.99 and "Buy Premium".
-  - **Premium categories:** List of each premium category ($4.99) with a "Buy" button.
-  - **Reset Purchases (dev):** Button at the bottom to reset purchases during development.
-- **Design:** Same theme as the rest of the app (purple galaxy background, cards with light borders).
-- **UI details:**
-  - Category name with `flex: 1` so price and button fit.
-  - Price $4.99 with `marginLeft: SPACING.x6` for clear separation from the name.
-  - "Owned" badge with checkmark for already purchased categories/Pro.
+- **Sections:**
+  - Pro card
+  - Premium categories
+  - Premium question packs (for free categories)
+- Uses `useShopCategories()` and `useRevenueCatPurchases()`.
+- Shows success/failure feedback modals after purchase attempts.
 
-### 2b. Opened from “Out of Questions”
-
-When opened via the “Buy more” button (local or multiplayer-host):
-
-- **Params**: `fromOutOfQuestions=true` + `categoryId=<id>` (and `roomId=<uuid>` for multiplayer)
-- The shop scrolls to the **Extra Questions** section and highlights the category’s buy button.
-- After purchase:
-  - **Local**: the game refreshes its in-memory pools on focus.
-  - **Multiplayer**: the **host** appends questions to the room pools via `addQuestionsToRoomPools` (see `services/game-room.ts`) so everyone resumes through realtime updates.
-
-### 3. Shop Categories (use-shop-categories)
+### 3) Shop category source
 
 - **File:** `hooks/use-shop-categories.ts`
-- **Purpose:** Fetches premium categories without duplicate API calls.
-- **Implementation:** Uses `useCategories()` and filters on `is_premium === true`.
+- Builds two lists:
+  - premium categories
+  - free categories with purchasable premium question packs
 
-### 4. Constants
+### 4) RevenueCat identifiers
 
-- **File:** `constants/shop.ts`
-  - `CATEGORY_PRICE = "$4.99"`
-  - `PREMIUM_PRICE = "$29.99"`
+- **File:** `constants/revenuecat.ts`
+- Defines package/entitlement id conventions:
+  - `pro`
+  - `category_<category_id>`
+  - `premium_questions_<category_id>`
 
-### 5. Integration with Categories Screen
+### 5) Integration with categories/game
 
-- **File:** `app/categories.tsx`
-- **Flow:**
-  - `useFocusEffect` calls `refreshProStatus()` when the screen is focused (e.g. after leaving the shop).
-  - Locked categories show a panel with: "This category is locked for now. Visit the shop to unlock it."
-  - "Go to Shop" button navigates to `/shop`.
-- **Lock logic:** `isLocked = category.is_premium && !isCategoryUnlocked(category.id)`.
-
-### 6. Routing
-
-- **File:** `app/_layout.tsx`
-- Shop registered as `shop` with `headerShown: false` (custom header in shop.tsx).
+- **Categories screen:** `app/categories.tsx` calls `refreshProStatus()` on focus.
+- **Game screen:** `app/game.tsx` uses premium access checks to decide Out-of-Questions actions.
+- **Access service:** `services/premium-questions-access.ts` checks demo keys first, then RevenueCat entitlements.
 
 ---
 
-## File Overview
+## Out-of-Questions Shop Flow
 
-| File | Role |
-|------|------|
-| `app/shop.tsx` | Shop screen with Pro and premium categories |
-| `hooks/use-demo-purchases.ts` | Demo purchases with AsyncStorage |
-| `hooks/use-shop-categories.ts` | Premium categories for the shop |
-| `constants/shop.ts` | Prices ($4.99, $29.99) |
-| `app/categories.tsx` | Locked categories + "Go to Shop" |
+When opened from Out-of-Questions:
 
----
+- Route params:
+  - `fromOutOfQuestions=true`
+  - `categoryId=<id>`
+  - optional `roomId=<uuid>` for multiplayer
+- Shop scrolls to the premium-questions section.
+- The matching category button can blink to highlight the relevant package.
 
-## Flow
+After a successful purchase:
 
-1. User selects a locked premium category on the categories screen.
-2. Panel is shown: "This category is locked for now. Visit the shop to unlock it."
-3. User taps "Go to Shop" → navigates to shop.
-4. User purchases Pro or an individual category (demo – no real payment).
-5. Purchase is saved to AsyncStorage.
-6. User goes back to the categories screen.
-7. `useFocusEffect` triggers `refreshProStatus()` → purchase status is updated.
-8. Category appears as unlocked and the game can be started.
+- **Local:** game session can append premium questions and continue.
+- **Multiplayer:** host appends questions to room pools so all clients continue via realtime sync.
 
 ---
 
-## Future Extensions (Real Purchases)
+## Notes
 
-To switch to real purchases (e.g. RevenueCat or StoreKit):
-
-1. Replace `useDemoPurchases` with a hook that talks to the payment API.
-2. Keep the same interface: `isCategoryUnlocked`, `unlockCategory`, `unlockPremium`.
-3. Update `constants/shop.ts` if needed.
-4. Remove or hide "Reset Purchases (dev)" in production.
+- `hooks/use-demo-purchases.ts` still exists for legacy/testing scenarios.
+- Production shop/category flows use RevenueCat hook APIs.

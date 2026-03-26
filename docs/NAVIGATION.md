@@ -6,14 +6,15 @@
 |-------|------|--------------|
 | `/` | `app/index.tsx` | Splash screen |
 | `/how-to-play` | `app/how-to-play.tsx` | Game rules |
-| `/add-players` | `app/add-players.tsx` | Add players and avatars |
-| `/categories` | `app/categories.tsx` | Choose category |
-| `/shop` | `app/shop.tsx` | Demo purchases |
-| `/game` | `app/game.tsx` | Main game |
 | `/game-mode-select` | `app/game-mode-select.tsx` | Choose Local / Join / Create |
+| `/add-players` | `app/add-players.tsx` | Add players and avatars |
 | `/create-game` | `app/create-game.tsx` | Multiplayer: host creates a room |
-| `/join-game` | `app/join-game.tsx` | Multiplayer: join a room by code |
-| `/game-lobby` | `app/game-lobby.tsx` | Multiplayer: lobby before starting |
+| `/join-game` | `app/join-game.tsx` | Multiplayer: join by room code |
+| `/join/[code]` | `app/join/[code].tsx` | Deep-link join route (invite links) |
+| `/game-lobby` | `app/game-lobby.tsx` | Multiplayer lobby |
+| `/categories` | `app/categories.tsx` | Choose category |
+| `/shop` | `app/shop.tsx` | RevenueCat purchases |
+| `/game` | `app/game.tsx` | Main game |
 
 ---
 
@@ -26,25 +27,21 @@ index (splash)
 how-to-play
     │ tap anywhere
     ▼
-add-players
-    │ "Select category" (or "Back to game" in add-more mode)
-    ▼
-categories ◄──────────────────┐
-    │                         │ "Back" from header
-    │ "Start Game"            │
-    ▼                         │
-game ◄────────────────────────┤ "Play Again" (Game Over)
-    │                         │ "Back to categories"
-    ├─ "Add more players" ───► add-players?addMore=true&localGame=1 (local)
-    │       │                         │ "Back to game"
-    │       └────────────────────────┘
+game-mode-select
+    ├─ Local ───────────────► add-players ─► categories ─► game
+    │                                          │               │
+    │                                          │               ├─ "Add more players" (local)
+    │                                          │               │    └─► add-players?addMore=true&localGame=1
+    │                                          │               └─ Pools exhausted ─► Game Over
+    │                                          │                                   ├─ Play Again (local only)
+    │                                          │                                   ├─ New Game (local only)
+    │                                          │                                   └─ Exit
     │
-    ├─ Pools exhausted ──► Game Over screen
-    │       ├─ "Play Again" ──► stay on game (new shuffle)
-    │       ├─ "New Game" ──► add-players?newGame=true
-    │       └─ "Exit" ──► index
+    ├─ Join ────────────────► join-game ─► game-lobby ─► game
     │
-    └─ "Exit Game" ──► ExitConfirmModal ──► Yes ──► index
+    ├─ Deep link ───────────► join/[code] ─► join-game (prefilled code)
+    │
+    └─ Create ──────────────► create-game ─► game-lobby ─► categories (host) ─► game
 ```
 
 ---
@@ -58,8 +55,9 @@ game ◄────────────────────────
 ### Usage
 
 - Splash → How-to-play: `replace` (no return)
-- Add-players → Categories: `replace`
-- Categories → Game: `replace`
+- How-to-play → Game mode select: `replace`
+- Local add-players → Categories: `replace`
+- Categories → Game: `replace` (local and multiplayer)
 - Game → Add-players (add more): `push` (so user can go back)
 - Add-players (add more) → Game: `replace`
 - Categories → Shop: `push` (back returns to categories)
@@ -80,6 +78,7 @@ game ◄────────────────────────
 | `/game` | `roomId=<uuid>` | Multiplayer: game screen uses room state |
 | `/game-lobby` | `roomId=<uuid>` | Multiplayer: subscribe to room + players |
 | `/game-lobby` | `isHost=true\|false` | Multiplayer: lobby host controls start |
+| `/join-game` | `code=<ABC123>` | Prefill room code (used by deep-link redirect) |
 | `/shop` | `fromOutOfQuestions=true` | Opened from “Buy more” flow |
 | `/shop` | `categoryId=<id>` | Highlight the category’s extra questions package |
 | `/shop` | `roomId=<uuid>` | Multiplayer: return to the same room after purchase |

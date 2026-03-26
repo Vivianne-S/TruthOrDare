@@ -2,7 +2,11 @@
 
 ## Overview
 
-The Exit Menu Modal appears when the user taps the door icon on the game screen. It offers options to end the round: go back to categories, add more players, or exit the app.
+The Exit Menu Modal appears when the user taps the door icon on the game screen.
+
+- **Local game:** Back to categories, Add more players, Exit game, Cancel
+- **Multiplayer host:** Exit game, Cancel
+- **Multiplayer guest:** no door button (cannot open this menu)
 
 **Component:** `components/ui/ExitMenuModal.tsx`
 
@@ -14,7 +18,7 @@ The Exit Menu Modal appears when the user taps the door icon on the game screen.
 
 - **Title:** "End the round?"
 - **Subtitle:** "Choose what you'd like to do."
-- **Buttons:** Back to categories, Add more players, Exit Game
+- **Buttons:** mode-dependent (see summary table)
 - **Cancel:** Text link at bottom
 
 ---
@@ -69,9 +73,8 @@ The Exit Menu Modal appears when the user taps the door icon on the game screen.
 
 ## Summary Table
 
-| Button | Result |
-|--------|--------|
-| Back to categories | → Category selection (game ends) |
-| Add more players | → Add-players (add more) → back to game |
-| Exit Game | → Confirm modal → home (if Yes) |
-| Cancel | → Close modal, stay on game |
+| Mode | Visible actions |
+|------|-----------------|
+| Local | Back to categories, Add more players, Exit Game, Cancel |
+| Multiplayer host | Exit Game, Cancel |
+| Multiplayer guest | No exit menu (door icon hidden) |

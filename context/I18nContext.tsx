@@ -22,18 +22,24 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('en');
 
   useEffect(() => {
-    AsyncStorage.getItem(LOCALE_STORAGE_KEY).then((saved) => {
-      if (saved === 'en' || saved === 'sv') {
-        setI18nLocale(saved);
-        setLocaleState(saved);
-      }
-    });
+    void AsyncStorage.getItem(LOCALE_STORAGE_KEY)
+      .then((saved) => {
+        if (saved === 'en' || saved === 'sv') {
+          setI18nLocale(saved);
+          setLocaleState(saved);
+        }
+      })
+      .catch(() => {
+        // Keep default locale when persisted storage cannot be read.
+      });
   }, []);
 
   const setLocale = useCallback((newLocale: Locale) => {
     setI18nLocale(newLocale);
     setLocaleState(newLocale);
-    AsyncStorage.setItem(LOCALE_STORAGE_KEY, newLocale);
+    void AsyncStorage.setItem(LOCALE_STORAGE_KEY, newLocale).catch(() => {
+      // Keep in-memory locale even if persisting fails.
+    });
   }, []);
 
   const t = useCallback(

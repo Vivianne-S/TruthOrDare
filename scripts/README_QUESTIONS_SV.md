@@ -1,52 +1,54 @@
-# Importera svenska översättningar till Supabase
+# Import Swedish Translations to Supabase
 
-Filen `questions_sv_import.csv` innehåller alla frågor med svenska översättningar i kolumnen `question_text_sv`.
+`questions_sv_import.csv` contains all translated Swedish question texts in `question_text_sv`.
 
-## Så importerar du till Supabase
+## Import options
 
-### Alternativ 1: Supabase SQL Editor (rekommenderat)
+### Option 1: Supabase SQL Editor (recommended)
 
-1. Öppna Supabase Dashboard → SQL Editor
-2. Kör följande SQL för att skapa en temporär tabell och uppdatera:
+1. Open Supabase Dashboard -> SQL Editor.
+2. Run SQL that stages CSV data and updates `questions.question_text_sv`.
 
 ```sql
--- Skapa temporär tabell från CSV-data (klistra in raderna från CSV)
--- Eller använd Supabase "Import CSV" om tillgängligt för att ladda upp till en temp-tabell
-
--- Uppdatera question_text_sv baserat på matchning
+-- Create or load a temporary table from CSV rows.
+-- Then update question_text_sv by matching category/type/question_text.
 UPDATE questions q
 SET question_text_sv = t.question_text_sv
 FROM (
-  -- Klistra in CSV-data här som VALUES
+  -- Paste CSV rows here as VALUES
   -- Format: (category_id, type, question_text, question_text_sv)
 ) AS t(category_id, type, question_text, question_text_sv)
-WHERE q.category_id = t.category_id 
-  AND q.type = t.type 
+WHERE q.category_id = t.category_id
+  AND q.type = t.type
   AND q.question_text = t.question_text;
 ```
 
-### Alternativ 2: Manuell uppdatering i Table Editor
+### Option 2: Manual update in Table Editor
 
-1. Öppna Supabase → Table Editor → questions
-2. För varje rad: klistra in svenska översättningen i kolumnen `question_text_sv`
-3. Använd CSV-filen som referens (sök på question_text för att hitta rätt rad)
+1. Open Supabase -> Table Editor -> `questions`.
+2. Paste Swedish text into `question_text_sv` row-by-row.
+3. Use CSV `question_text` values to find matching rows.
 
-### Alternativ 3: Node.js-script (för bulk-uppdatering)
+### Option 3: Node.js bulk script
 
-Kör scriptet som läser CSV och uppdaterar via Supabase API:
+Run the included script:
 
 ```bash
 cd scripts
 node update-questions-sv.js
 ```
 
-(Scriptet kräver att du har `EXPO_PUBLIC_SUPABASE_URL` och `EXPO_PUBLIC_SUPABASE_ANON_KEY` i .env)
+Required env vars in `.env`:
 
-## CSV-format
+- `EXPO_PUBLIC_SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY` (recommended for bulk updates), or
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY` (fallback if your policies allow updates)
 
-| Kolumn | Beskrivning |
+## CSV format
+
+| Column | Description |
 |--------|-------------|
-| category_id | UUID för kategorin |
-| type | "truth" eller "dare" |
-| question_text | Engelska frågetexten (för matchning) |
-| question_text_sv | Svenska översättningen |
+| category_id | Category UUID |
+| type | `truth` or `dare` |
+| question_text | English source text (matching key) |
+| question_text_sv | Swedish translation |

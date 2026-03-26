@@ -6,7 +6,8 @@
     "start": "expo start",
     "start:dev": "expo start --dev-client",
     "start:localhost": "expo start --localhost",
-    "update-questions-table": "node ./scripts/update-questions-table.js",
+    "update-questions-table": "node ./scripts/update-questions-sv.js",
+    "update-questions-sv": "node ./scripts/update-questions-sv.js",
     "build:ios:local": "npx expo run:ios",
 
     "build:dev:ios:sim": "eas build --profile development-simulator --platform ios",

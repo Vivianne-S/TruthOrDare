@@ -1,29 +1,74 @@
-# Supabase migrations
+# Supabase Migrations
 
-## Kör migration
+## How to run
 
-1. Öppna [Supabase Dashboard](https://supabase.com/dashboard) och välj ditt projekt
-2. Gå till **SQL Editor**
-3. Öppna `001_create_multiplayer_tables.sql` och kopiera innehållet
-4. Klicka **Run**
+1. Open [Supabase Dashboard](https://supabase.com/dashboard) and choose your project.
+2. Go to **SQL Editor**.
+3. Open each migration file in order and run it.
 
-## Krav
+## Requirement
 
-- **Anonymous Auth** måste vara aktiverat: Authentication → Providers → Anonymous Sign-In → Enable
+- **Anonymous Auth** must be enabled: Authentication -> Providers -> Anonymous Sign-In -> Enable
 
-## Tabeller
+## Migration order
 
-- **game_rooms** – rum, kod, status, kategori, frågepools
-- **game_room_players** – spelare per rum (namn, avatar)
+### 001_create_multiplayer_tables.sql
 
-## Migration 003 (multiplayer game sync)
+Creates:
 
-Kör `003_add_current_question_to_game_rooms.sql` för att lägga till `current_question` och `current_choice` i game_rooms. Krävs för att alla spelare ska se samma fråga och endast den vars tur det är ska kunna välja.
+- `game_rooms`
+- `game_room_players`
+- indexes, RLS policies, and realtime publication entries
 
-## Migration 004 (premium questions)
+### 003_add_current_question_to_game_rooms.sql
 
-Kör `004_add_is_premium_to_questions.sql` för att lägga till `is_premium` i questions. Används för att markera vilka frågor i gratis kategorier (Chaos, Funny, Love & Relationships) som kan köpas till som paket (10 truths + 10 dares per kategori).
+Adds:
 
-## Realtime
+- `current_question` (`jsonb`)
+- `current_choice` (`text`)
 
-Om du får fel "relation already in publication" när du kör Realtime-raderna, är tabellerna redan aktiverade. Du kan hoppa över dessa rader.
+Used for synchronized active-card state in multiplayer.
+
+### 004_add_is_premium_to_questions.sql
+
+Adds:
+
+- `questions.is_premium` (`boolean`)
+
+Used to separate free vs purchasable premium question rows in starter categories.
+
+### 005_add_acknowledged_partial_deck.sql
+
+Adds:
+
+- `game_rooms.acknowledged_partial_deck` (`boolean`)
+
+Used when host continues play after one pool empties.
+
+### 006_add_deck_oops_pending.sql
+
+Adds:
+
+- `game_rooms.deck_oops_pending` (`boolean`)
+
+Used to signal that host should open the Out-of-Questions modal.
+
+### 007_add_host_in_exit_menu.sql
+
+Adds:
+
+- `game_rooms.host_in_exit_menu` (`boolean`)
+
+Used to show guests a "host is in menu" overlay.
+
+### 008_add_host_exit_restart.sql
+
+Adds:
+
+- `game_rooms.host_exit_restart` (`boolean`)
+
+Used so guests can reload cleanly when host exits the game.
+
+## Realtime note
+
+If you get `relation already in publication`, those realtime entries are already configured and can be skipped.

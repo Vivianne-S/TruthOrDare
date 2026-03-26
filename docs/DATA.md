@@ -31,6 +31,7 @@
 | type | string | "truth" or "dare" |
 | question_text | string | Question content |
 | question_text_sv | string \| null | Swedish version (optional) |
+| is_premium | boolean | Marks question rows unlocked by premium-question packs |
 | created_at | timestamp | Ordering |
 
 ---
@@ -125,6 +126,7 @@ type Category = {
 type Question = {
   type: string;       // "truth" | "dare"
   question_text: string;
+  question_text_sv?: string | null;
 };
 ```
 
@@ -151,12 +153,12 @@ type GameAwards = {
 
 ## Local Storage (AsyncStorage)
 
-**Demo purchases only** (`hooks/use-demo-purchases.ts`):
+Current usage:
 
-- Pro purchase status
-- Unlocked category IDs
+- Locale persistence (`context/I18nContext.tsx`)
+- Legacy/demo purchase state (`hooks/use-demo-purchases.ts`)
 
-Keys are internal to the hook; no direct schema documented here.
+Live purchase entitlements come from RevenueCat customer info in `hooks/use-revenuecat-purchases.ts`.
 
 ---
 

@@ -21,7 +21,9 @@ export async function initializeRevenueCat() {
     return;
   }
 
-  Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
+  Purchases.setLogLevel(
+    __DEV__ ? Purchases.LOG_LEVEL.DEBUG : Purchases.LOG_LEVEL.WARN
+  );
   await Purchases.configure({ apiKey });
   initialized = true;
 }
